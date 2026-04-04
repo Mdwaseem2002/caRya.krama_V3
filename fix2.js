@@ -1,0 +1,35 @@
+const fs = require('fs');
+const path = require('path');
+function walk(dir) {
+    let results = [];
+    try {
+        const list = fs.readdirSync(dir);
+        list.forEach(file => {
+            file = path.join(dir, file);
+            const stat = fs.statSync(file);
+            if (stat && stat.isDirectory()) {
+                results = results.concat(walk(file));
+            } else {
+                if (file.endsWith('.tsx') || file.endsWith('.ts') || file.endsWith('.css')) results.push(file);
+            }
+        });
+    } catch (e) {
+        console.error("Error reading dir", dir, e);
+    }
+    return results;
+}
+const srcDir = 'c:\\Users\\zuhaib\\OneDrive\\Desktop\\caRyakrama 12\\src';
+const files = walk(srcDir);
+console.log('Found ' + files.length + ' files');
+let changed = 0;
+files.forEach(file => {
+    let content = fs.readFileSync(file, 'utf8');
+    let newContent = content.replace(/#fe2c55/gi, '#0059A3');
+    newContent = newContent.replace(/dark:[a-zA-Z0-9_\/\-\[\]#]+/g, '');
+    if (content !== newContent) {
+        fs.writeFileSync(file, newContent, 'utf8');
+        changed++;
+        console.log('Updated ' + file);
+    }
+});
+console.log('Changed ' + changed + ' files');
