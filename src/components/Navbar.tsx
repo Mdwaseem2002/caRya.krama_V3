@@ -133,7 +133,7 @@ export default function Navbar() {
                   else setIsProfileOpen(!isProfileOpen);
                 }}
                 className={`hidden sm:flex ${iconBtn}`}
-                title="Account"
+                title="Profile"
               >
                 {user ? (
                   <div className="w-7 h-7 rounded-full bg-royal flex items-center justify-center text-[11px] font-bold text-white">
