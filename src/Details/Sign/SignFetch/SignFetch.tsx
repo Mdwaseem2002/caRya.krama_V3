@@ -81,13 +81,16 @@ export const saveUser = (userData: Omit<User, 'id' | 'joinDate' | 'stats' | 'sta
 
 /**
  * Fetches a user by email and role for login validation.
+ * Case-insensitive email check to match AuthContext's normalization.
  * @param email The user's email address.
  * @param role The user's role (admin or customer).
  * @returns The User object if found, otherwise undefined.
  */
 export const getUserByEmail = (email: string, role: 'admin' | 'customer'): User | undefined => {
   const users = getAllUsers();
-  return users.find(u => u.email === email && u.role === role);
+  return users.find(
+    u => u.email.trim().toLowerCase() === email.trim().toLowerCase() && u.role === role
+  );
 };
 
 /**
