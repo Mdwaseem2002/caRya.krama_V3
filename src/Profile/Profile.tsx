@@ -11,7 +11,7 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const mobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<"personal" | "wishlist" | "inquiries" | "settings">("personal");
+  const [activeTab, setActiveTab] = useState<"personal" | "settings">("personal");
 
   if (!user) {
     return (
@@ -28,8 +28,6 @@ export default function Profile() {
 
   const tabs = [
     { id: "personal" as const, label: "Personal Info", icon: User },
-    { id: "wishlist" as const, label: "My Wishlist", icon: Heart },
-    { id: "inquiries" as const, label: "My Inquiries", icon: MessageSquare },
     { id: "settings" as const, label: "Settings", icon: Settings },
   ];
 
@@ -181,44 +179,9 @@ export default function Profile() {
                   </div>
                 )}
 
-                {/* ── WISHLIST ── */}
-                {activeTab === "wishlist" && (
-                  <div>
-                    <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>My Wishlist</h2>
-                    <div style={{ padding: mobile ? '24px 16px' : '40px', textAlign: 'center', backgroundColor: '#F9FAFB', borderRadius: '16px', border: '1px dashed #d1d5db' }}>
-                      <Heart style={{ margin: '0 auto', width: mobile ? '36px' : '48px', height: mobile ? '36px' : '48px', color: '#d1d5db', marginBottom: '12px' }} />
-                      <h3 style={{ fontSize: mobile ? '16px' : '18px', fontWeight: 700, color: '#374151', marginBottom: '4px' }}>
-                        {(user.stats?.savedCars || 0) > 0 ? "Your wishlist looks good!" : "No saved cars yet"}
-                      </h3>
-                      <p style={{ fontSize: mobile ? '12px' : '14px', color: '#9ca3af', marginBottom: '16px' }}>
-                        {(user.stats?.savedCars || 0) > 0 ? `You have ${user.stats.savedCars} saved cars.` : "Start browsing and save cars you love."}
-                      </p>
-                      <button onClick={() => router.push('/wishlist')} style={{ padding: '10px 24px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '14px' }}>
-                        {(user.stats?.savedCars || 0) > 0 ? "View Wishlist" : "Browse Cars"}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* ── WISHLIST TAB REMOVED ── */}
 
-                {/* ── INQUIRIES ── */}
-                {activeTab === "inquiries" && (
-                  <div>
-                    <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>My Inquiries</h2>
-                    {(user.stats?.inquiries || 0) > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: mobile ? 'column' : 'row', gap: mobile ? '8px' : '0', padding: mobile ? '14px' : '20px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                          <div>
-                            <h4 style={{ fontSize: mobile ? '14px' : '16px', fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>2019 Hyundai Creta SX</h4>
-                            <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>Inquired on Mar 20, 2026</p>
-                          </div>
-                          <span style={{ padding: '4px 14px', backgroundColor: '#FEF3C7', color: '#B45309', fontWeight: 800, fontSize: '11px', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <p style={{ color: '#6b7280' }}>You have no active inquiries.</p>
-                    )}
-                  </div>
-                )}
+                {/* ── INQUIRIES TAB REMOVED ── */}
 
                 {/* ── SETTINGS ── */}
                 {activeTab === "settings" && (

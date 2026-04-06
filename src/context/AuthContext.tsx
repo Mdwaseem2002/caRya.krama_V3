@@ -23,6 +23,7 @@ export interface User {
   role: 'admin' | 'customer';
   status: 'active' | 'inactive';
   lastActivity?: string;
+  wishlist?: any[];
 }
 
 interface AuthContextType {
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           status: 'active',
           stats: { savedCars: 0, inquiries: 0, testDrives: 0 },
           role: 'admin',
+          wishlist: []
         };
         
         setUser(adminUser);

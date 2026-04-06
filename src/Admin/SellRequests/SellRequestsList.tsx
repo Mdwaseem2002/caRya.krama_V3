@@ -19,9 +19,14 @@ import { saveCarToStorage } from "../Upload/CarStorage";
 export default function SellRequestsList() {
   const [requests, setRequests] = useState<SellRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<SellRequest | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getAllSellRequests().then(setRequests).catch(console.error);
+    setIsLoading(true);
+    getAllSellRequests()
+      .then(setRequests)
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
   }, []);
 
 
@@ -129,7 +134,22 @@ export default function SellRequestsList() {
           </div>
 
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {requests.length === 0 ? (
+            {isLoading ? (
+              <>
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="w-full p-5 rounded-[2rem] border group flex items-center justify-between bg-white border-gray-200 animate-pulse">
+                    <div className="flex items-center gap-4 w-full">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-200 shrink-0" />
+                      <div className="space-y-3 w-full max-w-[200px]">
+                        <div className="h-3 bg-gray-200 rounded w-3/4" />
+                        <div className="h-2 bg-gray-200 rounded w-1/2" />
+                      </div>
+                    </div>
+                    <div className="w-16 h-5 rounded-full bg-gray-200 shrink-0" />
+                  </div>
+                ))}
+              </>
+            ) : requests.length === 0 ? (
               <div className="p-12 text-center border-2 border-dashed border-gray-200 rounded-[2rem] bg-gray-50">
                 <Clock className="w-10 h-10 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-400 text-xs font-black uppercase tracking-widest leading-relaxed">No pending requests <br/>at the moment.</p>

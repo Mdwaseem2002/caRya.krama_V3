@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 // Define the car object matching the ones in Card.tsx
 export type CarType = {
@@ -29,36 +30,53 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<CarType[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { user, updateProfile } = useAuth();
 
-  // Load from LocalStorage on mount
+  // Sync on mount or when user changes
   useEffect(() => {
-    const saved = localStorage.getItem("caryakrama_wishlist");
-    if (saved) {
-      try {
-        setWishlist(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse wishlist from local storage");
+    if (user?.wishlist) {
+      setWishlist(user.wishlist);
+      setIsLoaded(true);
+    } else if (!user) {
+      const saved = localStorage.getItem("caryakrama_wishlist");
+      if (saved) {
+        try {
+          setWishlist(JSON.parse(saved));
+        } catch (e) {
+          console.error("Failed to parse wishlist from local storage");
+        }
       }
+      setIsLoaded(true);
     }
-    setIsLoaded(true);
-  }, []);
+  }, [user]);
 
-  // Save to LocalStorage whenever it changes
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("caryakrama_wishlist", JSON.stringify(wishlist));
+  // Sync to database if logged in, else local storage
+  const syncWishlist = async (updatedWishlist: CarType[]) => {
+    setWishlist(updatedWishlist);
+    
+    if (user && user.id) {
+      try {
+        await fetch(`/api/users/${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wishlist: updatedWishlist })
+        });
+        updateProfile({ wishlist: updatedWishlist });
+      } catch (err) {
+        console.error("Failed to sync wishlist to database", err);
+      }
+    } else {
+      localStorage.setItem("caryakrama_wishlist", JSON.stringify(updatedWishlist));
     }
-  }, [wishlist, isLoaded]);
+  };
 
   const toggleWishlist = (car: CarType) => {
-    setWishlist((prev) => {
-      const exists = prev.some((item) => item.id === car.id);
-      if (exists) {
-        return prev.filter((item) => item.id !== car.id);
-      } else {
-        return [...prev, car];
-      }
-    });
+    const exists = wishlist.some((item) => item.id === car.id);
+    const updated = exists 
+      ? wishlist.filter((item) => item.id !== car.id) 
+      : [...wishlist, car];
+      
+    syncWishlist(updated);
   };
 
   const isInWishlist = (id: number) => wishlist.some((item) => item.id === id);

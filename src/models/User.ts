@@ -26,6 +26,7 @@ export interface IUser extends Document {
   lastActive: string;
   reportsPurchased: IUserReport[];
   totalSpend: number;
+  wishlist: any[];         // Added for wishlist persistence
 }
 
 // ── Schema Definition ─────────────────────────────────────────────────────────
@@ -73,6 +74,7 @@ const UserSchema = new Schema<IUser>(
     lastActive: { type: String, default: () => new Date().toISOString() },
     reportsPurchased: { type: [UserReportSchema], default: [] },
     totalSpend: { type: Number, default: 0, min: 0 },
+    wishlist: { type: mongoose.Schema.Types.Mixed, default: [] },
   },
   {
     timestamps: true,

@@ -30,10 +30,15 @@ export default function AdminProfile() {
   const [showUpload, setShowUpload] = useState(false);
   const [editingCar, setEditingCar] = useState<StoredCar | undefined>(undefined);
   const [cars, setCars] = useState<StoredCar[]>([]);
+  const [isCarsLoading, setIsCarsLoading] = useState(true);
 
   React.useEffect(() => {
     if (activeTab === 'cars' && !showUpload) {
-      getAllStoredCars().then(setCars).catch(console.error);
+      setIsCarsLoading(true);
+      getAllStoredCars()
+        .then(setCars)
+        .catch(console.error)
+        .finally(() => setIsCarsLoading(false));
     }
   }, [activeTab, showUpload]);
 
@@ -231,7 +236,35 @@ export default function AdminProfile() {
                             </button>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {cars.length === 0 ? (
+                            {isCarsLoading ? (
+                              <>
+                                <style>{`
+                                  @keyframes shimmerskeleton {
+                                    0% { background-position: -200px 0; }
+                                    100% { background-position: calc(200px + 100%) 0; }
+                                  }
+                                  .skeleton-box {
+                                    background: #f3f4f6;
+                                    background-image: linear-gradient(90deg, #f3f4f6 0px, #e5e7eb 40px, #f3f4f6 80px);
+                                    background-size: 200px 100%;
+                                    animation: shimmerskeleton 1.5s infinite linear;
+                                  }
+                                `}</style>
+                                {[1, 2, 3].map((i) => (
+                                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', border: '1px solid #e5e7eb', borderRadius: '12px', backgroundColor: '#ffffff' }}>
+                                    <div className="skeleton-box" style={{ width: '80px', height: '60px', borderRadius: '8px' }} />
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                      <div className="skeleton-box" style={{ height: '16px', width: '40%', borderRadius: '4px' }} />
+                                      <div className="skeleton-box" style={{ height: '12px', width: '25%', borderRadius: '4px' }} />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                      <div className="skeleton-box" style={{ width: '34px', height: '34px', borderRadius: '8px' }} />
+                                      <div className="skeleton-box" style={{ width: '34px', height: '34px', borderRadius: '8px' }} />
+                                    </div>
+                                  </div>
+                                ))}
+                              </>
+                            ) : cars.length === 0 ? (
                               <div style={{ padding: '40px', textAlign: 'center', backgroundColor: '#F9FAFB', borderRadius: '12px', border: '1px dashed #d1d5db', color: '#6b7280' }}>
                                 No cars uploaded yet. Click "Upload" to add your first car.
                               </div>
