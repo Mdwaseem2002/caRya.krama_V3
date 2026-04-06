@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { 
   ChevronLeft, Download, ShieldCheck, CheckCircle2, 
@@ -92,6 +93,23 @@ const SampleReport = () => {
         </div>
 
         <div className="px-6 md:px-10 py-10 space-y-12">
+           
+           {/* 🔥 VEHICLE HERO IMAGE */}
+           <div className="relative w-full aspect-video rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-lg group">
+              <Image 
+                src="/Mercedes-AMG-G-63-Hero.jpg" // Sample image
+                alt="AMG G63"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 210mm) 100vw, 800px"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+              <div className="absolute bottom-6 left-8">
+                 <div className="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl text-white text-[10px] font-black uppercase tracking-widest">
+                    Asset Visual Context
+                 </div>
+              </div>
+           </div>
            
            {/* 🔥 VEHICLE INFO BLOCK */}
            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">

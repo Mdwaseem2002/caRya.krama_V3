@@ -2,44 +2,64 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, Star, ShieldCheck, Zap, MapPin, Gauge, Fuel } from "lucide-react";
 
 const cars = [
   {
     id: 1,
-    name: "BMW M5 Competition",
-    price: "₹1.55 Cr",
-    image: "/CarImages/BMW.jpg",
-    tag: "High Performance",
-    ownership: "1st Owner",
-    specs: { drive: "Automatic" }
+    name: "TOYOTA INNOVA CRYSTA ZX",
+    variant: "2.4 ZX AT",
+    year: "2020",
+    price: "₹18.90 Lakh",
+    image: "/CarImages/Toyota innova crysta.png",
+    tag: "FAMILY SUV",
+    mileage: "48,000 KMS",
+    ownership: "1ST OWNER",
+    energy: "DIESEL",
+    drive: "AUTOMATIC",
+    location: "Bangalore",
   },
   {
     id: 2,
-    name: "Bugatti Chiron Sport",
-    price: "₹28.50 Cr",
-    image: "/CarImages/Bugattii car.webp",
-    tag: "Ultimate Luxury",
-    ownership: "1st Owner",
-    specs: { drive: "Automatic" }
+    name: "TATA CURVV",
+    variant: "EV / AUTOMATIC",
+    year: "2024",
+    price: "₹22.50 Lakh",
+    image: "/CarImages/Tata SUV.png",
+    tag: "ELECTRIC SUV",
+    mileage: "12,000 KMS",
+    ownership: "1ST OWNER",
+    energy: "ELECTRIC ⚡",
+    drive: "AUTOMATIC",
+    location: "Bangalore",
   },
   {
     id: 3,
-    name: "Custom Sports Edition",
-    price: "₹3.20 Cr",
-    image: "/CarImages/Luxury car.jpg",
-    tag: "Limited Series",
-    ownership: "1st Owner",
-    specs: { drive: "Automatic" }
+    name: "AUDI Q3",
+    variant: "PREMIUM PLUS",
+    year: "2021",
+    price: "₹32.50 Lakh",
+    image: "/CarImages/Audi Q3.png",
+    tag: "LUXURY SUV",
+    mileage: "38,000 KMS",
+    ownership: "1ST OWNER",
+    energy: "PETROL",
+    drive: "AUTOMATIC",
+    location: "Bangalore",
   },
   {
     id: 4,
-    name: "Toyota Land Cruiser",
-    price: "₹2.10 Cr",
-    image: "/CarImages/Toyota.jpg",
-    tag: "Master of Terrain",
-    ownership: "1st Owner",
-    specs: { drive: "Automatic" }
+    name: "MARUTI SUZUKI ERTIGA",
+    variant: "VXI",
+    year: "2020",
+    price: "₹9.80 Lakh",
+    image: "/CarImages/Suzuki.png",
+    tag: "FAMILY CAR 👨‍👩‍👧‍👦",
+    mileage: "55,000 KMS",
+    ownership: "1ST OWNER",
+    energy: "PETROL",
+    drive: "MANUAL",
+    location: "Bangalore",
   },
 ];
 
@@ -112,9 +132,14 @@ export default function ShowCar() {
               <div className="px-2 sm:px-4 pb-4 sm:pb-6">
                 <div className="flex justify-between items-start mb-6 gap-4">
                   <div className="min-w-0">
-                    <h3 className="text-base sm:text-lg font-black text-navy group-hover:text-royal transition-colors duration-300 leading-tight truncate">
+                    <h3 className="text-base sm:text-lg font-black text-navy group-hover:text-royal transition-colors duration-300 leading-tight">
                       {car.name}
                     </h3>
+                    <div className="flex items-center gap-2 mt-1.5 min-w-0">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{car.variant}</span>
+                      <div className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+                      <span className="text-[10px] font-black text-royal bg-blue-50 px-2 py-0.5 rounded-md shrink-0">{car.year}</span>
+                    </div>
                   </div>
                   <motion.div 
                     whileHover={{ rotate: 15 }}
@@ -125,28 +150,33 @@ export default function ShowCar() {
                 </div>
 
                 {/* PREMIUM SPECS GRID */}
-                <div className="grid grid-cols-2 gap-3 mb-8">
+                <div className="grid grid-cols-2 gap-3 mb-6">
                   {[
-                    { icon: ShieldCheck, label: "OWNER", value: car.ownership?.toUpperCase() || "1ST OWNER" },
-                    { icon: Zap, label: "DRIVE", value: car.specs?.drive?.toUpperCase() || "AUTO" },
+                    { icon: Gauge, label: "MILEAGE", value: car.mileage },
+                    { icon: ShieldCheck, label: "OWNER", value: car.ownership },
+                    { icon: Fuel, label: "ENERGY", value: car.energy },
+                    { icon: Zap, label: "DRIVE", value: car.drive },
                   ].map((spec, i) => (
-                    <div key={i} className="bg-slate-50/50 border border-slate-200/50 rounded-2xl p-4 flex flex-col gap-1.5 transition-all group-hover:bg-white group-hover:border-blue-100 group-hover:shadow-sm">
+                    <div key={i} className="bg-slate-50/50 border border-slate-200/50 rounded-2xl p-3 sm:p-4 flex flex-col gap-1.5 transition-all group-hover:bg-white group-hover:border-blue-100 group-hover:shadow-sm">
                       <div className="flex items-center gap-1.5">
                         <spec.icon size={11} className="text-royal/60" />
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.15em]">{spec.label}</span>
                       </div>
-                      <span className="text-[11px] font-black text-navy uppercase tracking-tight">{spec.value}</span>
+                      <span className="text-[11px] font-black text-navy uppercase tracking-tight truncate">{spec.value}</span>
                     </div>
                   ))}
                 </div>
-                
-                <div className="flex items-center justify-between border-t border-gray-100 pt-6">
-                  <div className="flex flex-col gap-2.5">
-                    <div className="flex items-center gap-2.5">
-                       <span className="text-[8px] font-black text-blue-600 uppercase tracking-[0.2em] bg-blue-50 px-3 py-1 rounded-lg border border-blue-100 shadow-sm">{car.ownership}</span>
-                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Price Est.</p>
+
+                <div className="flex flex-col gap-5 border-t border-gray-100 pt-6">
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Market Value</p>
+                      <p className="text-lg font-black text-navy leading-none tracking-tight">{car.price}</p>
                     </div>
-                    <p className="text-lg font-black text-navy leading-none tracking-tight">{car.price}</p>
+                    <div className="flex items-center gap-1.5 text-gray-400">
+                      <MapPin size={12} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{car.location}</span>
+                    </div>
                   </div>
                 </div>
               </div>
