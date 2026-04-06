@@ -19,6 +19,7 @@ export interface IUser extends Document {
   id: string;              // Custom U-XXXX identifier
   name: string;
   email: string;
+  password?: string;       // Hashed password for DB authentication
   role: "admin" | "customer";
   status: "active" | "blocked";
   joinedDate: string;
@@ -55,6 +56,7 @@ const UserSchema = new Schema<IUser>(
           `${props.value} is not a valid email address`,
       },
     },
+    password: { type: String, required: false },
     role: {
       type: String,
       enum: ["admin", "customer"],

@@ -14,11 +14,12 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
   const [password, setPassword] = useState('');
   const [role] = useState<'admin' | 'customer'>('customer');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name && email && password) {
-      signup(name, email, role);
-      if (onSuccess) onSuccess();
+      const success = await signup(name, email, role, password);
+      // Only switch to login if the signup was successful.
+      if (success && onSwitch) onSwitch();
     }
   };
 

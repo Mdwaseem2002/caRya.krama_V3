@@ -27,8 +27,8 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, role: 'admin' | 'customer') => boolean;
-  signup: (name: string, email: string, role: 'admin' | 'customer') => void;
+  login: (email: string, role: 'admin' | 'customer', password?: string) => Promise<boolean>;
+  signup: (name: string, email: string, role: 'admin' | 'customer', password?: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
 }
@@ -52,66 +52,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /**
-   * LOGIN — reads from `caRyaUsers` (the same store SignFetch uses).
-   * Matches by email (case-insensitive, trimmed) AND role.
+   * LOGIN
    */
-  const login = (email: string, role: 'admin' | 'customer'): boolean => {
-    const allUsersStr = localStorage.getItem(STORAGE_KEY);
-    const allUsers: User[] = allUsersStr ? JSON.parse(allUsersStr) : [];
+  const login = async (email: string, role: 'admin' | 'customer', password?: string): Promise<boolean> => {
+    if (role === 'admin') {
+      const normalizedEmail = email.trim().toLowerCase();
+      const isValidAdminEmail = normalizedEmail === 'admin@pentacloud.com' || normalizedEmail === 'admin@penta.com';
 
-    const matchedUser = allUsers.find(
-      u =>
-        u.email.trim().toLowerCase() === email.trim().toLowerCase() &&
-        u.role === role
-    );
+      if (isValidAdminEmail && password === 'Penta@123') {
+        const adminUser: User = {
+          id: 'admin_1',
+          name: 'Admin',
+          email: 'admin@Pentacloud.com', // Keep correct format in user object
+          joinDate: new Date().toISOString(),
+          lastActivity: new Date().toISOString(),
+          status: 'active',
+          stats: { savedCars: 0, inquiries: 0, testDrives: 0 },
+          role: 'admin',
+        };
+        
+        setUser(adminUser);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(adminUser));
+        return true;
+      }
+      return false;
+    }
 
-    if (matchedUser) {
-      // Update lastActivity on successful login
-      const updated = { ...matchedUser, lastActivity: new Date().toISOString() };
-      const updatedAll = allUsers.map(u => (u.id === updated.id ? updated : u));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAll));
-      localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
-      setUser(updated);
-      return true;
+    if (role === 'customer') {
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+          return true;
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+      }
+      return false;
     }
 
     return false;
   };
 
   /**
-   * SIGNUP — saves to `caRyaUsers` (the same store SignFetch uses).
-   * Deduplication is by email + role, so the same email can register
-   * as both admin and customer separately.
+   * SIGNUP
    */
-  const signup = (name: string, email: string, role: 'admin' | 'customer' = 'customer') => {
-    const allUsersStr = localStorage.getItem(STORAGE_KEY);
-    const allUsers: User[] = allUsersStr ? JSON.parse(allUsersStr) : [];
+  const signup = async (name: string, email: string, role: 'admin' | 'customer' = 'customer', password?: string): Promise<boolean> => {
+    if (role === 'customer') {
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
 
-    // Check for duplicate (same email + same role)
-    const alreadyExists = allUsers.some(
-      u =>
-        u.email.trim().toLowerCase() === email.trim().toLowerCase() &&
-        u.role === role
-    );
-
-    const newUser: User = {
-      id: 'user_' + Date.now(),
-      name,
-      email: email.trim().toLowerCase(),
-      joinDate: new Date().toISOString(),
-      lastActivity: new Date().toISOString(),
-      status: 'active',
-      stats: { savedCars: 0, inquiries: 0, testDrives: 0 },
-      role,
-    };
-
-    if (!alreadyExists) {
-      allUsers.push(newUser);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allUsers));
+        if (res.ok) {
+          // Success! User can now be prompted to log in using the newly created credentials.
+          // Note: we aren't setting session here so they must log in as requested.
+          return true;
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+      }
+      return false;
     }
-
-    setUser(newUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
+    return false;
   };
 
   /**
