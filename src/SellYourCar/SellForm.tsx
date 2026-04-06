@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useCallback, memo } from "react";
+import React, { useState, useRef, useCallback, memo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Mail, Phone, MapPin, 
   Car, Calendar, Gauge, Fuel, Settings2, 
   CreditCard, Upload, X, Check, ArrowRight, ArrowLeft,
-  Clock, CheckCircle2, AlertCircle, Sparkles
+  Clock, CheckCircle2, AlertCircle, Sparkles, Star
 } from "lucide-react";
 import { saveSellRequest } from "@/Admin/SellRequests/SellStorage";
 
@@ -54,6 +54,52 @@ const FormInput = memo(({ label, value, onChange, placeholder, icon: Icon, type 
 });
 FormInput.displayName = "FormInput";
 
+const CustomSelect = ({ value, onChange, options, placeholder }: { value: string, onChange: (val: string) => void, options: string[], placeholder: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative w-full z-20">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-white border-[3px] py-4 px-6 rounded-full outline-none font-bold text-sm transition-all cursor-pointer flex justify-between items-center ${isOpen ? 'border-[#93c5fd]' : 'border-transparent ring-1 ring-slate-100 hover:ring-slate-200'}`}
+      >
+        <span className={value ? 'text-[#001736]' : 'text-slate-900 font-extrabold'}>{value || placeholder}</span>
+      </div>
+
+      {isOpen && (
+        <div className="absolute top-full mt-[-2px] left-0 w-full bg-white border border-gray-400 z-50">
+          <div 
+            onClick={() => { onChange(""); setIsOpen(false); }}
+            className={`px-4 py-2 text-[15px] cursor-pointer transition-colors ${!value ? 'bg-[#0059A3] text-white' : 'text-[#0059A3] hover:bg-slate-100'}`}
+          >
+            {placeholder}
+          </div>
+          {options.map((opt) => (
+            <div 
+              key={opt}
+              onClick={() => { onChange(opt); setIsOpen(false); }}
+              className={`px-4 py-2 text-[15px] cursor-pointer transition-colors ${value === opt ? 'bg-[#0059A3] text-white' : 'text-[#0059A3] hover:bg-slate-100'}`}
+            >
+              {opt}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function SellForm({ onSuccess }: { onSuccess: (id: string) => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,7 +111,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
     car: {
       brand: "", model: "", year: "", mileage: "", 
       fuelType: "", transmission: "", ownership: "1st Owner", 
-      regCity: "", expectedPrice: "", images: [] as string[]
+      regCity: "", expectedPrice: "", images: [] as string[], coverImageIndex: 0
     },
     inspection: { date: "", time: "", location: "Home" as "Home" | "Office", address: "" }
   });
@@ -84,16 +130,24 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
     if (!files) return;
     
     const currentCount = formData.car.images.length;
-    const remainingSlots = 20 - currentCount;
+    const remainingSlots = 15 - currentCount;
     
     if (remainingSlots <= 0) {
-      alert("Maximum limit of 20 images reached.");
+      alert("Maximum limit of 15 images reached.");
       return;
     }
 
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
-    if (filesToUpload.length < files.length) {
-      alert("Only 20 images can be uploaded. Extra files were ignored.");
+    const validFiles = Array.from(files).filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} exceeds the 5MB size limit.`);
+        return false;
+      }
+      return true;
+    });
+
+    const filesToUpload = validFiles.slice(0, remainingSlots);
+    if (filesToUpload.length < validFiles.length) {
+      alert("Only 15 images can be uploaded. Extra files were ignored.");
     }
 
     filesToUpload.forEach(file => {
@@ -101,7 +155,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       reader.onloadend = () => {
         setFormData(prev => ({
           ...prev,
-          car: { ...prev.car, images: [...prev.car.images, reader.result as string].slice(0, 20) }
+          car: { ...prev.car, images: [...prev.car.images, reader.result as string].slice(0, 15) }
         }));
       };
       reader.readAsDataURL(file);
@@ -203,41 +257,30 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                    <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Fuel Type</label>
-                    <select 
+                    <CustomSelect 
                       value={formData.car.fuelType} 
-                      onChange={e => updateCar({fuelType: e.target.value})}
-                      className="w-full bg-white border border-slate-100 p-5 rounded-[1.5rem] outline-none font-bold text-sm focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="">Select...</option>
-                      <option value="Petrol">Petrol</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="Electric">Electric</option>
-                      <option value="Hybrid">Hybrid</option>
-                    </select>
+                      onChange={val => updateCar({fuelType: val})}
+                      options={["Petrol", "Diesel", "Electric", "Hybrid"]}
+                      placeholder="Select..."
+                    />
                    </div>
                    <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Transmission</label>
-                    <select 
+                    <CustomSelect 
                       value={formData.car.transmission} 
-                      onChange={e => updateCar({transmission: e.target.value})}
-                      className="w-full bg-white border border-slate-100 p-5 rounded-[1.5rem] outline-none font-bold text-sm focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="">Select...</option>
-                      <option value="Automatic">Automatic</option>
-                      <option value="Manual">Manual</option>
-                    </select>
+                      onChange={val => updateCar({transmission: val})}
+                      options={["Automatic", "Manual"]}
+                      placeholder="Select..."
+                    />
                    </div>
                    <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Ownership</label>
-                    <select 
+                    <CustomSelect 
                       value={formData.car.ownership} 
-                      onChange={e => updateCar({ownership: e.target.value})}
-                      className="w-full bg-white border border-slate-100 p-5 rounded-[1.5rem] outline-none font-bold text-sm focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="1st Owner">1st Owner</option>
-                      <option value="2nd Owner">2nd Owner</option>
-                      <option value="3rd Owner">3rd Owner</option>
-                    </select>
+                      onChange={val => updateCar({ownership: val})}
+                      options={["1st Owner", "2nd Owner", "3rd Owner"]}
+                      placeholder="Select..."
+                    />
                    </div>
                 </div>
 
@@ -251,22 +294,53 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
                       <Upload className="w-6 h-6 text-slate-300 group-hover:text-royal" />
                     </div>
                     <p className="text-sm font-black text-gray-900">Drop files or <span className="text-royal">browse device</span></p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Max 20 images • 10MB per image</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Max 15 images • 5MB per image</p>
                     <input type="file" multiple hidden ref={fileRef} onChange={handleImageUpload} accept="image/*" />
                   </div>
                   {formData.car.images.length > 0 && (
-                    <div className="flex flex-wrap gap-4">
-                      {formData.car.images.map((img, i) => (
-                        <div key={i} className="relative w-24 h-24 rounded-2xl overflow-hidden group/img shadow-sm border border-slate-100">
-                          <img src={img} className="w-full h-full object-cover" />
-                          <button 
-                            onClick={() => updateCar({ images: formData.car.images.filter((_, idx) => idx !== i) })}
-                            className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '16px', padding: '4px', marginTop: '24px' }}>
+                      {formData.car.images.map((img, i) => {
+                        const isCover = formData.car.coverImageIndex === i;
+                        return (
+                          <div 
+                            key={i} 
+                            onClick={() => updateCar({ coverImageIndex: i })}
+                            style={{ 
+                              position: 'relative', height: '100px', borderRadius: '12px', overflow: 'hidden', 
+                              cursor: 'pointer', border: isCover ? '3px solid #0059A3' : '1px solid #e5e7eb',
+                              transition: 'all 0.2s', transform: isCover ? 'scale(1.05)' : 'scale(1)',
+                              boxShadow: isCover ? '0 10px 15px -3px rgba(0, 89, 163, 0.2)' : 'none',
+                              zIndex: isCover ? 10 : 1
+                            }}
                           >
-                            <X className="w-5 h-5 text-white" />
-                          </button>
-                        </div>
-                      ))}
+                            <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: isCover ? 1 : 0.8 }} className="hover:opacity-100 transition-opacity" />
+                            
+                            {/* Selection Indicator */}
+                            {isCover ? (
+                              <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: '#0059A3', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '8px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                                <Star size={10} fill="white" /> COVER
+                              </div>
+                            ) : (
+                              <div className="opacity-0 hover:opacity-100 transition-opacity" style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                 <span style={{ color: 'white', fontSize: '9px', fontWeight: 800, textAlign: 'center', width: '100%' }}>SET AS COVER</span>
+                              </div>
+                            )}
+
+                            <button 
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                const newImages = formData.car.images.filter((_, idx) => idx !== i);
+                                const newCoverIndex = isCover ? 0 : (formData.car.coverImageIndex > i ? formData.car.coverImageIndex - 1 : formData.car.coverImageIndex);
+                                updateCar({ images: newImages, coverImageIndex: newCoverIndex }); 
+                              }}
+                              style={{ position: 'absolute', top: '6px', right: '6px', padding: '4px', background: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', color: '#EF4444', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                              className="hover:scale-110 active:scale-95 transition-transform"
+                              title="Remove Image"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                      )})}
                     </div>
                   )}
                 </div>
@@ -281,9 +355,9 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
                 exit={{ opacity: 0, scale: 1.02 }}
                 className="space-y-12"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <FormInput label="Preferred Date" type="date" value={formData.inspection.date} onChange={(v:any) => updateInspection({date: v})} icon={Calendar} />
-                  <FormInput label="Preferred Time" type="time" value={formData.inspection.time} onChange={(v:any) => updateInspection({time: v})} icon={Clock} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 [&_input::-webkit-calendar-picker-indicator]:cursor-pointer">
+                  <FormInput label="Preferred Date" type="date" value={formData.inspection.date} onChange={(v:any) => updateInspection({date: v})} />
+                  <FormInput label="Preferred Time" type="time" value={formData.inspection.time} onChange={(v:any) => updateInspection({time: v})} />
                 </div>
 
                 <div className="space-y-4">
@@ -361,7 +435,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       <div className="mt-12 flex items-center justify-center gap-3 text-slate-300">
         <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-100 bg-white">
            <AlertCircle className="w-3.5 h-3.5" />
-           <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Encrypted transmission active</span>
+           <span className="text-[9px] font-black tracking-widest opacity-80">caRya.krama</span>
         </div>
       </div>
     </div>

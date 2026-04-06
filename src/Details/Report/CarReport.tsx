@@ -123,7 +123,8 @@ function ReportContent() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 pb-32 font-inter selection:bg-[#0059A3] selection:text-white" id="report-content">
+    <>
+      <div className="min-h-screen bg-slate-100 pb-32 font-inter selection:bg-[#0059A3] selection:text-white" id="report-content">
       
       {/* A4 PAPER CONTAINER - Responsive wrapper */}
       <div className="w-full max-w-[210mm] mx-auto bg-white min-h-[297mm] shadow-[0_20px_50px_rgba(0,0,0,0.1)] md:mt-12 md:mb-12 print:m-0 print:shadow-none" style={{ boxSizing: "border-box" }}>
@@ -498,8 +499,12 @@ function ReportContent() {
            <p className="text-sm font-black tracking-[0.2em] uppercase text-white/90">© {new Date().getFullYear()} caRya.krama Dealerships</p>
         </div>
 
+      </div>
+
+    </div>
+
       {/* Floating Actions (FAB) - Improved Positioning */}
-      <div className="fixed bottom-10 left-10 md:left-28 z-[100] no-print flex items-center gap-5">
+      <div className="fixed top-24 left-6 md:top-32 md:left-12 z-[100] no-print flex items-center gap-4">
           {/* Close Button */}
           <button 
             onClick={() => router.back()}
@@ -513,16 +518,13 @@ function ReportContent() {
           <button 
             onClick={handleDownload}
             disabled={isGenerating}
-            className={`w-16 h-16 rounded-2xl shadow-[0_15px_35px_rgba(0,89,163,0.3)] flex items-center justify-center active:scale-95 hover:scale-105 transition-all ${isGenerating ? 'bg-slate-400' : 'bg-[#0059A3] hover:bg-[#004a87]'}`}
+            className={`w-14 h-14 rounded-2xl shadow-[0_15px_35px_rgba(0,89,163,0.3)] flex items-center justify-center active:scale-95 hover:scale-105 transition-all ${isGenerating ? 'bg-slate-400' : 'bg-[#0059A3] hover:bg-[#004a87]'}`}
             title="Download PDF"
           >
-            <Download className={`w-7 h-7 text-white ${isGenerating ? 'animate-bounce' : ''}`} />
+            <Download className={`w-6 h-6 text-white ${isGenerating ? 'animate-bounce' : ''}`} />
           </button>
       </div>
-
-      </div>
-
-    </div>
+    </>
   );
 }
 

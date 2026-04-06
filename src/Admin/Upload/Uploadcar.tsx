@@ -328,7 +328,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Selling Price</label>
-            <input value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} placeholder="₹45.99 Lakh" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontWeight: 800, color: '#0059A3' }} />
+            <input value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} placeholder="₹45.99 Lakh" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
         {calculateSavings() && (
@@ -394,21 +394,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       {/* 5. Condition & Highlights */}
       <section style={{ marginBottom: '32px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>5. Condition & Highlights</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Condition Level</label>
-            <CustomSelect 
-              value={conditionLabel} 
-              onChange={setConditionLabel} 
-              options={["Excellent", "Very Good", "Good"]} 
-              placeholder="Select..." 
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Condition Score (out of 10)</label>
-            <input value={score} onChange={e => setScore(e.target.value)} placeholder="9.8" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
-          </div>
-        </div>
+        {/* Condition Score fields removed */}
         
         <div style={{ marginBottom: '24px' }}>
            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Service History Log</label>
@@ -446,11 +432,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       {/* 7. Inspection Summary */}
       <section style={{ marginBottom: '32px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>7. Inspection Summary</h3>
-        <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#f0f9ff', borderRadius: '12px', border: '1px solid #bae6fd' }}>
-           <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#0369a1', marginBottom: '4px' }}>Overall Inspection Score</label>
-           <div style={{ fontSize: '24px', fontWeight: 800, color: '#0369a1' }}>{score} / 10</div>
-           <p style={{ fontSize: '11px', color: '#0ea5e9', marginTop: '4px' }}>(Score is synced with Condition Score above)</p>
-        </div>
+        {/* Overall Inspection Score display removed */}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '8px' }}>Add Inspection Points (e.g. Engine, Brakes)</label>
@@ -532,7 +514,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       {/* Fixed Bottom Action Bar */}
       <div style={{ 
         position: 'sticky', bottom: 0, padding: '20px 0', borderTop: '1px solid #e5e7eb', backgroundColor: 'white',
-        display: 'flex', justifyContent: 'flex-end', gap: '16px'
+        display: 'flex', justifyContent: 'flex-start', gap: '16px', zIndex: 10
       }}>
         <button 
           onClick={() => handleSubmit('draft')}

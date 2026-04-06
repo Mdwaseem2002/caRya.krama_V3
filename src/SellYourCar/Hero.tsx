@@ -45,7 +45,7 @@ export default function Hero({ onStart }: { onStart: () => void }) {
             transition={{ delay: 0.2 }}
             className="max-w-2xl mx-auto text-sm md:text-xl text-slate-500 font-bold leading-relaxed"
           >
-            Professionally inspected cars listed on <span className="text-[#0f172a] font-black italic">caRyakrama</span> ensure total transparency and trust for every buyer.
+            Professionally inspected cars listed on <span className="text-[#0f172a] font-black italic">caRya.krama</span> ensure total transparency and trust for every buyer.
           </motion.p>
         </div>
 

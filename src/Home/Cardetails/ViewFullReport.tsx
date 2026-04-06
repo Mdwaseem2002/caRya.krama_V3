@@ -113,9 +113,7 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
 
           <div className="space-y-6">
             <p className="text-base md:text-lg leading-relaxed font-semibold text-gray-600" style={{ color: "var(--foreground)" }}>
-              Every car on <span className="text-[#0059A3] font-bold">caRya.krama</span> is carefully handpicked and goes through a detailed multi-point inspection process before being listed. From engine performance to interior condition, every detail is thoroughly checked to ensure quality and reliability.
-              <br /><br />
-              Our goal is simple — to eliminate uncertainty from the used car market and provide you with vehicles that are verified, transparent, and ready to drive. With complete inspection reports and honest evaluations, you can explore and choose your car with total confidence.
+              Every car on <span className="text-[#0059A3] font-bold">caRya.krama</span> is carefully selected and thoroughly inspected to ensure top quality and reliability. From engine performance to interior condition, every detail is checked, so you get a transparent, verified, and ready-to-drive vehicle with complete confidence.
             </p>
 
             {!isAvailable ? (

@@ -97,8 +97,8 @@ const SampleReport = () => {
            {/* 🔥 VEHICLE HERO IMAGE */}
            <div className="relative w-full aspect-video rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-lg group">
               <Image 
-                src="/Mercedes-AMG-G-63-Hero.jpg" // Sample image
-                alt="AMG G63"
+                src="/CarImages/Suzuki.png" // Sample image
+                alt="Suzuki"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 210mm) 100vw, 800px"
@@ -250,7 +250,7 @@ const SampleReport = () => {
         </div>
 
       {/* Floating Actions */}
-      <div className="fixed bottom-10 left-10 md:left-28 z-[100] flex items-center gap-5 no-print">
+      <div className="fixed bottom-10 left-6 md:auto md:top-1/3 md:-translate-y-1/2 md:left-[calc(50%-585px)] z-[100] flex items-center gap-3 no-print origin-left md:scale-90 xl:scale-100">
           <button 
             onClick={() => router.back()}
             className="w-14 h-14 bg-white border border-slate-200 text-slate-600 rounded-2xl shadow-2xl flex items-center justify-center hover:bg-slate-50 transition-all group"
@@ -258,7 +258,7 @@ const SampleReport = () => {
             <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
           </button>
           <div className="bg-[#0059A3] text-white px-8 h-14 rounded-2xl flex items-center font-black uppercase tracking-widest text-[11px] shadow-2xl">
-             View Only Sample
+             Sample
           </div>
       </div>
 

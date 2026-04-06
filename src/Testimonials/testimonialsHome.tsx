@@ -32,14 +32,6 @@ export default function TestimonialsHome() {
                 Real stories from car buyers across India who prioritized transparency and precision.
               </p>
             </div>
-            
-            <Link 
-              href="/testimonials" 
-              className="group flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-[#0f172a]/40 hover:text-blue-500 transition-colors"
-            >
-              View Wall of Love
-              <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

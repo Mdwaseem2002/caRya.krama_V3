@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -112,41 +112,64 @@ function StarRating({ count }: { count: number }) {
 }
 
 function TestimonialCard({ item }: { item: Testimonial }) {
-  const badge = badgeStyles[item.badge] ?? badgeStyles["Verified Buyer"];
   return (
-    <div className="bg-white border border-slate-100 rounded-[2.25rem] p-8 group hover:border-blue-500/20 transition-all duration-500 hover:-translate-y-2 flex flex-col h-full shadow-sm hover:shadow-xl">
-      <div className="flex items-center justify-between mb-8">
-         <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center border border-slate-100 shadow-inner">
-            <Quote size={20} className="text-blue-500 opacity-80" />
-         </div>
-         <div className={`px-4 py-1.5 rounded-full ${badge.bg} ${badge.color} text-[10px] font-black uppercase tracking-widest border border-slate-100 shadow-sm`}>
-            {item.badge}
+    <div className="group relative h-[450px] rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 transition-transform duration-500 hover:-translate-y-2">
+      {/* Video/Story Background Placeholder */}
+      <div className="absolute inset-0 opacity-60 group-hover:opacity-40 transition-opacity">
+         <Image 
+           src={item.photo} 
+           alt="Testimonial Background"
+           fill
+           className="object-cover"
+         />
+      </div>
+      {/* Cinematic Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-between p-6">
+          {/* Top badge */}
+          <div className="flex justify-end w-full">
+            <div className={`px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 text-[9px] font-black uppercase tracking-widest shadow-sm`}>
+               {item.badge}
+            </div>
+          </div>
+      </div>
+      
+      {/* Play Button Icon Overlay */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+         <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-2xl">
+            <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
          </div>
       </div>
 
-      <StarRating count={item.rating} />
-      <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-8 flex-grow font-medium leading-[1.8]">
-        &ldquo;{item.text}&rdquo;
-      </p>
-
-      <div className="mb-8 p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center gap-3 group-hover:bg-blue-500/5 transition-colors">
-         <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-white/5">
-            <Car size={18} className="text-blue-400" />
-         </div>
-         <div>
-            <div className="text-[10px] font-black text-white/30 uppercase tracking-widest">Asset Secured</div>
-            <div className="text-sm font-black tracking-tight">{item.car}</div>
-         </div>
-      </div>
-
-      <div className="flex items-center gap-4 pt-6 border-t border-slate-100">
-        <div className="relative w-12 h-12 rounded-2xl overflow-hidden ring-1 ring-slate-200 shrink-0">
-          <Image src={item.photo} alt={item.name} fill className="object-cover" sizes="48px" />
+      <div className="relative z-10 space-y-4">
+        <div className="flex gap-1 mb-2">
+          {Array.from({ length: item.rating }).map((_, i) => (
+            <Star key={i} size={12} className="fill-blue-500 text-blue-500" />
+          ))}
         </div>
-        <div className="min-w-0">
-          <p className="font-black text-sm tracking-tight text-[#0f172a]">{item.name}</p>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">{item.role}</p>
+        
+        <p className="text-white font-bold leading-relaxed line-clamp-3 text-sm italic">
+          &ldquo;{item.text}&rdquo;
+        </p>
+
+        <div className="flex items-center gap-4 py-4 border-t border-white/10">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+            <Image src={item.photo} alt={item.name} width={40} height={40} className="object-cover" />
+          </div>
+          <div>
+            <h4 className="font-black text-white text-xs tracking-tight">{item.name}</h4>
+            <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest truncate">{item.car.split(" ").slice(-1)} Driver</p>
+          </div>
         </div>
+
+        <a 
+          href="https://www.instagram.com/car.diologist.bengaluru/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
+        >
+          Watch Story on IG
+          <ArrowUpRight size={14} />
+        </a>
       </div>
     </div>
   );
