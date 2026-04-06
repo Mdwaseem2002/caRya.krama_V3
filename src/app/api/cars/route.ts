@@ -24,8 +24,12 @@ export async function GET(req: NextRequest) {
     if (status) filter.status = status;                 // Override if explicit
     if (brand) filter.brand = brand;
 
+    const limitParams = searchParams.get("limit");
+    const limit = limitParams ? parseInt(limitParams, 10) : 100;
+
     const cars = await Car.find(filter)
       .sort({ createdAt: -1 })    // Newest first
+      .limit(limit)               // Limit to prevent huge payloads
       .lean();                     // Return plain JS objects (faster)
 
     return NextResponse.json({ success: true, cars }, { status: 200 });

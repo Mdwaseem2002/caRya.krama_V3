@@ -128,6 +128,9 @@ const CarSchema = new Schema<ICar>(
   }
 );
 
+// ── Indexing for Performance ────────────────────────────────────────────────────
+CarSchema.index({ status: 1, createdAt: -1 });
+
 // ── Model Export (singleton pattern to avoid re-compilation on hot-reload) ────
 
 const Car: Model<ICar> =

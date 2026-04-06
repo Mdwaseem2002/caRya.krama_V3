@@ -19,8 +19,12 @@ export async function GET(req: NextRequest) {
     const filter: Record<string, string> = {};
     if (status) filter.status = status;
 
+    const limitParams = searchParams.get("limit");
+    const limit = limitParams ? parseInt(limitParams, 10) : 100;
+
     const requests = await SellRequest.find(filter)
       .sort({ createdAt: -1 })
+      .limit(limit)               // Limit to prevent huge payloads
       .lean();
 
     return NextResponse.json({ success: true, requests }, { status: 200 });

@@ -116,8 +116,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         if (res.ok) {
-          // Success! User can now be prompted to log in using the newly created credentials.
-          // Note: we aren't setting session here so they must log in as requested.
+          const data = await res.json();
+          // Auto login by setting the user session immediately
+          setUser(data.user);
+          localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
           return true;
         }
       } catch (error) {

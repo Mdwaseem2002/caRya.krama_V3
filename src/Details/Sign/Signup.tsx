@@ -5,6 +5,7 @@ import { User, Mail, Lock, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useRouter } from "next/navigation";
 
 const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: () => void }) => {
   const { signup } = useAuth();
@@ -13,13 +14,17 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role] = useState<'admin' | 'customer'>('customer');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name && email && password) {
       const success = await signup(name, email, role, password);
-      // Only switch to login if the signup was successful.
-      if (success && onSwitch) onSwitch();
+      // Auto redirect to profile on successful signup
+      if (success) {
+        if (onSuccess) onSuccess();
+        router.push('/Profile');
+      }
     }
   };
 

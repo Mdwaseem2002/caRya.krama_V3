@@ -106,6 +106,9 @@ const SellRequestSchema = new Schema<ISellRequest>(
   }
 );
 
+// ── Indexing for Performance ────────────────────────────────────────────────────
+SellRequestSchema.index({ status: 1, createdAt: -1 });
+
 // ── Model Export ──────────────────────────────────────────────────────────────
 
 const SellRequest: Model<ISellRequest> =
