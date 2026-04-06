@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, ShieldCheck, Lock, ArrowRight, Gauge, Activity, Cpu } from "lucide-react";
+import Link from "next/link";
 
 export default function InspectedCar() {
   const points = [
@@ -61,10 +62,10 @@ export default function InspectedCar() {
               ))}
             </div>
 
-            <button className="group flex items-center gap-3 bg-royal text-white px-8 py-4 rounded-[1.5rem] font-black tracking-tight shadow-xl hover:shadow-blue-200 transition-[transform,box-shadow] hover:scale-105 active:scale-95">
+            <Link href="/details/sample-report" className="group inline-flex items-center gap-3 bg-royal text-white px-8 py-4 rounded-[1.5rem] font-black tracking-tight shadow-xl hover:shadow-blue-200 transition-[transform,box-shadow] hover:scale-105 active:scale-95">
               View Sample Report
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
           </motion.div>
 
           {/* ── RIGHT SIDE: UI PREVIEW (LOCKED) ── */}

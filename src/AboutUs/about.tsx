@@ -1,6 +1,7 @@
 "use client";
 
 import { ShieldCheck, Search, Wrench, ThumbsUp, ClipboardList, Coins, Target, TrendingUp, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
@@ -216,10 +217,10 @@ export default function About() {
           </div>
           
           <div className="mt-20 text-center">
-             <button className="bg-gradient-to-br from-[#0A2A6E] to-[#1B4FD8] text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-[1.05] active:scale-[0.95] transition-all shadow-2xl shadow-blue-500/20 flex items-center gap-3 mx-auto group">
+             <Link href="/BuyCar" className="inline-flex bg-gradient-to-br from-[#0A2A6E] to-[#1B4FD8] text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-[1.05] active:scale-[0.95] transition-all shadow-2xl shadow-blue-500/20 items-center gap-3 mx-auto group">
                 Browse Collection
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-             </button>
+             </Link>
           </div>
         </section>
 

@@ -8,6 +8,7 @@ import TestimonialsHome from "@/Testimonials/testimonialsHome";
 import VisitorTracker from "@/components/VisitorTracker";
 import TrustSections from "@/Details/Trust/TrustSections";
 import SearchEngine from "@/Details/SearchEngine/SearchEngine";
+import StatisticsSection from "@/Testimonials/StatisticsSection";
 
 export default function Home() {
   return (
@@ -20,6 +21,9 @@ export default function Home() {
       <TrustSections />
       <InspectedCar />
       <OurStory />
+      <div className="max-w-7xl mx-auto px-6 mb-20">
+        <StatisticsSection />
+      </div>
       <TestimonialsHome />
     </>
   );

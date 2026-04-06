@@ -12,7 +12,7 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'admin' | 'customer'>('customer');
+  const [role] = useState<'admin' | 'customer'>('customer');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,36 +57,6 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
         style={{ color: '#6b7280', marginBottom: mobile ? '20px' : '32px', textAlign: 'center', fontSize: mobile ? '13px' : '15px' }}>
         Join caRya.krama for a premium experience
       </motion.p>
-
-      <div style={{ display: 'flex', gap: '12px', width: '100%', marginBottom: mobile ? '16px' : '24px' }}>
-        <button 
-          onClick={() => setRole('customer')}
-          style={{ 
-            flex: 1, padding: '10px', borderRadius: '12px', border: '2px solid', 
-            borderColor: role === 'customer' ? '#0059A3' : '#e5e7eb',
-            backgroundColor: role === 'customer' ? '#0059A3' : 'transparent',
-            color: role === 'customer' ? '#ffffff' : '#6b7280',
-            fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
-            fontSize: mobile ? '12px' : '14px'
-          }}
-        >
-          Customer
-        </button>
-        <button 
-          onClick={() => setRole('admin')}
-          style={{ 
-            flex: 1, padding: '10px', borderRadius: '12px', border: '2px solid', 
-            borderColor: role === 'admin' ? '#0059A3' : '#e5e7eb',
-            backgroundColor: role === 'admin' ? '#0059A3' : 'transparent',
-            color: role === 'admin' ? '#ffffff' : '#6b7280',
-            fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
-            fontSize: mobile ? '12px' : '14px'
-          }}
-        >
-          Admin
-        </button>
-      </div>
-
       <motion.form variants={containerVariants} initial="hidden" animate="visible" onSubmit={handleSubmit} style={{ width: '100%' }}>
         <motion.div variants={itemVariants} style={inputRow}>
           <User style={{ color: '#9ca3af', flexShrink: 0 }} size={mobile ? 18 : 20} strokeWidth={1.5} />

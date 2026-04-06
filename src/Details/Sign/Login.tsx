@@ -73,9 +73,7 @@ const Login = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: () 
           style={{ color: '#ef4444', marginBottom: '16px', fontSize: '13px', textAlign: 'center', fontWeight: 500 }}>
           {error}
         </motion.p>
-      )}
-
-      <div style={{ display: 'flex', gap: '12px', width: '100%', marginBottom: mobile ? '16px' : '24px' }}>
+      )}      <div style={{ display: 'flex', gap: '12px', width: '100%', marginBottom: mobile ? '16px' : '24px' }}>
         <button 
           onClick={() => setRole('customer')}
           style={{ 
@@ -103,7 +101,6 @@ const Login = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: () 
           Admin
         </button>
       </div>
-
       <motion.form variants={containerVariants} initial="hidden" animate="visible" onSubmit={handleSubmit} style={{ width: '100%' }}>
         <motion.div variants={itemVariants} style={inputRow}>
           <Mail style={{ color: '#9ca3af', flexShrink: 0 }} size={mobile ? 18 : 20} strokeWidth={1.5} />
