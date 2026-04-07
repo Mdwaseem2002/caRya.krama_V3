@@ -66,7 +66,7 @@ export default function PaymentDone({ isOpen, onClose, carName = "this vehicle",
             <button
               onClick={() => {
                 onClose();
-                router.push(`/details/fill-form?id=${carId}`);
+                router.push(`/details/report?id=${carId}`);
               }}
               className="w-full py-4 bg-gradient-to-r from-[#0059A3] to-[#1B4FD8] text-white rounded-[1.5rem] font-black text-lg hover:to-[#0A2A6E] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group shadow-xl shadow-blue-900/20"
             >

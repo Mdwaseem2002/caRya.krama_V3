@@ -35,6 +35,7 @@ export default function InspectionReportUpload({
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
   const [uploadedFileName, setUploadedFileName] = useState<string>("");
+  const [inputCarId, setInputCarId] = useState(carId || "");
   const [reportCarName, setReportCarName] = useState(carName || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,7 +74,7 @@ export default function InspectionReportUpload({
     setIsSaving(true);
     try {
       await saveInspectionReport({
-        carId: carId || "unlinked",
+        carId: inputCarId || "unlinked",
         carName: reportCarName,
         reportType: "uploaded",
         vehicleDetails: { carName: reportCarName, year: "", odometer: "" },
@@ -114,15 +115,25 @@ export default function InspectionReportUpload({
         Upload a PDF, Excel, or Word document as the inspection report.
       </p>
 
-      {/* Car Name */}
-      <div style={{ marginBottom: '24px' }}>
-        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Car Name *</label>
-        <input
-          value={reportCarName}
-          onChange={e => setReportCarName(e.target.value)}
-          placeholder="e.g. Baleno RS 2018"
-          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: '14px', maxWidth: '400px' }}
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Stock ID / Vehicle ID</label>
+          <input
+            value={inputCarId}
+            onChange={e => setInputCarId(e.target.value)}
+            placeholder="e.g. CK-1234567"
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: '14px' }}
+          />
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Car Name *</label>
+          <input
+            value={reportCarName}
+            onChange={e => setReportCarName(e.target.value)}
+            placeholder="e.g. Baleno RS 2018"
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: '14px' }}
+          />
+        </div>
       </div>
 
       {/* Upload Zone */}

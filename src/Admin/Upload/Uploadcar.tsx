@@ -83,6 +83,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   const [brand, setBrand] = useState(editCar?.brand || "");
   const [model, setModel] = useState(editCar?.model || "");
   const [year, setYear] = useState(editCar?.year || "");
+  const [generatedCarId] = useState(() => editCar?.id || `CK-${Math.floor(Math.random() * 10000000)}`);
 
   const [images, setImages] = useState<string[]>(editCar?.media.images || []);
   const [coverImage, setCoverImage] = useState<string | null>(editCar?.media.coverImage || null);
@@ -211,6 +212,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
     setIsSaving(true);
     try {
       const carPayload = {
+        id: generatedCarId,
         title, brand, model, year,
         media: { images, coverImage: coverImage || images[0] },
         pricing: { actualPrice, sellingPrice, savings: calculateSavings() || "" },
@@ -568,7 +570,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           <InspectionReportForm
             onBack={() => setInspectionMode("none")}
             onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); }}
-            carId={editCar?.id}
+            carId={generatedCarId}
             carName={title || brand}
             year={year}
             odometer={mileage}
@@ -577,7 +579,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           <InspectionReportUpload
             onBack={() => setInspectionMode("none")}
             onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); }}
-            carId={editCar?.id}
+            carId={generatedCarId}
             carName={title || brand}
           />
         )}

@@ -24,6 +24,7 @@ export default function InspectionReportForm({
   const [isSaving, setIsSaving] = useState(false);
 
   // Vehicle Details
+  const [inputCarId, setInputCarId] = useState(editReport?.carId || carId || "");
   const [vdCarName, setVdCarName] = useState(editReport?.vehicleDetails?.carName || carName || "");
   const [vdYear, setVdYear] = useState(editReport?.vehicleDetails?.year || year || "");
   const [vdOdometer, setVdOdometer] = useState(editReport?.vehicleDetails?.odometer || odometer || "");
@@ -106,7 +107,7 @@ export default function InspectionReportForm({
     setIsSaving(true);
     try {
       const reportData = {
-        carId: carId || editReport?.carId || "unlinked",
+        carId: inputCarId || "unlinked",
         carName: vdCarName,
         reportType: "created" as const,
         vehicleDetails: { carName: vdCarName, year: vdYear, odometer: vdOdometer },
@@ -165,7 +166,11 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <Search size={18} style={{ color: '#0059A3' }} /> Vehicle Details
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
+          <div>
+            <label style={labelStyle}>Stock ID / Vehicle ID</label>
+            <input value={inputCarId} onChange={e => setInputCarId(e.target.value)} placeholder="e.g. CK-1234567" style={inputStyle} />
+          </div>
           <div>
             <label style={labelStyle}>Car Name *</label>
             <input value={vdCarName} onChange={e => setVdCarName(e.target.value)} placeholder="e.g. Baleno" style={inputStyle} />

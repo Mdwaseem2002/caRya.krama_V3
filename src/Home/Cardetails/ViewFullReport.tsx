@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ShieldCheck, CheckCircle2, ChevronRight } from "lucide-react";
 import ViewReop from "@/Details/Popup/ViewReop";
-import { getReportByCarId, CarReportData } from "@/Admin/data/reports";
 import { hasPurchased } from "@/Admin/data/purchases";
 import { cars as staticCars } from "../Card";
 import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
@@ -17,15 +16,29 @@ interface ViewFullReportProps {
 
 export default function ViewFullReport({ carId }: ViewFullReportProps) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [reportData, setReportData] = useState<CarReportData | undefined>(undefined);
+  const [reportExists, setReportExists] = useState(false);
+  const [reportPrice, setReportPrice] = useState(299);
   const [purchased, setPurchased] = useState(false);
   const [uploadedCars, setUploadedCars] = useState<any[]>([]);
 
   useEffect(() => {
     const init = async () => {
-      setReportData(getReportByCarId(carId.toString()));
       setPurchased(hasPurchased(carId.toString()));
-      setUploadedCars(await getAllStoredCars());
+      try {
+        setUploadedCars(await getAllStoredCars());
+        
+        // Fetch from the real API to see if the inspection report exists
+        const res = await fetch(`/api/inspection-reports?carId=${carId}`);
+        const data = await res.json();
+        if (data.success && data.reports && data.reports.length > 0) {
+          setReportExists(true);
+          setReportPrice(data.reports[0].price || 299);
+        } else {
+          setReportExists(false);
+        }
+      } catch (e) {
+        console.error("Failed to fetch report availability:", e);
+      }
     };
     init();
   }, [carId]);
@@ -37,11 +50,10 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
   const car = foundUploaded || foundStatic || staticCars[0];
   const isUploaded = !!foundUploaded;
 
-  const inspectionScore = isUploaded ? (car as any).condition.score : (car as any).inspectionScore;
-  const inspectionSummary = isUploaded 
+  const inspectionScore = isUploaded ? (car as any).condition?.score : (car as any).inspectionScore;
+  const inspectionSummary = isUploaded && (car as any).condition?.inspectionPoints
     ? (car as any).condition.inspectionPoints.map((p: any) => `${p.title}: ${p.value}`)
     : (car as any).inspectionSummary;
-
 
   const reportCategories = [
     { label: "Exterior", status: "Passed" },
@@ -49,8 +61,6 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
     { label: "Electricals", status: "Passed" },
     { label: "Suspension", status: "Passed" },
   ];
-
-  const isAvailable = reportData?.isApproved;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8" style={{ background: "var(--background)" }}>
@@ -116,16 +126,16 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
               Every car on <span className="text-[#0059A3] font-bold">caRya.krama</span> is carefully selected and thoroughly inspected to ensure top quality and reliability. From engine performance to interior condition, every detail is checked, so you get a transparent, verified, and ready-to-drive vehicle with complete confidence.
             </p>
 
-            {!isAvailable ? (
+            {!reportExists ? (
               <div className="flex items-center gap-2 text-amber-600 font-extrabold text-xl py-2 px-6 bg-amber-50 rounded-2xl w-fit border border-amber-100">
-                Report Coming Soon
+                Evaluating... Report Coming Soon
               </div>
             ) : purchased ? (
               <Link 
                 href={`/details/report?id=${carId}`}
                 className="flex items-center gap-3 bg-[#10b981] text-white px-8 py-4 rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-emerald-500/20 group w-fit"
               >
-                View full report
+                Access Full Report
                 <ChevronRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
               </Link>
             ) : (
@@ -133,7 +143,7 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
                 onClick={() => setIsPopupOpen(true)}
                 className="flex items-center gap-4 bg-[#0059A3] text-white px-8 py-4 rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-500/20 w-fit"
               >
-                Unlock Report ₹{reportData?.price || 299}
+                Unlock Report ₹{reportPrice}
                 <ChevronRight className="w-6 h-6" />
               </button>
             )}
@@ -220,7 +230,7 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
       <ViewReop 
         isOpen={isPopupOpen} 
         onClose={() => setIsPopupOpen(false)} 
-        carId={carId}
+        carId={carId.toString()}
       />
     </div>
   );

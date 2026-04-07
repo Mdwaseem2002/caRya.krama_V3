@@ -64,9 +64,8 @@ function getBaseUrl(): string {
 
 // ── PUBLIC API ────────────────────────────────────────────────────────────────
 
-/** Save a new car (call from Uploadcar.tsx) */
 export async function saveCarToStorage(
-  car: Omit<StoredCar, "id" | "createdAt">
+  car: Omit<StoredCar, "createdAt"> | any
 ): Promise<StoredCar> {
   const res = await fetch(`${getBaseUrl()}/api/cars`, {
     method: "POST",

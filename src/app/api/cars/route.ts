@@ -57,8 +57,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate custom ID (same format as the old localStorage version)
-    const id = `CK-${Math.floor(Math.random() * 10_000_000)}`;
+    // Generate custom ID (or use provided one)
+    const id = body.id || `CK-${Math.floor(Math.random() * 10_000_000)}`;
 
     const newCar = await Car.create({ ...body, id });
 
