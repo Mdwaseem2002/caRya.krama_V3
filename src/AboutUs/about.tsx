@@ -2,6 +2,7 @@
 
 import { ShieldCheck, Search, Wrench, ThumbsUp, ClipboardList, Coins, Target, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
@@ -93,13 +94,12 @@ export default function About() {
 
         {/* ── HERO IMAGE ── */}
         <div className="reveal-item rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-2xl mb-24 sm:mb-32 relative w-full h-[350px] sm:h-[500px] md:h-[650px] group mx-auto">
-          <video
-            src="/Videos/About%20Section.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
+          <Image
+            src="/caRya.png"
+            alt="The Sovereign Standard"
+            fill
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent sm:h-[60%] top-auto bottom-0 transition-opacity duration-1000"></div>
           <div className="absolute bottom-6 left-6 right-6 sm:bottom-12 sm:left-12 md:left-20 group z-10">

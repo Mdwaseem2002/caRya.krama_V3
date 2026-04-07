@@ -85,7 +85,7 @@ export default function TestimonialsHome() {
                   </div>
 
                   <a 
-                    href="https://www.instagram.com/car.diologist.bengaluru/"
+                    href={item.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"

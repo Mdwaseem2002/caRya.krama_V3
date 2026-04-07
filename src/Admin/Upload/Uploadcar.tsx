@@ -125,7 +125,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       reader.onloadend = () => {
         const img = new window.Image();
         img.onload = () => {
-          const MAX_WIDTH = 800;
+          const MAX_WIDTH = 1600;
           const scale = Math.min(1, MAX_WIDTH / img.width);
           const canvas = document.createElement("canvas");
           canvas.width = img.width * scale;
@@ -133,8 +133,8 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           const ctx = canvas.getContext("2d");
           if (!ctx) return reject("Canvas not supported");
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          // 0.60 quality = ~60% quality JPEG, ~10x smaller than original
-          resolve(canvas.toDataURL("image/jpeg", 0.60));
+          // 0.85 quality = ~85% quality JPEG for high fidelity
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
         };
         img.onerror = reject;
         img.src = reader.result as string;

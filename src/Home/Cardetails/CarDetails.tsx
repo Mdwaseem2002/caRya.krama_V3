@@ -62,6 +62,7 @@ export default function CarDetails({ id }: { id: string }) {
               className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
               sizes="(max-width: 1024px) 100vw, 66vw"
               priority
+              unoptimized={carImages[currentImage]?.startsWith('data:')}
             />
             
             {/* Soft inner shadow overlay to frame image */}

@@ -21,75 +21,106 @@ export interface Testimonial {
   text: string;
   car: string;
   badge: BadgeKey;
+  instagramUrl?: string;
 }
 
 // ── Data ───────────────────────────────────────────────
 export const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: "Aditya Sharma",
-    role: "First-Time Car Buyer",
-    location: "Dubai, UAE",
-    photo: "https://i.pravatar.cc/150?img=12",
+    name: "Happy 4x4 Driver",
+    role: "Off-Road Enthusiast",
+    location: "Bengaluru",
+    photo: "/Testimonials/Testimonial 1.webp",
     rating: 5,
-    text: "I was terrified of buying a used car — stories of hidden damage and fake paperwork scared me for years. caRya.krama changed everything. The inspection report was thorough, the team was honest, and I drove away in my dream car without a single worry.",
-    car: "2021 BMW 3 Series",
+    text: "I am very happy with the inspection, Farhan checked everything from Engine, transmission, we even took the car for test drive where he checked 4*4 too.",
+    car: "4x4 Specialist",
     badge: "Verified Buyer",
+    instagramUrl: "https://www.instagram.com/reel/DWOpdmaEzvl/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
   },
   {
     id: 2,
-    name: "Priya Nair",
-    role: "Entrepreneur",
-    location: "Abu Dhabi, UAE",
-    photo: "https://i.pravatar.cc/150?img=47",
+    name: "First-Time Buyer",
+    role: "Used Car Buyer",
+    location: "Bengaluru",
+    photo: "/Testimonials/Testimonial 2.webp",
     rating: 5,
-    text: "What I appreciated most was the transparency. They presented every flaw, every service record, every detail — no sugarcoating. That level of honesty is rare. I've bought three cars through them now and I will never go anywhere else.",
-    car: "2022 Range Rover Evoque",
-    badge: "Repeat Customer",
+    text: "I first saw Farhan on Instagram, i called him to checked first car which he was not satisfied. He not only checked all components of the car, he also explains everything in details. I definitely recommend him.",
+    car: "Full Audit",
+    badge: "New Customer",
+    instagramUrl: "https://www.instagram.com/reel/DVk6xDRk_pS/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
   },
   {
     id: 3,
-    name: "Khalid Al Mansouri",
-    role: "Business Executive",
-    location: "Sharjah, UAE",
-    photo: "https://i.pravatar.cc/150?img=33",
+    name: "Reliant Owner",
+    role: "Verified Client",
+    location: "Bengaluru",
+    photo: "/Testimonials/Testimonial 3.webp",
     rating: 5,
-    text: "The difference between caRya.krama and other dealers? Respect. They respected my time, my budget, and my intelligence. No pushy sales tactics — just honest guidance. My Audi A6 is exactly as described: pristine condition, fair price.",
-    car: "2020 Audi A6",
+    text: "You have tested everything, even those we forgot to check, you are not like others who get upset when questions asked. You make sure everything is inspected. God bless you in all aspect.",
+    car: "Deep Inspection",
     badge: "Verified Buyer",
+    instagramUrl: "https://www.instagram.com/reel/DR_WS0Qkwe5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
   },
   {
     id: 4,
-    name: "Fatima Al Hassan",
-    role: "Doctor",
-    location: "Dubai, UAE",
-    photo: "https://i.pravatar.cc/150?img=44",
+    name: "Overseas Client",
+    role: "Expat Buyer",
+    location: "Australia / Bengaluru",
+    photo: "/Testimonials/Testimonial 4.webp",
     rating: 5,
-    text: "As a woman, I often felt intimidated at car dealerships. caRya.krama's team treated me with full professionalism and gave me complete confidence in my decision. The car was exactly as listed — no surprises, no regrets. I got a fantastic deal on a beautiful Porsche Cayenne.",
-    car: "2023 Mercedes GLC",
-    badge: "Verified Buyer",
+    text: "I found Farhan on Instagram when I was in Australia. We are very happy with the service and highly recommend, he is true to his name car.diologist, he is very kind and we are greatful to get the service.",
+    car: "Remote Inspection",
+    badge: "Referred Customer",
+    instagramUrl: "https://www.instagram.com/reel/DRgxC1ak_Ga/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
   },
   {
     id: 5,
-    name: "Rohan Mehta",
-    role: "Software Engineer",
-    location: "Dubai, UAE",
-    photo: "https://i.pravatar.cc/150?img=15",
+    name: "Intercity Buyer",
+    role: "Smart Investor",
+    location: "Delhi to Bengaluru",
+    photo: "/Testimonials/Testimonial 5.webp",
     rating: 5,
-    text: "I did months of research online and kept hitting shady listings. Then a friend recommended caRya.krama. Within one week I found, inspected, and purchased my perfect car. The process was seamless — like buying from a trusted friend who happens to be a car expert.",
-    car: "2021 Toyota Land Cruiser",
-    badge: "Referred Customer",
+    text: "I purchased a car from Delhi, I contacted Farhan and he explained me what all needs to be checked before purchasing car. He has inspected the car and list down the repairs and replacements which are suppose to be done immediately and which can be done later.",
+    car: "Delhi Segment",
+    badge: "Verified Buyer",
+    instagramUrl: "https://www.instagram.com/reel/DTCO7qZE0NZ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
   },
   {
     id: 6,
-    name: "Sara Johnson",
-    role: "Marketing Director",
-    location: "Abu Dhabi, UAE",
-    photo: "https://i.pravatar.cc/150?img=39",
+    name: "Protected Buyer",
+    role: "Aware Customer",
+    location: "Bengaluru",
+    photo: "/Testimonials/Testimonial 6.webp",
     rating: 5,
-    text: "I relocated to UAE and had no local knowledge of the car market. caRya.krama guided me through every step, explained regulations, helped me compare options, and never pressured me. I got a fantastic deal on a beautiful Porsche Cayenne.",
-    car: "2020 Porsche Cayenne",
-    badge: "New Customer",
+    text: "I car I saw looks very attractive from outside but when Farhan inspected the car he found out car is accidental, he explains everything in details, I would have purchased car if Farhan wasn’t there today. I am happy with his inspection.",
+    car: "Accident Check",
+    badge: "Verified Buyer",
+    instagramUrl: "https://www.instagram.com/reel/DTNOvDyk0E6/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+  },
+  {
+    id: 7,
+    name: "Bengaluru Local",
+    role: "Regular Client",
+    location: "Bengaluru",
+    photo: "/Testimonials/Testimonial 7.webp",
+    rating: 5,
+    text: "There is no one in Bengaluru who explains car like Farhan, who every wants to buy used car must consult Farhan.",
+    car: "Expert Consult",
+    badge: "Repeat Customer",
+    instagramUrl: "https://www.instagram.com/reel/DUcerQsk-Xd/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+  },
+  {
+    id: 8,
+    name: "Astute Buyer",
+    role: "Detailed Reviewer",
+    location: "Bengaluru",
+    photo: "/Testimonials/Testimonial 8.webp",
+    rating: 5,
+    text: "Farhan did a thorough inspection for 3hrs including car hydraulics, he has pointed out some repairs which gave me negotiation point. Every penny I spent on Inspection is worth.",
+    car: "Negotiation Support",
+    badge: "Verified Buyer",
+    instagramUrl: "https://www.instagram.com/reel/DU5gMJZE-Ho/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
   },
 ];
 
@@ -162,7 +193,7 @@ function TestimonialCard({ item }: { item: Testimonial }) {
         </div>
 
         <a 
-          href="https://www.instagram.com/car.diologist.bengaluru/"
+          href={item.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"

@@ -20,8 +20,8 @@ const FormInput = memo(({ label, value, onChange, placeholder, icon: Icon, type 
     let val = e.target.value;
     
     // Strict Character Filtering as requested
-    if (name === "name") {
-      val = val.replace(/[^a-zA-Z\s]/g, ""); // Only letters and spaces
+    if (name?.toLowerCase().includes("name")) {
+      val = val.replace(/[^a-zA-Z\s]/g, ""); // Only letters and spaces for names
     } else if (name === "phone") {
       val = val.replace(/[^0-9\s+]/g, ""); // Only numbers, spaces, and +
     }
@@ -101,35 +101,31 @@ const CustomSelect = ({ value, onChange, options, placeholder }: { value: string
 };
 
 export default function SellForm({ onSuccess }: { onSuccess: (id: string) => void }) {
-  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Form State
+  // Simplified Form State
   const [formData, setFormData] = useState({
-    owner: { name: "", phone: "", email: "", city: "" },
-    car: {
-      brand: "", model: "", year: "", mileage: "", 
-      fuelType: "", transmission: "", ownership: "1st Owner", 
-      regCity: "", expectedPrice: "", images: [] as string[], coverImageIndex: 0
-    },
-    inspection: { date: "", time: "", location: "Home" as "Home" | "Office", address: "" }
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    brand: "",
+    model: "",
+    mileage: "",
+    images: [] as string[],
+    coverImageIndex: 0
   });
 
-  const updateOwner = useCallback((fields: Partial<typeof formData.owner>) => 
-    setFormData(prev => ({ ...prev, owner: { ...prev.owner, ...fields } })), []);
-  
-  const updateCar = useCallback((fields: Partial<typeof formData.car>) => 
-    setFormData(prev => ({ ...prev, car: { ...prev.car, ...fields } })), []);
-  
-  const updateInspection = useCallback((fields: Partial<typeof formData.inspection>) => 
-    setFormData(prev => ({ ...prev, inspection: { ...prev.inspection, ...fields } })), []);
+  const updateField = useCallback((field: keyof typeof formData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     
-    const currentCount = formData.car.images.length;
+    const currentCount = formData.images.length;
     const remainingSlots = 15 - currentCount;
     
     if (remainingSlots <= 0) {
@@ -155,7 +151,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       reader.onloadend = () => {
         setFormData(prev => ({
           ...prev,
-          car: { ...prev.car, images: [...prev.car.images, reader.result as string].slice(0, 15) }
+          images: [...prev.images, reader.result as string].slice(0, 15)
         }));
       };
       reader.readAsDataURL(file);
@@ -163,13 +159,43 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
   };
 
   const handleSubmit = async () => {
-    if (!formData.inspection.date || !formData.inspection.time || !formData.inspection.address) {
-      alert("Please fill in all inspection details before submitting.");
+    // Basic Validation
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.brand || !formData.model) {
+      alert("Please fill in all the required fields.");
       return;
     }
+
     setIsSubmitting(true);
     try {
-      const saved = await saveSellRequest(formData);
+      // Map simplified UI state back to the expected SellRequest structure for backend
+      const payload = {
+        owner: {
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          phone: formData.phone,
+          email: formData.email,
+          city: "Not specified",
+        },
+        car: {
+          brand: formData.brand,
+          model: formData.model,
+          year: new Date().getFullYear().toString(),
+          mileage: formData.mileage,
+          fuelType: "Not specified",
+          transmission: "Not specified",
+          ownership: "1st Owner",
+          regCity: "Not specified",
+          expectedPrice: "Not specified",
+          images: formData.images,
+        },
+        inspection: {
+          date: new Date().toISOString().split('T')[0],
+          time: "ASAP",
+          location: "Home" as const,
+          address: "Contact for inspection detail",
+        }
+      };
+
+      const saved = await saveSellRequest(payload as any);
       onSuccess(saved.id);
     } catch (err: any) {
       alert(`Failed to save request: ${err?.message || 'Unknown error'}`);
@@ -178,257 +204,109 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
     }
   };
 
-  const nextStep = () => {
-    if (currentStep === 0) {
-      if (!formData.owner.name || !formData.owner.phone || !formData.owner.email || !formData.owner.city) {
-        alert("Please fill in all owner details to continue.");
-        return;
-      }
-    } else if (currentStep === 1) {
-      if (!formData.car.brand || !formData.car.model || !formData.car.year) {
-        alert("Please fill in the required car details (Brand, Model, Year) to continue.");
-        return;
-      }
-    }
-    setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
-  };
-  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
-
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-12" id="sell-form-container">
-      {/* Progress Tracker */}
-      <div className="flex items-center justify-between mb-16 relative px-4 text-[#0059A3]">
-        <div className="absolute top-[1.25rem] left-0 w-full h-[3px] bg-slate-100 -translate-y-1/2 z-0" />
-        <motion.div 
-           className="absolute top-[1.25rem] left-0 h-[3px] bg-current -translate-y-1/2 z-0 origin-left"
-           initial={{ scaleX: 0 }}
-           animate={{ scaleX: currentStep / (STEPS.length - 1) }}
-           transition={{ duration: 0.5, ease: "easeInOut" }}
-        />
-        {STEPS.map((step, i) => (
-          <div key={step} className="relative z-10 flex flex-col items-center gap-4">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 ${
-                 i <= currentStep ? 'bg-[#0059A3] text-white shadow-[#0059A3]/20' : 'bg-slate-50 text-slate-400 border border-slate-100'
-               }`}>
-              {i < currentStep ? <Check className="w-5 h-5" /> : <span className="text-[12px] font-black">{i + 1}</span>}
-            </div>
-            <span className={`text-[10px] font-black uppercase tracking-widest ${i <= currentStep ? 'text-[#0059A3]' : 'text-slate-300'}`}>
-              {step}
-            </span>
-          </div>
-        ))}
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Sell Your Car</h2>
+        <p className="text-slate-500 font-medium tracking-wide">Fill in the details below and we'll handle the rest.</p>
       </div>
 
       <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.06)] border border-slate-50 overflow-hidden min-h-[500px] flex flex-col group/form">
-        <div className="flex-1 p-8 md:p-14">
-          <AnimatePresence mode="wait">
-            {currentStep === 0 && (
-              <motion.div
-                key="step0"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.02 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-10"
-              >
-                <FormInput label="Full Name" name="name" icon={User} value={formData.owner.name} onChange={(v:any) => updateOwner({name: v})} placeholder="Ex: John Doe" />
-                <FormInput label="Phone Number" name="phone" icon={Phone} value={formData.owner.phone} onChange={(v:any) => updateOwner({phone: v})} placeholder="+91 00000 00000" />
-                <FormInput label="Email Address" name="email" type="email" icon={Mail} value={formData.owner.email} onChange={(v:any) => updateOwner({email: v})} placeholder="hello@example.com" />
-                <FormInput label="City / Location" name="city" icon={MapPin} value={formData.owner.city} onChange={(v:any) => updateOwner({city: v})} placeholder="Ex: Bangalore" />
-              </motion.div>
-            )}
+        <div className="flex-1 p-8 md:p-14 space-y-12">
+          {/* Owner Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <FormInput label="First Name" name="firstName" icon={User} value={formData.firstName} onChange={(v:any) => updateField("firstName", v)} placeholder="Ex: John" />
+            <FormInput label="Last Name" name="lastName" icon={User} value={formData.lastName} onChange={(v:any) => updateField("lastName", v)} placeholder="Ex: Doe" />
+            <FormInput label="Phone Number" name="phone" icon={Phone} value={formData.phone} onChange={(v:any) => updateField("phone", v)} placeholder="+91 00000 00000" />
+            <FormInput label="Email Address" name="email" type="email" icon={Mail} value={formData.email} onChange={(v:any) => updateField("email", v)} placeholder="hello@example.com" />
+          </div>
 
-            {currentStep === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.02 }}
-                className="space-y-12"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <FormInput label="Brand" value={formData.car.brand} onChange={(v:any) => updateCar({brand: v})} placeholder="Ex: BMW" />
-                  <FormInput label="Model" value={formData.car.model} onChange={(v:any) => updateCar({model: v})} placeholder="Ex: 5 Series" />
-                  <FormInput label="Year" value={formData.car.year} onChange={(v:any) => updateCar({year: v})} placeholder="Ex: 2022" />
-                  <FormInput label="Mileage" value={formData.car.mileage} onChange={(v:any) => updateCar({mileage: v})} placeholder="Ex: 12,000" />
-                  <FormInput label="Expected Price" value={formData.car.expectedPrice} onChange={(v:any) => updateCar({expectedPrice: v})} placeholder="Ex: ₹ 45.5 Lakh" />
-                  <FormInput label="Reg. City" value={formData.car.regCity} onChange={(v:any) => updateCar({regCity: v})} placeholder="Ex: KA-01" />
-                </div>
+          <div className="h-px bg-slate-100 w-full" />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Fuel Type</label>
-                    <CustomSelect 
-                      value={formData.car.fuelType} 
-                      onChange={val => updateCar({fuelType: val})}
-                      options={["Petrol", "Diesel", "Electric", "Hybrid"]}
-                      placeholder="Select..."
-                    />
-                   </div>
-                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Transmission</label>
-                    <CustomSelect 
-                      value={formData.car.transmission} 
-                      onChange={val => updateCar({transmission: val})}
-                      options={["Automatic", "Manual"]}
-                      placeholder="Select..."
-                    />
-                   </div>
-                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Ownership</label>
-                    <CustomSelect 
-                      value={formData.car.ownership} 
-                      onChange={val => updateCar({ownership: val})}
-                      options={["1st Owner", "2nd Owner", "3rd Owner"]}
-                      placeholder="Select..."
-                    />
-                   </div>
-                </div>
+          {/* Car Details */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <FormInput label="Car Brand" icon={Car} value={formData.brand} onChange={(v:any) => updateField("brand", v)} placeholder="Ex: BMW" />
+            <FormInput label="Car Name / Model" icon={Settings2} value={formData.model} onChange={(v:any) => updateField("model", v)} placeholder="Ex: 5 Series" />
+            <FormInput label="Kilometres Driven" icon={Gauge} value={formData.mileage} onChange={(v:any) => updateField("mileage", v)} placeholder="Ex: 12,000" />
+          </div>
 
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Vehicle Media Portfolio</label>
-                  <div 
-                    onClick={() => fileRef.current?.click()}
-                    className="border-2 border-dashed border-slate-100 rounded-[2rem] p-12 text-center hover:border-royal hover:bg-blue-50/30 transition-all cursor-pointer group"
-                  >
-                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100 group-hover:scale-110 group-hover:bg-white transition-all">
-                      <Upload className="w-6 h-6 text-slate-300 group-hover:text-royal" />
-                    </div>
-                    <p className="text-sm font-black text-gray-900">Drop files or <span className="text-royal">browse device</span></p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Max 15 images • 5MB per image</p>
-                    <input type="file" multiple hidden ref={fileRef} onChange={handleImageUpload} accept="image/*" />
-                  </div>
-                  {formData.car.images.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '16px', padding: '4px', marginTop: '24px' }}>
-                      {formData.car.images.map((img, i) => {
-                        const isCover = formData.car.coverImageIndex === i;
-                        return (
-                          <div 
-                            key={i} 
-                            onClick={() => updateCar({ coverImageIndex: i })}
-                            style={{ 
-                              position: 'relative', height: '100px', borderRadius: '12px', overflow: 'hidden', 
-                              cursor: 'pointer', border: isCover ? '3px solid #0059A3' : '1px solid #e5e7eb',
-                              transition: 'all 0.2s', transform: isCover ? 'scale(1.05)' : 'scale(1)',
-                              boxShadow: isCover ? '0 10px 15px -3px rgba(0, 89, 163, 0.2)' : 'none',
-                              zIndex: isCover ? 10 : 1
-                            }}
-                          >
-                            <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: isCover ? 1 : 0.8 }} className="hover:opacity-100 transition-opacity" />
-                            
-                            {/* Selection Indicator */}
-                            {isCover ? (
-                              <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: '#0059A3', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '8px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                                <Star size={10} fill="white" /> COVER
-                              </div>
-                            ) : (
-                              <div className="opacity-0 hover:opacity-100 transition-opacity" style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                 <span style={{ color: 'white', fontSize: '9px', fontWeight: 800, textAlign: 'center', width: '100%' }}>SET AS COVER</span>
-                              </div>
-                            )}
+          <div className="h-px bg-slate-100 w-full" />
 
-                            <button 
-                              onClick={(e) => { 
-                                e.stopPropagation(); 
-                                const newImages = formData.car.images.filter((_, idx) => idx !== i);
-                                const newCoverIndex = isCover ? 0 : (formData.car.coverImageIndex > i ? formData.car.coverImageIndex - 1 : formData.car.coverImageIndex);
-                                updateCar({ images: newImages, coverImageIndex: newCoverIndex }); 
-                              }}
-                              style={{ position: 'absolute', top: '6px', right: '6px', padding: '4px', background: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', color: '#EF4444', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-                              className="hover:scale-110 active:scale-95 transition-transform"
-                              title="Remove Image"
-                            >
-                              <X size={12} />
-                            </button>
-                          </div>
-                      )})}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
+          {/* Car Uploaded Section */}
+          <div className="space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Vehicle Media Portfolio</label>
+            <div 
+              onClick={() => fileRef.current?.click()}
+              className="border-2 border-dashed border-slate-100 rounded-[2rem] p-12 text-center hover:border-[#0059A3] hover:bg-blue-50/30 transition-all cursor-pointer group"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100 group-hover:scale-110 group-hover:bg-white transition-all">
+                <Upload className="w-6 h-6 text-slate-300 group-hover:text-[#0059A3]" />
+              </div>
+              <p className="text-sm font-black text-gray-900">Drop files or <span className="text-[#0059A3]">browse device</span></p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Max 15 images • 5MB per image</p>
+              <input type="file" multiple hidden ref={fileRef} onChange={handleImageUpload} accept="image/*" />
+            </div>
+            {formData.images.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '16px', padding: '4px', marginTop: '24px' }}>
+                {formData.images.map((img, i) => {
+                  const isCover = formData.coverImageIndex === i;
+                  return (
+                    <div 
+                      key={i} 
+                      onClick={() => updateField("coverImageIndex", i)}
+                      style={{ 
+                        position: 'relative', height: '100px', borderRadius: '12px', overflow: 'hidden', 
+                        cursor: 'pointer', border: isCover ? '3px solid #0059A3' : '1px solid #e5e7eb',
+                        transition: 'all 0.2s', transform: isCover ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow: isCover ? '0 10px 15px -3px rgba(0, 89, 163, 0.2)' : 'none',
+                        zIndex: isCover ? 10 : 1
+                      }}
+                    >
+                      <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: isCover ? 1 : 0.8 }} className="hover:opacity-100 transition-opacity" />
+                      
+                      {isCover ? (
+                        <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: '#0059A3', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '8px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                          <Star size={10} fill="white" /> COVER
+                        </div>
+                      ) : (
+                        <div className="opacity-0 hover:opacity-100 transition-opacity" style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                           <span style={{ color: 'white', fontSize: '9px', fontWeight: 800, textAlign: 'center', width: '100%' }}>SET AS COVER</span>
+                        </div>
+                      )}
 
-            {currentStep === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.02 }}
-                className="space-y-12"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 [&_input::-webkit-calendar-picker-indicator]:cursor-pointer">
-                  <FormInput label="Preferred Date" type="date" value={formData.inspection.date} onChange={(v:any) => updateInspection({date: v})} />
-                  <FormInput label="Preferred Time" type="time" value={formData.inspection.time} onChange={(v:any) => updateInspection({time: v})} />
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Inspection Venue</label>
-                  <div className="flex gap-4">
-                    {["Home", "Office"].map((loc) => (
-                      <button
-                        key={loc}
-                        onClick={() => updateInspection({ location: loc as any })}
-                        className={`flex-1 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border ${
-                          formData.inspection.location === loc 
-                            ? 'bg-[#0059A3] border-[#0059A3] text-white shadow-lg shadow-[#0059A3]/20' 
-                            : 'bg-white border-slate-100 text-slate-400 hover:border-royal/30'
-                        }`}
+                      <button 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          const newImages = formData.images.filter((_, idx) => idx !== i);
+                          const newCoverIndex = isCover ? 0 : (formData.coverImageIndex > i ? formData.coverImageIndex - 1 : formData.coverImageIndex);
+                          setFormData(prev => ({ ...prev, images: newImages, coverImageIndex: newCoverIndex }));
+                        }}
+                        style={{ position: 'absolute', top: '6px', right: '6px', padding: '4px', background: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', color: '#EF4444', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                        className="hover:scale-110 active:scale-95 transition-transform"
+                        title="Remove Image"
                       >
-                        {loc}
+                        <X size={12} />
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Full Service Address</label>
-                  <div className="relative group">
-                    <div className="absolute left-4 top-4 w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-focus-within:border-royal group-focus-within:bg-blue-50/50 transition-all pointer-events-none z-10">
-                      <MapPin className="w-5 h-5 text-[#94a3b8] group-focus-within:text-royal transition-colors" />
                     </div>
-                    <textarea 
-                      value={formData.inspection.address} 
-                      onChange={e => updateInspection({address: e.target.value})}
-                      placeholder="Enter detailed address for the inspection visit"
-                      style={{ paddingLeft: "88px" }}
-                      className="w-full bg-white border border-slate-100 py-6 pr-6 rounded-[1.25rem] outline-none focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all text-sm font-bold text-gray-900 min-h-[140px] resize-none"
-                    />
-                  </div>
-                </div>
-              </motion.div>
+                )})}
+              </div>
             )}
-          </AnimatePresence>
+          </div>
         </div>
 
         {/* Action Bar */}
-        <div className="bg-slate-50/50 px-8 md:px-14 py-8 flex justify-between items-center border-t border-slate-100">
-          <button 
-            onClick={prevStep}
-            disabled={currentStep === 0 || isSubmitting}
-            className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${currentStep === 0 ? 'opacity-0 pointer-events-none' : 'text-slate-400 hover:text-gray-900 hover:-translate-x-1'}`}
-          >
-            <ArrowLeft className="w-4 h-4" /> Go Back
-          </button>
-
-          {currentStep === STEPS.length - 1 ? (
-             <button 
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-[#0059A3] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:scale-[1.03] active:scale-[0.98] transition-all shadow-xl shadow-[#0059A3]/20 disabled:opacity-50 flex items-center gap-3"
-              >
-                {isSubmitting ? (
-                  <>Processing... <RefreshCw className="w-4 h-4 animate-spin" /></>
-                ) : (
-                  <>Finalize Request <Sparkles className="w-4 h-4" /></>
-                )}
-              </button>
-          ) : (
-            <button 
-              onClick={nextStep}
-              className="bg-[#0059A3] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:scale-[1.03] active:scale-[0.98] transition-all shadow-xl shadow-[#0059A3]/20 flex items-center gap-3"
+        <div className="bg-slate-50/50 px-8 md:px-14 py-12 flex justify-center items-center border-t border-slate-100 rounded-b-[2.5rem]">
+           <button 
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="group bg-[#0059A3] text-white px-12 py-5 rounded-full font-black uppercase tracking-[0.1em] text-xs hover:bg-[#004a87] hover:shadow-2xl hover:shadow-[#0059A3]/40 hover:-translate-y-1 active:scale-95 transition-all shadow-xl shadow-[#0059A3]/20 disabled:opacity-50 flex items-center justify-center gap-3 min-w-[240px]"
             >
-              Continue <ArrowRight className="w-4 h-4" />
+              {isSubmitting ? (
+                <>Processing... <RefreshCw className="w-4 h-4 animate-spin" /></>
+              ) : (
+                <>Finalize Request <Car className="w-5 h-5 mb-0.5 transition-transform duration-300 group-hover:translate-x-2" /></>
+              )}
             </button>
-          )}
         </div>
       </div>
 

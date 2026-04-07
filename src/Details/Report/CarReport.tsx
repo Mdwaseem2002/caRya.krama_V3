@@ -127,7 +127,7 @@ function ReportContent() {
       <div className="min-h-screen bg-slate-100 pb-32 font-inter selection:bg-[#0059A3] selection:text-white" id="report-content">
       
       {/* A4 PAPER CONTAINER - Responsive wrapper */}
-      <div className="w-full max-w-[210mm] mx-auto bg-white min-h-[297mm] shadow-[0_20px_50px_rgba(0,0,0,0.1)] md:mt-12 md:mb-12 print:m-0 print:shadow-none" style={{ boxSizing: "border-box" }}>
+      <div className="w-full max-w-[210mm] mx-auto bg-white min-h-[297mm] shadow-[0_20px_50px_rgba(0,0,0,0.1)] md:mt-12 md:mb-12 md:rounded-[2.5rem] overflow-hidden print:m-0 print:shadow-none print:rounded-none" style={{ boxSizing: "border-box" }}>
         
         {/* 🔥 STEP 1: REPORT PAGE HEADER */}
         <div className="px-6 md:px-10 pt-12 pb-8 border-b-4 border-[#0059A3] flex flex-col items-center text-center bg-slate-50 relative overflow-hidden">
@@ -157,11 +157,12 @@ function ReportContent() {
            {/* 🔥 VEHICLE HERO IMAGE */}
            <div className="relative w-full aspect-video rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-lg group">
               <Image 
-                src={car.image || (car.images && car.images[0]) || "/placeholder-car.png"} 
+                src={car?.media?.coverImage || car?.image || (car?.media?.images && car?.media?.images[0]) || (car?.images && car?.images[0]) || "/placeholder-car.png"} 
                 alt={carName}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 210mm) 100vw, 800px"
+                unoptimized={(car?.media?.coverImage || car?.image || '').startsWith('data:')}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-8">
