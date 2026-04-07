@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Upload, X, Image as ImageIcon, Star, CheckCircle, Save, Send, ArrowLeft, ChevronDown } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Star, CheckCircle, Save, Send, ArrowLeft, ChevronDown, ClipboardCheck, FileUp, FileText as FileTextIcon } from "lucide-react";
 import { saveCarToStorage, updateCarInStorage, StoredCar } from "./CarStorage";
+import InspectionReportForm from "../InspectionReports/InspectionReportForm";
+import InspectionReportUpload from "../InspectionReports/InspectionReportUpload";
 
 
 // Custom Select Component for Premium UI
@@ -116,6 +118,10 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   const [city, setCity] = useState(editCar?.location.city || "Bangalore");
 
   const [tags, setTags] = useState<string[]>(editCar?.tags || ["New Arrival"]);
+
+  // Inspection Report
+  const [inspectionMode, setInspectionMode] = useState<"none" | "create" | "upload">("none");
+  const [inspectionSaved, setInspectionSaved] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -509,6 +515,72 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
             <input value={city} onChange={e => setCity(e.target.value)} placeholder="Bangalore" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
+      </section>
+
+      {/* 10. Vehicle Inspection Report */}
+      <section style={{ marginBottom: '32px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ClipboardCheck size={18} style={{ color: '#0059A3' }} /> 10. Vehicle Inspection Report
+        </h3>
+
+        {inspectionSaved ? (
+          <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <CheckCircle size={20} style={{ color: '#16a34a' }} />
+            <div>
+              <p style={{ fontWeight: 700, color: '#166534', margin: '0 0 2px', fontSize: '14px' }}>Inspection report saved successfully!</p>
+              <p style={{ color: '#6b7280', margin: 0, fontSize: '12px' }}>The report will be linked to this vehicle after publishing.</p>
+            </div>
+          </div>
+        ) : inspectionMode === "none" ? (
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <button
+              onClick={() => setInspectionMode("create")}
+              style={{
+                flex: 1, padding: '24px', borderRadius: '14px', border: '2px dashed #d1d5db',
+                backgroundColor: '#f9fafb', cursor: 'pointer', textAlign: 'center',
+                transition: 'all 0.2s', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: '10px'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#0059A3'; e.currentTarget.style.backgroundColor = '#f0f9ff'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; }}
+            >
+              <ClipboardCheck size={28} style={{ color: '#0059A3' }} />
+              <span style={{ fontWeight: 700, color: '#111827', fontSize: '14px' }}>Create Report</span>
+              <span style={{ fontSize: '12px', color: '#6b7280' }}>Fill the structured inspection form</span>
+            </button>
+            <button
+              onClick={() => setInspectionMode("upload")}
+              style={{
+                flex: 1, padding: '24px', borderRadius: '14px', border: '2px dashed #d1d5db',
+                backgroundColor: '#f9fafb', cursor: 'pointer', textAlign: 'center',
+                transition: 'all 0.2s', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: '10px'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#0059A3'; e.currentTarget.style.backgroundColor = '#f0f9ff'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; }}
+            >
+              <FileUp size={28} style={{ color: '#0059A3' }} />
+              <span style={{ fontWeight: 700, color: '#111827', fontSize: '14px' }}>Upload Report</span>
+              <span style={{ fontSize: '12px', color: '#6b7280' }}>PDF, Excel, or Word document</span>
+            </button>
+          </div>
+        ) : inspectionMode === "create" ? (
+          <InspectionReportForm
+            onBack={() => setInspectionMode("none")}
+            onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); }}
+            carId={editCar?.id}
+            carName={title || brand}
+            year={year}
+            odometer={mileage}
+          />
+        ) : (
+          <InspectionReportUpload
+            onBack={() => setInspectionMode("none")}
+            onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); }}
+            carId={editCar?.id}
+            carName={title || brand}
+          />
+        )}
       </section>
 
       {/* Fixed Bottom Action Bar */}

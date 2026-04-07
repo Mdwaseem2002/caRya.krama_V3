@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { 
   User, Settings, LogOut, ShieldCheck, Lock, Edit3, 
   Car, FileText, IndianRupee, Users, LayoutDashboard,
-  Plus
+  Plus, ClipboardCheck
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +18,7 @@ import DashboardView from "../Dashboard/DashboardView";
 import { getAllStoredCars, deleteCarFromStorage, StoredCar } from "../Upload/CarStorage";
 import UserManage from "../UserManagement/UserManage";
 import SellRequestsList from "../SellRequests/SellRequestsList";
+import InspectionReportsList from "../InspectionReports/InspectionReportsList";
 import { Sparkles } from "lucide-react";
 
 
@@ -25,7 +26,7 @@ export default function AdminProfile() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const mobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "cars" | "reports" | "payments" | "users" | "sell_requests">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "cars" | "reports" | "payments" | "users" | "sell_requests" | "inspection_reports">("dashboard");
 
   const [showUpload, setShowUpload] = useState(false);
   const [editingCar, setEditingCar] = useState<StoredCar | undefined>(undefined);
@@ -83,6 +84,7 @@ export default function AdminProfile() {
     { id: "reports" as const, label: "Report Management", icon: FileText },
     { id: "payments" as const, label: "Payment Tracking", icon: IndianRupee },
     { id: "sell_requests" as const, label: "Sell Requests", icon: Sparkles },
+    { id: "inspection_reports" as const, label: "Inspection Reports", icon: ClipboardCheck },
     { id: "users" as const, label: "User Management", icon: Users },
   ];
 
@@ -316,6 +318,14 @@ export default function AdminProfile() {
                       <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>Sell Requests Queue</h2>
                       <SellRequestsList />
                    </div>
+                )}
+
+                {/* ── INSPECTION REPORTS ── */}
+                {activeTab === "inspection_reports" && (
+                  <div>
+                    <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>Inspection Reports</h2>
+                    <InspectionReportsList />
+                  </div>
                 )}
 
                 {/* ── USERS ── */}
