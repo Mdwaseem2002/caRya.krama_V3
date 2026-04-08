@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
   // If already logged in as admin, redirect to admin dashboard
   React.useEffect(() => {
     if (user?.role === "admin") {
-      router.push("/Profile");
+      router.push("/admin/dashboard");
     }
   }, [user, router]);
 
@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         style={{ width: "100%", maxWidth: "420px", position: "relative", zIndex: 1 }}
       >
-        <Login role="admin" onSuccess={() => router.push("/Profile")} />
+        <Login role="admin" onSuccess={() => router.push("/admin/dashboard")} />
       </motion.div>
     </div>
   );

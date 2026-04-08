@@ -73,13 +73,16 @@ const SampleReport = () => {
         <div className="px-6 md:px-10 pt-12 pb-8 border-b-4 border-[#0059A3] flex flex-col items-center text-center bg-slate-50 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-[#0059A3]"></div>
           
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-[#0059A3] rounded-2xl flex items-center justify-center shadow-lg shadow-[#0059A3]/20">
-              <ShieldCheck className="w-6 h-6 text-white" />
+          {/* Branding Rectangle */}
+          <div className="w-full border-2 border-[#0059A3] rounded-2xl p-8 mb-8">
+            <div className="flex items-center gap-3 mb-2 justify-center">
+              <div className="w-12 h-12 bg-[#0059A3] rounded-2xl flex items-center justify-center shadow-lg shadow-[#0059A3]/20">
+                <ShieldCheck className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">caRya<span className="text-[#0059A3]">.krama</span></h1>
             </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">caRya<span className="text-[#0059A3]">.krama</span></h1>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest px-4">Professional Vehicle Inspection Services</p>
           </div>
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 px-4">Professional Vehicle Inspection Services</p>
           
           <h2 className="text-4xl font-black text-[#0059A3] tracking-tighter mb-8 leading-tight uppercase">Sample Audit Report</h2>
           

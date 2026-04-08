@@ -62,7 +62,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
       {/* Interactive Action Bar (Excluded from PDF) */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', position: 'sticky', top: '10px', zIndex: 50 }}>
         <button onClick={onClose} style={{ padding: '10px 20px', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '10px', fontWeight: 700, border: '1px solid #d1d5db', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          ← Back to Reports
+          ← Back
         </button>
         <button onClick={handleDownloadPDF} style={{ padding: '10px 24px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '10px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(0, 89, 163, 0.3)' }}>
           <Download size={18} /> Download PDF
@@ -85,17 +85,20 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
       >
         {/* Header Section */}
         <div style={{ textAlign: 'center', paddingBottom: '32px', borderBottom: '3px solid #0059A3', marginBottom: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px' }}>
-            <div style={{ backgroundColor: '#0059A3', color: 'white', padding: '6px', borderRadius: '8px', display: 'inline-flex' }}>
-              <ShieldCheck size={24} />
+          {/* Branding Rectangle */}
+          <div style={{ border: '3px solid #0059A3', padding: '24px', marginBottom: '32px', borderRadius: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div style={{ backgroundColor: '#0059A3', color: 'white', padding: '6px', borderRadius: '8px', display: 'inline-flex' }}>
+                <ShieldCheck size={24} />
+              </div>
+              <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em' }}>
+                caRya.<span style={{ color: '#0059A3' }}>krama</span>
+              </h1>
             </div>
-            <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em' }}>
-              caRya.<span style={{ color: '#0059A3' }}>krama</span>
-            </h1>
+            <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: '#6b7280', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              Professional Vehicle Inspection Services
+            </p>
           </div>
-          <p style={{ margin: '0 0 24px 0', fontSize: '11px', fontWeight: 700, color: '#6b7280', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Professional Vehicle Inspection Services
-          </p>
           
           <h2 style={{ fontSize: '26px', fontWeight: 900, color: '#0059A3', textTransform: 'uppercase', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>
             Vehicle Inspection Report

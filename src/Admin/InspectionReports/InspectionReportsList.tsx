@@ -70,7 +70,7 @@ export default function InspectionReportsList() {
     return (
       <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '32px' }}>
         <button onClick={() => { setView("list"); setViewReport(null); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#0059A3', fontWeight: 700, cursor: 'pointer', marginBottom: '24px', padding: 0 }}>
-          ← Back to Reports
+          ← Back
         </button>
 
         <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', marginBottom: '4px' }}>
