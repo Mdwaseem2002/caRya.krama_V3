@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2, ArrowUpRight, Instagram } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -269,6 +269,16 @@ export default function Testimonials() {
                   <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                      <Quote size={200} strokeWidth={1} />
                   </div>
+
+                  <a 
+                    href={featured.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:border-blue-200 hover:scale-110 active:scale-95 transition-all shadow-xl z-20"
+                    title="View on Instagram"
+                  >
+                    <Instagram size={20} />
+                  </a>
                   
                   <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center">
                      <a href={featured.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="shrink-0 cursor-pointer transition-transform hover:scale-105 active:scale-95">
