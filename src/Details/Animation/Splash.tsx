@@ -56,32 +56,12 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
         {/* PHASE 1: car.diologist (The Inspection) */}
         {step === 1 && (
           <motion.div key="p1" {...fadeUp} className="flex flex-col items-center">
-            <div className="relative mb-8">
-              <Image 
-                src="/logo/carYakrama.png" 
-                alt="caRya.krama" 
-                width={200} 
-                height={60} 
-                className="opacity-80 grayscale brightness-200"
-                priority 
-              />
-              <motion.div 
-                animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="absolute inset-x-0 -inset-y-4 bg-red-500/20 blur-2xl rounded-full"
-              />
-            </div>
-            <h2 className="text-4xl font-light tracking-widest text-white/90">
-              car.<span className="font-bold text-red-500">diologist</span>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white/90">
+              car.<span className="text-red-500">diologist</span>
             </h2>
-            <p className="text-[12px] uppercase tracking-[0.3em] text-white/60 mt-4">cardiologist only inspected used cars</p>
-            <motion.div
-              animate={{ y: [0, 5, 0], opacity: [0.5, 1, 0.5] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="mt-6"
-            >
-              <ChevronRight className="w-6 h-6 text-white/40 rotate-90" />
-            </motion.div>
+            <p className="text-sm md:text-xl font-black uppercase tracking-[0.4em] text-blue-500 mt-6 shadow-blue-500/20 drop-shadow-lg">
+              ONLY INSPECTED CARS
+            </p>
           </motion.div>
         )}
 
@@ -175,6 +155,24 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Persistent Navigation Arrow */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1, duration: 0.8 }}
+        className="fixed right-8 md:right-12 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-[100000]"
+      >
+        <div className="flex flex-col items-center gap-1 group">
+          <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 group-hover:text-blue-500 transition-colors duration-500">Wait</span>
+          <motion.div
+            animate={{ x: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          >
+            <ChevronRight className="w-5 h-5 text-white/30" />
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* Subtle Progress Bar */}
       <div className="fixed bottom-0 left-0 w-full h-[2px] bg-white/5">

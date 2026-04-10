@@ -41,8 +41,10 @@ export default function TestimonialsHome() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: index * 0.1 }}
-                className="group relative h-[450px] rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 transition-transform duration-500 hover:-translate-y-2"
+                whileHover={{ y: -8 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ isolation: "isolate" }}
+                className="group relative h-[450px] rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 will-change-transform"
               >
                 {/* Video/Story Background Placeholder */}
                 <div className="absolute inset-0 opacity-60 group-hover:opacity-40 transition-opacity">

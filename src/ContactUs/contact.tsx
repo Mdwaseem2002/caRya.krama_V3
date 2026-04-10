@@ -87,7 +87,7 @@ export default function Contact() {
                 <div className="text-center font-black uppercase tracking-widest text-[11px]">Direct Line</div>
               </a>
               <a
-                href="mailto:farhan@cartyakrama.com"
+                href="mailto:farhan@caryakrama.com"
                 className="flex flex-col items-center justify-center gap-4 glass-light border border-white/40 text-[#0f172a] p-8 rounded-[2rem] transition-all hover:bg-white/80 hover:scale-[1.02] active:scale-95 group shadow-sm"
               >
                 <div className="w-12 h-12 rounded-2xl bg-blue-500/5 flex items-center justify-center group-hover:scale-110 transition-transform border border-blue-500/10">
@@ -103,7 +103,7 @@ export default function Contact() {
               {[
                 { icon: Phone, label: "Direct Support", value: "+91 99001 87847", link: "tel:+919900187847" },
                 { icon: Clock, label: "Response Window", value: "Sun–Sat : 9 AM – 12 AM", link: null },
-                { icon: Globe, label: "Global Outreach", value: "farhan@cartyakrama.com", link: "mailto:farhan@cartyakrama.com" }
+                { icon: Globe, label: "Global Outreach", value: "farhan@caryakrama.com", link: "mailto:farhan@caryakrama.com" }
               ].map((item, i) => (
                 <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-6 py-8 gap-4 sm:gap-0 group">
                   <div className="flex items-center gap-4">
@@ -111,7 +111,7 @@ export default function Contact() {
                       <item.icon size={18} className="text-blue-500" />
                     </div>
                     <div>
-                      <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{item.label}</div>
+                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{item.label}</div>
                       {item.link ? (
                         <a href={item.link} className="text-sm font-black tracking-tight group-hover:text-blue-500 transition-colors uppercase text-[#0f172a]">{item.value}</a>
                       ) : (

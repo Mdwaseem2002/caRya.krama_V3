@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2, ArrowUpRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Star, Quote, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import StatisticsSection from "./StatisticsSection";
@@ -132,19 +132,46 @@ const badgeStyles: Record<BadgeKey, { color: string; bg: string }> = {
 };
 
 // ── Sub-components ─────────────────────────────────────
-function StarRating({ count }: { count: number }) {
-  return (
-    <div className="flex gap-1 mb-2">
-      {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} size={14} className="fill-blue-500 text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-      ))}
-    </div>
-  );
-}
 
-function TestimonialCard({ item }: { item: Testimonial }) {
+
+function TestimonialCard({ item, direction }: { item: Testimonial; direction: number }) {
+  const variants = {
+    enter: (dir: number) => ({
+      x: dir > 0 ? 100 : -100,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? -100 : 100,
+      opacity: 0,
+    }),
+  };
+
   return (
-    <div className="group relative h-[450px] rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 transition-transform duration-500 hover:-translate-y-2">
+    <motion.a 
+      layout
+      layoutId={String(item.id)}
+      custom={direction}
+      variants={variants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      href={item.instagramUrl} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      whileHover={{ y: -8 }}
+      transition={{ 
+        layout: { duration: 0.5, ease: "easeInOut" },
+        x: { duration: 0.5, ease: "easeInOut" },
+        opacity: { duration: 0.4 },
+        y: { duration: 0.3 }
+      }}
+      style={{ isolation: "isolate" }}
+      className="group relative h-[450px] w-full rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 block will-change-transform"
+    >
       {/* Video/Story Background Placeholder */}
       <div className="absolute inset-0 opacity-60 group-hover:opacity-40 transition-opacity">
          <Image 
@@ -187,26 +214,43 @@ function TestimonialCard({ item }: { item: Testimonial }) {
             <Image src={item.photo} alt={item.name} width={40} height={40} className="object-cover" />
           </div>
           <div>
-            <h4 className="font-black text-white text-xs tracking-tight">{item.name}</h4>
+            <h4 className="font-black text-white text-xs tracking-tight text-left">{item.name}</h4>
             <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest truncate">{item.car.split(" ").slice(-1)} Driver</p>
           </div>
         </div>
-
-
       </div>
-    </div>
+    </motion.a>
   );
 }
 
 // ── Main Component ─────────────────────────────────────
 export default function Testimonials() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [startIndex, setStartIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(6);
   const containerRef = useRef<HTMLElement>(null);
 
-  const prev = () => setActiveIndex((i) => (i - 1 + testimonials.length) % testimonials.length);
-  const next = () => setActiveIndex((i) => (i + 1) % testimonials.length);
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setVisibleCount(2);
+      else if (window.innerWidth < 1024) setVisibleCount(4);
+      else setVisibleCount(6);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const featured = testimonials[activeIndex];
+  const next = () => {
+    setDirection(1);
+    setStartIndex(prev => Math.min(prev + 2, testimonials.length - visibleCount));
+  };
+  const prev = () => {
+    setDirection(-1);
+    setStartIndex(prev => Math.max(prev - 2, 0));
+  };
+
+  const visibleItems = testimonials.slice(startIndex, startIndex + visibleCount);
 
   return (
     <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-24 pb-32 overflow-hidden">
@@ -235,70 +279,10 @@ export default function Testimonials() {
           </p>
         </section>
 
-        {/* ── FEATURED CAROUSEL ── */}
-        <div className="mb-40 flex items-center gap-4 lg:gap-12 flex-col lg:flex-row">
-            
-            {/* Nav Arrows - Desktop only side */}
-            <div className="hidden lg:flex flex-col gap-4">
-               <button onClick={prev} className="w-14 h-14 rounded-2xl bg-white border border-slate-200 hover:border-blue-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm">
-                  <ChevronLeft size={24} className="text-[#0f172a]" />
-               </button>
-               <button onClick={next} className="w-14 h-14 rounded-2xl bg-white border border-slate-200 hover:border-blue-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm">
-                  <ChevronRight size={24} className="text-[#0f172a]" />
-               </button>
-            </div>
-
-            <div className="flex-1 w-full relative">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={featured.id}
-                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.5, ease: "circOut" }}
-                  className="bg-white border border-slate-100 rounded-[3rem] p-8 md:p-16 relative overflow-hidden group shadow-2xl"
-                >
-                  <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                     <Quote size={200} strokeWidth={1} />
-                  </div>
-                  
-                  <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center">
-                     <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-[2.5rem] overflow-hidden rotate-3 group-hover:rotate-0 transition-transform duration-700 ring-4 ring-slate-100 shrink-0">
-                        <Image src={featured.photo} alt={featured.name} fill className="object-cover" sizes="224px" />
-                     </div>
-                     <div className="flex-1 text-center md:text-left">
-                        <StarRating count={featured.rating} />
-                        <blockquote className="text-xl md:text-4xl font-black mb-8 leading-tight tracking-tight">
-                           &ldquo;{featured.text}&rdquo;
-                        </blockquote>
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 md:gap-6">
-                           <div className="flex items-center gap-2 text-blue-400">
-                              <Car size={18} />
-                              <span className="text-sm font-black uppercase tracking-widest">{featured.car}</span>
-                           </div>
-                           <div className="text-white/30 text-xs font-bold uppercase tracking-[0.2em]">
-                              {featured.name} · {featured.location}
-                           </div>
-                        </div>
 
 
-                     </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Mobile Nav */}
-            <div className="lg:hidden flex gap-4 mt-6">
-               <button onClick={prev} className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center transition-all shadow-sm">
-                  <ChevronLeft size={20} className="text-[#0f172a]" />
-               </button>
-               <button onClick={next} className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center transition-all shadow-sm">
-                  <ChevronRight size={20} className="text-[#0f172a]" />
-               </button>
-            </div>
-        </div>
-
-        {/* ── MASONRY GRID ── */}
-        <section className="mb-40">
+        {/* ── TESTIMONIAL SLIDING WINDOW CAROUSEL ── */}
+        <section className="mb-40 relative px-4 md:px-12">
            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
               <div>
                 <h2 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-4">Community</h2>
@@ -306,11 +290,55 @@ export default function Testimonials() {
               </div>
            </div>
            
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {testimonials.map((item) => (
-                <div key={item.id}>
-                  <TestimonialCard item={item} />
-                </div>
+           <div className="relative flex items-center justify-center group/carousel">
+              {/* Navigation Arrows */}
+              <button 
+                onClick={prev}
+                disabled={startIndex === 0}
+                className="absolute left-[-20px] md:left-[-60px] z-20 w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-lg disabled:opacity-30 disabled:cursor-not-allowed group"
+              >
+                <ChevronLeft size={20} className="text-[#0f172a] group-hover:text-blue-500 transition-colors" />
+              </button>
+
+              <div className="flex-1 max-w-6xl py-8 overflow-hidden">
+                <LayoutGroup>
+                  <motion.div
+                    layout
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12"
+                  >
+                    <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                      {visibleItems.map((item) => (
+                        <motion.div 
+                          key={item.id} 
+                          layout
+                          className="flex justify-center flex-1"
+                        >
+                          <TestimonialCard item={item} direction={direction} />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+                </LayoutGroup>
+              </div>
+
+              <button 
+                onClick={next}
+                disabled={startIndex >= testimonials.length - visibleCount}
+                className="absolute right-[-20px] md:right-[-60px] z-20 w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-lg disabled:opacity-30 disabled:cursor-not-allowed group"
+              >
+                <ChevronRight size={20} className="text-[#0f172a] group-hover:text-blue-500 transition-colors" />
+              </button>
+           </div>
+
+           {/* Dots Indicator */}
+           <div className="flex items-center justify-center gap-3 mt-12">
+              {[0, 2].map((step) => (
+                <button 
+                  key={step}
+                  onClick={() => setStartIndex(step)}
+                  className={`h-1.5 transition-all duration-300 rounded-full ${startIndex === step ? 'w-8 bg-blue-500' : 'w-2 bg-slate-200 hover:bg-slate-300'}`}
+                  aria-label={`Go to step ${step}`}
+                />
               ))}
            </div>
         </section>

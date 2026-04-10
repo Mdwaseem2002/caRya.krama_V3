@@ -7,7 +7,7 @@ const steps = [
   {
     icon: <Search className="w-8 h-8" />,
     title: "Browse Cars",
-    description: "Explore our collection inspected pre loved vehicles",
+    description: "Explore Our collection of Inspected Pre-Loved Vehicles",
   },
   {
     icon: <MousePointer2 className="w-8 h-8" />,
