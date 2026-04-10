@@ -87,7 +87,7 @@ export default function Contact() {
                 <div className="text-center font-black uppercase tracking-widest text-[11px]">Direct Line</div>
               </a>
               <a
-                href="mailto:info@caryakrama.in"
+                href="mailto:farhan@cartyakrama.com"
                 className="flex flex-col items-center justify-center gap-4 glass-light border border-white/40 text-[#0f172a] p-8 rounded-[2rem] transition-all hover:bg-white/80 hover:scale-[1.02] active:scale-95 group shadow-sm"
               >
                 <div className="w-12 h-12 rounded-2xl bg-blue-500/5 flex items-center justify-center group-hover:scale-110 transition-transform border border-blue-500/10">
@@ -103,7 +103,7 @@ export default function Contact() {
               {[
                 { icon: Phone, label: "Direct Support", value: "+91 99001 87847", link: "tel:+919900187847" },
                 { icon: Clock, label: "Response Window", value: "Sun–Sat : 9 AM – 12 AM", link: null },
-                { icon: Globe, label: "Global Outreach", value: "info@caryakrama.in", link: "mailto:info@caryakrama.in" }
+                { icon: Globe, label: "Global Outreach", value: "farhan@cartyakrama.com", link: "mailto:farhan@cartyakrama.com" }
               ].map((item, i) => (
                 <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-6 py-8 gap-4 sm:gap-0 group">
                   <div className="flex items-center gap-4">

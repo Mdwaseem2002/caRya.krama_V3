@@ -34,7 +34,7 @@ const browseLinks = [
 const contactInfo = [
   { Icon: Phone, text: "+91 99001 87847", href: "tel:+919900187847" },
   { Icon: MessageCircle, text: "WhatsApp Us", href: "https://wa.me/919900187847" },
-  { Icon: Mail, text: "hello@caryakrama.in", href: "mailto:hello@caryakrama.in" },
+  { Icon: Mail, text: "farhan@cartyakrama.com", href: "mailto:farhan@cartyakrama.com" },
 ];
 
 const socials = [

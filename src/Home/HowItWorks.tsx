@@ -7,7 +7,7 @@ const steps = [
   {
     icon: <Search className="w-8 h-8" />,
     title: "Browse Cars",
-    description: "Explore our premium collection of certified pre-owned luxury vehicles.",
+    description: "Explore our collection inspected pre loved vehicles",
   },
   {
     icon: <MousePointer2 className="w-8 h-8" />,

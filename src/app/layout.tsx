@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "caRyakrama - Premium Dealership",
-  description: "Browse all premium used cars with our curated collection.",
+  title: "caRyakrama - Verified Dealership",
+  description: "Browse all verified used cars with our curated collection.",
   icons: {
     icon: "/logo/Favicon-1.png",
     shortcut: "/logo/Favicon-1.png",
@@ -16,7 +16,6 @@ import Footer from "@/components/Footer";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
-import Cursor from "@/Details/Animation/Cursor";
 
 export default function RootLayout({
   children,
@@ -34,7 +33,6 @@ export default function RootLayout({
         <SmoothScrollProvider>
           <AuthProvider>
             <WishlistProvider>
-              <Cursor />
               <Navbar />
               {children}
               <Footer />

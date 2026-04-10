@@ -14,7 +14,7 @@ const valueProps = [
   {
     id: 2,
     title: "Gearbox and Engine Warranty",
-    description: "Confidence in every purchase. Test your car in real-world conditions with complete peace of mind.",
+    description: "Coming Soon",
     icon: RefreshCw,
     color: "#3b82f6", // Blue
   },

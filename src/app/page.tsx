@@ -55,9 +55,9 @@ export default function Home() {
           >
             <VisitorTracker />
             <Hero />
+            <HowItWorks />
             <ValueProp />
             <ShowCar />
-            <HowItWorks />
             <TrustSections />
             <InspectedCar />
             <OurStory />

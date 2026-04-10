@@ -45,15 +45,13 @@ export default function TestimonialsHome() {
                 className="group relative h-[450px] rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 transition-transform duration-500 hover:-translate-y-2"
               >
                 {/* Video/Story Background Placeholder */}
-                <div className="absolute inset-0 opacity-60 group-hover:opacity-40 transition-opacity cursor-pointer">
-                   <a href={item.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
-                    <Image 
-                      src={item.photo} // Using customer photo as background for now, stylized
-                      alt="Testimonial Background"
-                      fill
-                      className="object-cover"
-                    />
-                   </a>
+                <div className="absolute inset-0 opacity-60 group-hover:opacity-40 transition-opacity">
+                   <Image 
+                     src={item.photo} // Using customer photo as background for now, stylized
+                     alt="Testimonial Background"
+                     fill
+                     className="object-cover"
+                   />
                 </div>
                 {/* Cinematic Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
@@ -90,7 +88,7 @@ export default function TestimonialsHome() {
                     href={item.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:bg-blue-600 hover:text-white shadow-xl"
+                    className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
                   >
                     Watch Story on IG
                     <ArrowUpRight size={14} />

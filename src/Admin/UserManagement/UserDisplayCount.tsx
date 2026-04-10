@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getAllUsers, User, getUserCounts } from "../../Details/Sign/SignFetch/SignFetch";
 
 /**
- * UserDisplayCount - A premium dashboard component to manage and view users.
+ * UserDisplayCount - A high-end dashboard component to manage and view users.
  * Displays counts for admins and customers and provides a searchable table.
  */
 export default function UserDisplayCount() {

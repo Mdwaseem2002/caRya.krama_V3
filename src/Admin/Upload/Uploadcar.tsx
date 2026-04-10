@@ -5,7 +5,7 @@ import InspectionReportForm from "../InspectionReports/InspectionReportForm";
 import InspectionReportUpload from "../InspectionReports/InspectionReportUpload";
 
 
-// Custom Select Component for Premium UI
+// Custom Select Component for Sleek UI
 const CustomSelect = ({ value, onChange, options, placeholder }: { value: string, onChange: (val: string) => void, options: string[], placeholder: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

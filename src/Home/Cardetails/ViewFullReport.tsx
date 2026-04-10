@@ -203,7 +203,7 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
           <div className="grid grid-cols-2 gap-6 relative z-10">
             <div className="space-y-1">
                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Entity Name</div>
-               <div className="text-lg font-black text-white tracking-tight">{isUploaded ? (car as any).sellerDetails?.name : "caRya.krama Premium"}</div>
+               <div className="text-lg font-black text-white tracking-tight">{isUploaded ? (car as any).sellerDetails?.name : "caRya.krama"}</div>
             </div>
             <div className="space-y-1">
                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Certification</div>

@@ -6,7 +6,7 @@
 
 /* ═══════════════════════════════════════════════════════════════
    SOVEREIGN BLUE — DESIGN SYSTEM v3.0
-   8pt Grid · Fluid Typography · Cinematic Glass · Premium Motion
+   8pt Grid · Fluid Typography · Cinematic Glass · Seamless Motion
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
@@ -292,7 +292,7 @@
   color: #ffffff;
 }
 
-/* Gold glass — premium accent surfaces */
+/* Gold glass — accent surfaces */
 .glass-gold {
   background: var(--glass-gold-bg);
   backdrop-filter: blur(var(--glass-gold-blur)) saturate(150%);

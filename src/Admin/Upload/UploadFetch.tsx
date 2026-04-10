@@ -41,7 +41,7 @@ export default function UploadFetch() {
             Just <span className="text-emerald-600">Arrived</span>.
           </h2>
           <p className="text-gray-500 text-sm md:text-base font-medium max-w-xl">
-            Recently uploaded premium vehicles straight from our inspection centers.
+            Recently uploaded verified vehicles straight from our inspection centers.
           </p>
         </div>
 

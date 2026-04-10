@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2, ArrowUpRight, Instagram } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Quote, Car, ArrowRight, CheckCircle2, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -147,14 +147,12 @@ function TestimonialCard({ item }: { item: Testimonial }) {
     <div className="group relative h-[450px] rounded-[2.5rem] overflow-hidden bg-black shadow-2xl flex flex-col justify-end p-8 border border-white/10 transition-transform duration-500 hover:-translate-y-2">
       {/* Video/Story Background Placeholder */}
       <div className="absolute inset-0 opacity-60 group-hover:opacity-40 transition-opacity">
-         <a href={item.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-pointer">
-            <Image 
-              src={item.photo} 
-              alt="Testimonial Background"
-              fill
-              className="object-cover"
-            />
-         </a>
+         <Image 
+           src={item.photo} 
+           alt="Testimonial Background"
+           fill
+           className="object-cover"
+         />
       </div>
       {/* Cinematic Overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-between p-6">
@@ -194,15 +192,7 @@ function TestimonialCard({ item }: { item: Testimonial }) {
           </div>
         </div>
 
-        <a 
-          href={item.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:bg-blue-600 hover:text-white shadow-xl"
-        >
-          Watch Story on IG
-          <ArrowUpRight size={14} />
-        </a>
+
       </div>
     </div>
   );
@@ -269,23 +259,11 @@ export default function Testimonials() {
                   <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                      <Quote size={200} strokeWidth={1} />
                   </div>
-
-                  <a 
-                    href={featured.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:border-blue-200 hover:scale-110 active:scale-95 transition-all shadow-xl z-20"
-                    title="View on Instagram"
-                  >
-                    <Instagram size={20} />
-                  </a>
                   
                   <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center">
-                     <a href={featured.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="shrink-0 cursor-pointer transition-transform hover:scale-105 active:scale-95">
-                        <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-[2.5rem] overflow-hidden rotate-3 group-hover:rotate-0 transition-transform duration-700 ring-4 ring-slate-100">
-                           <Image src={featured.photo} alt={featured.name} fill className="object-cover" sizes="224px" />
-                        </div>
-                     </a>
+                     <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-[2.5rem] overflow-hidden rotate-3 group-hover:rotate-0 transition-transform duration-700 ring-4 ring-slate-100 shrink-0">
+                        <Image src={featured.photo} alt={featured.name} fill className="object-cover" sizes="224px" />
+                     </div>
                      <div className="flex-1 text-center md:text-left">
                         <StarRating count={featured.rating} />
                         <blockquote className="text-xl md:text-4xl font-black mb-8 leading-tight tracking-tight">
@@ -301,17 +279,7 @@ export default function Testimonials() {
                            </div>
                         </div>
 
-                        <div className="mt-8 flex justify-center md:justify-start">
-                           <a 
-                             href={featured.instagramUrl || "https://www.instagram.com/car.diologist.bengaluru/"}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             className="flex items-center gap-3 bg-blue-500 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-blue-500/20"
-                           >
-                             Watch Full Story
-                             <ArrowUpRight size={14} />
-                           </a>
-                        </div>
+
                      </div>
                   </div>
                 </motion.div>

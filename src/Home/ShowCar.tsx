@@ -29,14 +29,14 @@ const cars = [
     tag: "ELECTRIC SUV",
     mileage: "12,000 KMS",
     ownership: "1ST OWNER",
-    energy: "ELECTRIC ⚡",
+    energy: "ELECTRIC ",
     drive: "AUTOMATIC",
     location: "Bangalore",
   },
   {
     id: 3,
     name: "AUDI Q3",
-    variant: "PREMIUM PLUS",
+    variant: "PLUS",
     year: "2021",
     price: "₹32.50 Lakh",
     image: "/CarImages/Audi Q3.png",
@@ -54,7 +54,7 @@ const cars = [
     year: "2020",
     price: "₹9.80 Lakh",
     image: "/CarImages/Suzuki.png",
-    tag: "FAMILY CAR 👨‍👩‍👧‍👦",
+    tag: "FAMILY CAR ",
     mileage: "55,000 KMS",
     ownership: "1ST OWNER",
     energy: "PETROL",
@@ -149,7 +149,7 @@ export default function ShowCar() {
                   </motion.div>
                 </div>
 
-                {/* PREMIUM SPECS GRID */}
+                {/* CORE SPECS GRID */}
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   {[
                     { icon: Gauge, label: "MILEAGE", value: car.mileage },

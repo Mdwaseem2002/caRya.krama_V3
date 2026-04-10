@@ -7,7 +7,7 @@ import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 export default function Hero({ onStart }: { onStart: () => void }) {
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#f8fafc] py-20 px-6">
-      {/* Premium Background Elements */}
+      {/* Seamless Background Elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-100/30 rounded-full blur-[120px]" />
@@ -23,7 +23,7 @@ export default function Hero({ onStart }: { onStart: () => void }) {
         >
           <Sparkles className="w-4 h-4 text-royal" />
           <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-[#0f172a]/60">
-            Premium Selling Experience
+            Seamless Selling Experience
           </span>
         </motion.div>
 

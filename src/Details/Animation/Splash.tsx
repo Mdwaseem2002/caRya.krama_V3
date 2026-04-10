@@ -9,7 +9,7 @@ interface SplashProps {
   onComplete: () => void;
 }
 
-// Refined animation presets for a premium feel
+// Refined animation presets for a high-end feel
 const fadeUp = {
   initial: { opacity: 0, y: 10, filter: "blur(8px)" },
   animate: { opacity: 1, y: 0, filter: "blur(0px)" },
@@ -56,18 +56,32 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
         {/* PHASE 1: car.diologist (The Inspection) */}
         {step === 1 && (
           <motion.div key="p1" {...fadeUp} className="flex flex-col items-center">
-            <div className="relative mb-6">
-              <Activity className="w-14 h-14 text-red-500/80" />
+            <div className="relative mb-8">
+              <Image 
+                src="/logo/carYakrama.png" 
+                alt="caRya.krama" 
+                width={200} 
+                height={60} 
+                className="opacity-80 grayscale brightness-200"
+                priority 
+              />
               <motion.div 
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="absolute inset-0 bg-red-500 rounded-full blur-xl"
+                animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="absolute inset-x-0 -inset-y-4 bg-red-500/20 blur-2xl rounded-full"
               />
             </div>
-            <h2 className="text-2xl font-light tracking-widest text-white/90">
+            <h2 className="text-4xl font-light tracking-widest text-white/90">
               car.<span className="font-bold text-red-500">diologist</span>
             </h2>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-white/40 mt-2">Initial Inspection</p>
+            <p className="text-[12px] uppercase tracking-[0.3em] text-white/60 mt-4">cardiologist only inspected used cars</p>
+            <motion.div
+              animate={{ y: [0, 5, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="mt-6"
+            >
+              <ChevronRight className="w-6 h-6 text-white/40 rotate-90" />
+            </motion.div>
           </motion.div>
         )}
 
@@ -78,35 +92,39 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
             <h2 className="text-4xl font-black text-white uppercase leading-tight italic">
               REJECTED.
             </h2>
-            <p className="text-red-500/80 font-medium mt-2 tracking-wide">
-              The underlying problem still remains.
+            <p className="text-red-500/80 font-medium mt-4 tracking-wide leading-relaxed">
+              Many cars got rejected and the issue still remains.
             </p>
-            <div className="mt-6 h-[1px] w-full bg-gradient-to-r from-transparent via-red-900 to-transparent" />
+            <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-3">
+              Solution not provided.
+            </p>
+            <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-transparent via-red-900 to-transparent" />
           </motion.div>
         )}
 
         {/* PHASE 3: caRya.krama (The Solution) */}
         {step === 3 && (
           <motion.div key="p3" {...fadeUp} className="flex flex-col items-center">
+             
              <div className="relative mb-8">
                 <Image 
                   src="/logo/carYakrama.png" 
                   alt="caRya.krama" 
-                  width={320} 
-                  height={100} 
-                  className="brightness-125"
+                  width={340} 
+                  height={110} 
+                  className="brightness-150"
                   priority 
                 />
                 <motion.div 
                   initial={{ width: 0 }} 
                   animate={{ width: "100%" }} 
                   transition={{ delay: 0.5, duration: 1 }}
-                  className="absolute -bottom-2 left-0 h-1 bg-blue-600"
+                  className="absolute -bottom-2 left-0 h-[2px] bg-blue-600"
                 />
              </div>
-             <div className="flex items-center gap-3 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full">
+             <div className="flex items-center gap-3 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.15)]">
                 <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">Resolution Verified</span>
+                <span className="text-blue-400 text-[11px] font-black uppercase tracking-[0.15em]">And now, caRya.krama is the solution.</span>
              </div>
           </motion.div>
         )}

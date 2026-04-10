@@ -189,7 +189,7 @@ export default function UserManage() {
                     </div>
                     {user.reportsPurchased.length >= 3 && (
                       <div className="mt-1">
-                        <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">Premium</span>
+                        <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">Verified</span>
                       </div>
                     )}
                   </td>

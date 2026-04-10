@@ -45,7 +45,7 @@ export default function HowItWorks() {
           <div className="flex items-center justify-center gap-3">
              <div className="h-px w-8 bg-slate-200" />
              <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">
-                A seamless path from driveway to marketplace
+                A seamless path
              </p>
              <div className="h-px w-8 bg-slate-200" />
           </div>

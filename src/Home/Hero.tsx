@@ -109,7 +109,7 @@ export default function Hero() {
           <div className="relative w-full aspect-[4/3] sm:aspect-video md:h-full md:aspect-auto md:w-[70%] lg:w-[75%]">
             <Image
               src="/car Brand.png"
-              alt="caRyakrama Premium Used Cars"
+              alt="caRyakrama Verified Used Cars"
               fill
               priority
               className="object-cover opacity-100"
@@ -171,7 +171,7 @@ export default function Hero() {
             {/* ── GROUP 2: Subheadline + USP Badge ── */}
             <div ref={group2Ref} className="flex flex-col items-start gap-5 sm:gap-6 w-full -mt-1 md:mt-0">
               <p className="text-[14px] sm:text-base lg:text-[18px] max-w-[650px] leading-[1.6] text-white/85 font-medium tracking-wide drop-shadow-2xl text-left">
-                Say goodbye to uncertainty in the used car market. caRya.krama brings you the <span className="text-sky font-semibold">best cars you can trust</span>.
+                We eliminate the noise. Our experts scout hundreds of vehicles, selecting only the <span className="text-sky font-semibold">top 5%</span> that match our uncompromising standards.
               </p>
  
               {/* ── SIMPLIFIED USP PILL ── */}

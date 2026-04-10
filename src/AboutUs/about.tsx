@@ -49,14 +49,6 @@ export default function About() {
     },
     {
       id: 3,
-      title: "Specialist Audit Clearance",
-      description: "100% guaranteed legal status with fully verified agency records and clean titles.",
-      icon: ShieldCheck,
-      color: "text-teal-500",
-      bg: "bg-teal-500/10"
-    },
-    {
-      id: 4,
       title: "Exceptional Delivery",
       description: "Your car is detailed, polished, and presented ready for the road with absolute transparency.",
       icon: ThumbsUp,
@@ -108,7 +100,7 @@ export default function About() {
                 <span className="text-xs font-black uppercase tracking-widest">certified standards</span>
              </div>
              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black mb-3 tracking-tighter text-white">The Sovereign Standard</h2>
-             <p className="text-white/80 text-[13px] sm:text-base md:text-lg max-w-xl font-medium leading-relaxed italic">Curating only the most premium, inspected vehicles for a clientele that refuses to compromise on quality.</p>
+             <p className="text-white/80 text-[13px] sm:text-base md:text-lg max-w-xl font-medium leading-relaxed italic">Curating only the most verified, inspected vehicles for a clientele that refuses to compromise on quality.</p>
           </div>
         </div>
 

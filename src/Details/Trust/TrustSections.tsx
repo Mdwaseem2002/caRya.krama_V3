@@ -26,7 +26,7 @@ export default function TrustSections() {
                 How We <span className="text-blue-600">Procure</span> <br /> the Best Cars.
               </h2>
               <p className="text-lg text-gray-500 font-medium leading-relaxed max-w-xl">
-                We eliminate the noise. Our experts scout hundreds of vehicles, selecting only the top 5% that match our uncompromising standards.
+                We don’t list cars. We curate excellence — only the top-tier vehicles make it through.
               </p>
             </div>
 

@@ -61,7 +61,7 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
       </motion.h2>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
         style={{ color: '#6b7280', marginBottom: mobile ? '20px' : '32px', textAlign: 'center', fontSize: mobile ? '13px' : '15px' }}>
-        Join caRya.krama for a premium experience
+        Join caRya.krama for a verified experience
       </motion.p>
       <motion.form variants={containerVariants} initial="hidden" animate="visible" onSubmit={handleSubmit} style={{ width: '100%' }}>
         <motion.div variants={itemVariants} style={inputRow}>

@@ -91,7 +91,7 @@ const usedCars: UsedCarData[] = [
     location: "Whitefield, Bangalore",
     image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=800&auto=format&fit=crop",
     inspectionScore: "9.7/10", condition: "Like New",
-    inspectionSummary: ["Zero paint work", "Original tyres intact", "Premium audio working", "AC cooling excellent"],
+    inspectionSummary: ["Zero paint work", "Original tyres intact", "Verified audio working", "AC cooling excellent"],
     isNewArrival: true, isFeatured: true, reportPrice: "₹199",
     ownerType: "1st Owner", warranty: true,
   },
