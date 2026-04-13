@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { hasPurchased } from "@/Admin/data/purchases";
-import { cars } from "@/Home/Card";
+import { cars } from "@/data/inventory";
 import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
 import InspectionReportPDFView from "@/Admin/InspectionReports/InspectionReportPDFView";
 import { InspectionReportData } from "@/Admin/InspectionReports/InspectionStorage";

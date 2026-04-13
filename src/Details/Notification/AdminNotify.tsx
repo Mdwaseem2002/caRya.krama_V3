@@ -15,6 +15,7 @@ export interface AdminNotificationData {
   type: AdminNotifType;
   read: boolean;
   createdAt: string | Date;
+  cta?: { label: string; href: string };
 }
 
 const STORAGE_KEY = "admin_notifications";

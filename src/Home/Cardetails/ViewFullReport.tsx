@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { ShieldCheck, CheckCircle2, ChevronRight } from "lucide-react";
 import ViewReop from "@/Details/Popup/ViewReop";
 import { hasPurchased } from "@/Admin/data/purchases";
-import { cars as staticCars } from "../Card";
+import { cars as staticCars } from "@/data/inventory";
 import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
 
 interface ViewFullReportProps {

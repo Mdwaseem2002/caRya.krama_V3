@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
-import { cars as staticCars } from "@/Home/Card";
+import { cars as staticCars } from "@/data/inventory";
 import { ShieldCheck, User as UserIcon, Mail, Phone, MapPin, ClipboardCheck, Info, Check } from "lucide-react";
 import { motion } from "framer-motion";
 

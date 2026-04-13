@@ -8,6 +8,7 @@ import PaymentDone from "../Popup/PaymentDone";
 import { addPurchase } from "@/Admin/data/purchases";
 import { getReportByCarId } from "@/Admin/data/reports";
 import { cars } from "@/data/inventory";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Pay() {
   const router = useRouter();
