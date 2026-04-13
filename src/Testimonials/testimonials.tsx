@@ -178,6 +178,7 @@ function TestimonialCard({ item, direction }: { item: Testimonial; direction: nu
            src={item.photo} 
            alt="Testimonial Background"
            fill
+           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 75vw, 50vw"
            className="object-cover"
          />
       </div>

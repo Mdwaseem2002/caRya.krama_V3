@@ -152,7 +152,7 @@ export default function SearchEngine() {
   };
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-0">
       {/* ── HEADER ── */}
       <div className="text-center mb-6 md:mb-10">
         <h2 className="text-3xl md:text-6xl font-black tracking-tighter text-[#0f172a] mb-2 md:mb-4">
@@ -233,7 +233,7 @@ export default function SearchEngine() {
       </div>
 
       {/* ── POPULAR TAGS ── */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-8 md:mt-10 mb-10 md:mb-12">
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-4 md:mt-6 mb-4 md:mb-6">
         <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 flex items-center gap-2 opacity-60">
           Popular:
         </span>

@@ -79,7 +79,20 @@ export async function saveCarToStorage(
   }
 
   const data = await res.json();
-  return data.car as StoredCar;
+  const savedCar = data.car as StoredCar;
+
+  // Trigger Admin Notification
+  if (typeof window !== "undefined") {
+    import("@/Details/Notification/AdminNotify").then(({ addAdminNotification }) => {
+      addAdminNotification({
+        title: "Car Uploaded Successfully ✅",
+        message: `You uploaded ${savedCar.title}.`,
+        type: "upload"
+      });
+    });
+  }
+
+  return savedCar;
 }
 
 /** Update an existing car by ID (call from Uploadcar.tsx when editing) */

@@ -34,7 +34,7 @@ const browseLinks = [
 const contactInfo = [
   { Icon: Phone, text: "+91 99001 87847", href: "tel:+919900187847" },
   { Icon: MessageCircle, text: "WhatsApp Us", href: "https://wa.me/919900187847" },
-  { Icon: Mail, text: "farhan@cartyakrama.com", href: "mailto:farhan@cartyakrama.com" },
+  { Icon: Mail, text: "farhan@caryakrama.com", href: "mailto:farhan@caryakrama.com" },
 ];
 
 const socials = [
@@ -106,7 +106,7 @@ export default function Footer() {
         className="relative z-10 border-b"
         style={{ borderColor: "rgba(255,255,255,0.07)" }}
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-10 py-8 sm:py-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 sm:gap-6">
+        <div className="max-w-7xl mx-auto px-5 sm:px-10 py-6 sm:py-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 sm:gap-6">
           <div className="text-left">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2" style={{ color: "var(--color-gold)" }}>
               The Inner Circle
@@ -137,7 +137,7 @@ export default function Footer() {
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 md:py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
           {/* COL 1 — Brand */}
@@ -268,7 +268,7 @@ export default function Footer() {
         className="footer-bottom relative z-10 border-t"
         style={{ borderColor: "rgba(255,255,255,0.07)" }}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-4 md:py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs font-medium text-center sm:text-left" style={{ color: "rgba(200,215,240,0.65)" }}>
             © {new Date().getFullYear()}{" "}
             <span className="font-bold" style={{ color: "var(--color-gold)" }}>caRya.krama</span>

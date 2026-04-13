@@ -52,6 +52,7 @@ export default function TestimonialsHome() {
                      src={item.photo} // Using customer photo as background for now, stylized
                      alt="Testimonial Background"
                      fill
+                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                      className="object-cover"
                    />
                 </div>
@@ -136,27 +137,27 @@ export default function TestimonialsHome() {
                 </Link>
 
                 {/* Performance Metrics */}
-                <div className="mt-24 grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 border-t border-slate-100">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4 text-blue-500 shadow-sm">
-                       <TrendingUp size={20} />
+                <div className="mt-12 md:mt-24 grid grid-cols-3 gap-2 md:gap-8 pt-8 md:pt-12 border-t border-slate-100">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-8 h-8 md:w-12 md:h-12 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-2 md:mb-4 text-blue-500 shadow-sm">
+                       <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <p className="text-2xl md:text-4xl font-black mb-1 tracking-tighter text-[#0f172a]">10,000+</p>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Assets Deployed</p>
+                    <p className="text-sm md:text-4xl font-black mb-0.5 md:mb-1 tracking-tighter text-[#0f172a]">10,000+</p>
+                    <p className="text-[7px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400">Assets Deployed</p>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4 text-indigo-500 shadow-sm">
-                       <Users size={20} />
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-8 h-8 md:w-12 md:h-12 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-2 md:mb-4 text-indigo-500 shadow-sm">
+                       <Users className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <p className="text-2xl md:text-4xl font-black mb-1 tracking-tighter text-[#0f172a]">98%</p>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loyalty Index</p>
+                    <p className="text-sm md:text-4xl font-black mb-0.5 md:mb-1 tracking-tighter text-[#0f172a]">98%</p>
+                    <p className="text-[7px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400">Loyalty Index</p>
                   </div>
-                  <div className="flex flex-col items-center col-span-2 md:col-span-1">
-                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4 text-teal-500 shadow-sm">
-                       <CheckCircle2 size={20} />
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-8 h-8 md:w-12 md:h-12 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-2 md:mb-4 text-teal-500 shadow-sm">
+                       <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <p className="text-2xl md:text-4xl font-black mb-1 tracking-tighter text-[#0f172a]">100%</p>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Detailed Audits</p>
+                    <p className="text-sm md:text-4xl font-black mb-0.5 md:mb-1 tracking-tighter text-[#0f172a]">100%</p>
+                    <p className="text-[7px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400">Detailed Audits</p>
                   </div>
                 </div>
               </motion.div>

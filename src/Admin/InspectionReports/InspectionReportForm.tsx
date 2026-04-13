@@ -138,6 +138,17 @@ export default function InspectionReportForm({
         await saveInspectionReport(reportData);
       }
 
+      // Trigger Admin Notification
+      if (typeof window !== "undefined") {
+        import("@/Details/Notification/AdminNotify").then(({ addAdminNotification }) => {
+          addAdminNotification({
+            title: "Report Generated 📄",
+            message: `Inspection report for ${vdCarName} created successfully.`,
+            type: "report"
+          });
+        });
+      }
+
       onSuccess();
     } catch (err: any) {
       alert(`Failed to save report: ${err?.message || "Unknown error"}`);

@@ -29,7 +29,7 @@ export default function UploadFetch() {
   if (!mounted || cars.length === 0) return null;
 
   return (
-    <section className="relative bg-slate-50 text-gray-900 pt-16 pb-12 overflow-hidden">
+    <section className="relative bg-slate-50 text-gray-900 pt-8 pb-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
 
         {/* Header */}

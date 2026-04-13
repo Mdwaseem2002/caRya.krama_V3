@@ -75,6 +75,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         setUser(adminUser);
         localStorage.setItem(SESSION_KEY, JSON.stringify(adminUser));
+
+        // Trigger Admin Welcome Notification
+        import("@/Details/Notification/AdminNotify").then(({ addAdminNotification }) => {
+          addAdminNotification({
+            title: "Welcome Back Admin 👋",
+            message: "You're now in control of the system.",
+            type: "system"
+          });
+        });
+
         return true;
       }
       return false;
@@ -92,6 +102,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const data = await res.json();
           setUser(data.user);
           localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+
+          // Trigger Customer Login Notification
+          import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
+            addNotification(data.user.id, {
+              title: "Welcome Back! 👋",
+              message: `Great to see you again, ${data.user.name}.`,
+              type: "system"
+            });
+          });
+
           return true;
         }
       } catch (error) {
@@ -120,6 +140,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Auto login by setting the user session immediately
           setUser(data.user);
           localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+
+          // Trigger New Account Notification
+          import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
+            addNotification(data.user.id, {
+              title: "Account Created! 🎉",
+              message: `Welcome to caRya.krama, ${data.user.name}. Start exploring cars today!`,
+              type: "system",
+              cta: { label: "Explore Cars", href: "/BuyCar" }
+            });
+          });
+
           return true;
         }
       } catch (error) {

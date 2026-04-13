@@ -65,17 +65,17 @@ const cars = [
 
 export default function ShowCar() {
   return (
-    <section className="min-h-screen flex items-center py-12 md:py-20 bg-ghost overflow-hidden">
+    <section className="min-h-screen flex items-center py-8 md:py-20 bg-ghost overflow-hidden">
       <div className="max-w-7xl mx-auto px-4">
         
         {/* ── HEADING SECTION ── */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <motion.h2
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-3xl md:text-6xl font-black mb-6 tracking-tight text-navy leading-tight"
+            className="text-2xl md:text-6xl font-black mb-6 tracking-tight text-navy leading-tight"
           >
             Built on <span className="text-royal">Trust.</span> <br className="hidden md:block" />
             Designed for <span className="text-royal">Excellence.</span>

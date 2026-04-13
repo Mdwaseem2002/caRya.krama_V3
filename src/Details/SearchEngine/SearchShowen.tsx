@@ -69,6 +69,7 @@ export default function SearchShowen({ filteredCars, query }: SearchShowenProps)
                  src={car.media.coverImage || "/placeholder-car.jpg"} 
                  alt={car.title} 
                  fill 
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                  className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                />
                <div className="absolute top-6 left-6">

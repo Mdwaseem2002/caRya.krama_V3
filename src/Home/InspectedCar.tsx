@@ -15,13 +15,13 @@ export default function InspectedCar() {
   ];
 
   return (
-    <section className="min-h-screen flex items-center py-12 md:py-20 bg-ghost overflow-hidden relative">
+    <section className="min-h-screen flex items-center py-8 md:py-20 bg-ghost overflow-hidden relative">
       {/* Background Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/30 blur-[120px] rounded-full -z-10" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-50/40 blur-[100px] rounded-full -z-10" />
 
       <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-center">
           
           {/* ── LEFT SIDE: CONTENT ── */}
           <motion.div
@@ -44,7 +44,7 @@ export default function InspectedCar() {
               Get access to a comprehensive inspection report covering everything from the engine heart to the finest interior stitches.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-8">
               {points.map((point, index) => (
                 <motion.div 
                   key={index}
@@ -82,12 +82,8 @@ export default function InspectedCar() {
               {/* Header Info */}
               <div className="flex justify-between items-start mb-10">
                 <div>
-                  <h3 className="text-2xl font-black text-navy mb-1">Inspection Status</h3>
+                  <h3 className="text-2xl font-black text-navy mb-1">Inspection Report</h3>
                   <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Report ID: #CK-99420</p>
-                </div>
-                <div className="p-4 bg-green-50 rounded-3xl text-center min-w-[100px] border border-green-100">
-                  <p className="text-[10px] font-black text-green-600 uppercase mb-1">Score</p>
-                  <p className="text-2xl font-black text-green-700">9.8/10</p>
                 </div>
               </div>
 

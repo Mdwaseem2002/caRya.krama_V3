@@ -272,7 +272,7 @@ export default function WishlistPage() {
                 {recommendations.map((car, i) => (
                    <div key={car.id} className="group relative bg-white rounded-[2.5rem] border border-gray-100 p-3 shadow-sm hover:shadow-xl transition-all h-full">
                       <Link href={`/car/${car.id}`} className="block relative aspect-[16/10] rounded-[2rem] overflow-hidden mb-4">
-                         <Image src={car.image} alt={car.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                         <Image src={car.image} alt={car.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                       

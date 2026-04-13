@@ -129,7 +129,7 @@ export default function Hero() {
 
         {/* ── MAIN CONTENT (Left Side Text) ── */}
         <div
-          className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 py-10 sm:py-12 lg:pt-20 lg:pb-8"
+          className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 py-6 sm:py-12 lg:pt-20 lg:pb-8"
           style={{ zIndex: 10 }}
         >
           {/* Top Group: Headline + Subheadline */}
@@ -159,7 +159,7 @@ export default function Hero() {
               </Link>
  
               {/* Headline */}
-              <h1 className="text-[28px] leading-[1.15] sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-2xl text-left">
+              <h1 className="text-[24px] leading-[1.15] sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-2xl text-left">
                 Every Car You See is{" "}
                 <span className="text-royal">Handpicked,</span>
                 <br className="hidden sm:block" />
@@ -170,7 +170,7 @@ export default function Hero() {
  
             {/* ── GROUP 2: Subheadline + USP Badge ── */}
             <div ref={group2Ref} className="flex flex-col items-start gap-5 sm:gap-6 w-full -mt-1 md:mt-0">
-              <p className="text-[14px] sm:text-base lg:text-[18px] max-w-[650px] leading-[1.6] text-white/85 font-medium tracking-wide drop-shadow-2xl text-left">
+              <p className="text-[13px] sm:text-base lg:text-[18px] max-w-[650px] leading-[1.6] text-white/85 font-medium tracking-wide drop-shadow-2xl text-left">
                 We eliminate the noise. Our experts scout hundreds of vehicles, selecting only the <span className="text-sky font-semibold">top 5%</span> that match our uncompromising standards.
               </p>
  
@@ -190,7 +190,7 @@ export default function Hero() {
           </div>
  
           {/* Middle Group: CTA */}
-          <div className="flex flex-col items-center lg:items-start w-full mt-8 sm:mt-12 lg:mt-6">
+          <div className="flex flex-col items-center lg:items-start w-full mt-6 sm:mt-12 lg:mt-6">
             <div className="w-full flex justify-center lg:justify-start">
               <Link
                 href="/BuyCar"
@@ -206,7 +206,7 @@ export default function Hero() {
           </div>
  
           {/* Bottom Group: Trust Badges */}
-          <div ref={group3Ref} className="flex flex-col items-center lg:items-start gap-4 sm:gap-5 w-full mt-10 md:mt-auto lg:mt-6 mb-2">
+          <div ref={group3Ref} className="flex flex-col items-center lg:items-start gap-4 sm:gap-5 w-full mt-6 md:mt-auto lg:mt-6 mb-2">
             <div className="grid grid-cols-2 sm:flex sm:flex-row flex-wrap justify-between lg:justify-start gap-2 sm:gap-2.5 w-full max-w-4xl">
               {trustBadges.map(({ icon: Icon, label }) => (
                 <div

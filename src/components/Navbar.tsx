@@ -12,6 +12,9 @@ import Signup from '@/Details/Sign/Signup';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Callus, { FloatingCallButton } from '@/Details/CallUs/Callus';
+import { useNotifications } from '@/Details/Notification/Customerfetch';
+import { NOTIF_EVENT } from '@/Details/Notification/CustomerNotify';
+import { ADMIN_NOTIF_EVENT } from '@/Details/Notification/AdminNotify';
 
 const navLinks = [
   { label: 'caRya.krama', href: '/' },
@@ -26,6 +29,7 @@ export default function Navbar() {
   const { wishlist } = useWishlist();
   const { user } = useAuth();
   const router = useRouter();
+  const { unreadCount, adminUnreadCount } = useNotifications();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -33,11 +37,27 @@ export default function Navbar() {
   const [isMobileAccountOpen, setIsMobileAccountOpen] = useState(false);
   const [isCallUsOpen, setIsCallUsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeToast, setActiveToast] = useState<any>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    // Toast listener
+    const handleNewNotif = (e: any) => {
+        if (e.detail?.notification) {
+            setActiveToast(e.detail.notification);
+            setTimeout(() => setActiveToast(null), 5000);
+        }
+    };
+    window.addEventListener(NOTIF_EVENT, handleNewNotif);
+    window.addEventListener(ADMIN_NOTIF_EVENT, handleNewNotif);
+
+    return () => {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener(NOTIF_EVENT, handleNewNotif);
+        window.removeEventListener(ADMIN_NOTIF_EVENT, handleNewNotif);
+    };
   }, []);
 
   const iconBtn =
@@ -102,8 +122,40 @@ export default function Navbar() {
                 title="Notifications"
               >
                 <Bell className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                {((user?.role === 'admin' ? adminUnreadCount : unreadCount) > 0) && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-navy">
+                    {user?.role === 'admin' ? adminUnreadCount : unreadCount}
+                  </span>
+                )}
               </motion.button>
             </Link>
+
+            {/* Toast Notification */}
+            <AnimatePresence>
+                {activeToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: -20, x: '-50%' }}
+                        className="fixed top-24 left-1/2 z-[1000] min-w-[300px] max-w-md bg-white rounded-2xl shadow-2xl border border-blue-50 p-4 flex items-start gap-4 cursor-pointer"
+                        onClick={() => { router.push('/details'); setActiveToast(null); }}
+                    >
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                            <Bell className="w-5 h-5 text-royal" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-black text-gray-900 truncate">{activeToast.title}</h4>
+                            <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 font-medium">{activeToast.message}</p>
+                        </div>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setActiveToast(null); }}
+                            className="p-1 hover:bg-gray-100 rounded-lg"
+                        >
+                            <X size={14} className="text-gray-400" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Wishlist */}
             <Link href="/wishlist">

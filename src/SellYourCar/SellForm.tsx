@@ -9,6 +9,9 @@ import {
   Clock, CheckCircle2, AlertCircle, Sparkles, Star
 } from "lucide-react";
 import { saveSellRequest } from "@/Admin/SellRequests/SellStorage";
+import { useAuth } from "@/context/AuthContext";
+import { addAdminNotification } from "@/Details/Notification/AdminNotify";
+import { addNotification } from "@/Details/Notification/CustomerNotify";
 
 const STEPS = ["Owner Details", "Car Details", "Inspection"];
 
@@ -158,6 +161,8 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
     });
   };
 
+  const { user } = useAuth();
+
   const handleSubmit = async () => {
     // Basic Validation
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.brand || !formData.model) {
@@ -196,6 +201,24 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       };
 
       const saved = await saveSellRequest(payload as any);
+      
+      // Trigger Admin Notification
+      addAdminNotification({
+        title: "New Sell Request 🚗",
+        message: `${formData.firstName} ${formData.lastName} requested to sell a ${formData.brand} ${formData.model}.`,
+        type: "sell_request"
+      });
+
+      // Trigger Customer Notification (System)
+      if (user) {
+        addNotification(user.id, {
+          title: "Sell Request Submitted 🚗",
+          message: `Your request for ${formData.brand} ${formData.model} is pending review.`,
+          type: "system",
+          cta: { label: "View Status", href: "/Profile" }
+        });
+      }
+
       onSuccess(saved.id);
     } catch (err: any) {
       alert(`Failed to save request: ${err?.message || 'Unknown error'}`);
@@ -218,7 +241,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
             <FormInput label="First Name" name="firstName" icon={User} value={formData.firstName} onChange={(v:any) => updateField("firstName", v)} placeholder="Ex: John" />
             <FormInput label="Last Name" name="lastName" icon={User} value={formData.lastName} onChange={(v:any) => updateField("lastName", v)} placeholder="Ex: Doe" />
             <FormInput label="Phone Number" name="phone" icon={Phone} value={formData.phone} onChange={(v:any) => updateField("phone", v)} placeholder="+91 00000 00000" />
-            <FormInput label="Email Address" name="email" type="email" icon={Mail} value={formData.email} onChange={(v:any) => updateField("email", v)} placeholder="hello@example.com" />
+            <FormInput label="Email Address" name="email" type="email" icon={Mail} value={formData.email} onChange={(v:any) => updateField("email", v)} placeholder="farhan@caryakrama.com" />
           </div>
 
           <div className="h-px bg-slate-100 w-full" />

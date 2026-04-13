@@ -90,6 +90,7 @@ export default function About() {
             src="/caRya.png"
             alt="The Sovereign Standard"
             fill
+            sizes="100vw"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             priority
           />

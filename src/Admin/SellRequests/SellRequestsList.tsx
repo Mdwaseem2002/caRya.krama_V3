@@ -96,6 +96,25 @@ export default function SellRequestsList() {
 
       // 2. Update status
       await handleStatusChange(request.id, "approved");
+
+      // 3. Trigger User Notification (Lookup by email)
+      if (typeof window !== "undefined") {
+        const usersStr = localStorage.getItem('caRyaUsers');
+        const users = usersStr ? JSON.parse(usersStr) : [];
+        const targetUser = users.find((u: any) => u.email?.toLowerCase() === request.owner.email?.toLowerCase());
+
+        if (targetUser) {
+           import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
+             addNotification(targetUser.id, {
+               title: "Sell Request Approved ✅",
+               message: `Your listing for ${request.car.brand} ${request.car.model} has been approved and published.`,
+               type: "system",
+               cta: { label: "View Marketplace", href: "/BuyCar" }
+             });
+           });
+        }
+      }
+
       alert("Listing approved and published to marketplace!");
     } catch (err: any) {
       alert(`Failed to approve listing: ${err?.message || 'Unknown error'}`);

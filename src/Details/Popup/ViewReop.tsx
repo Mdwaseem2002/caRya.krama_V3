@@ -4,6 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 interface ViewReopProps {
   isOpen: boolean;
@@ -14,10 +15,21 @@ interface ViewReopProps {
 
 export default function ViewReop({ isOpen, onClose, carId, mode = "pay" }: ViewReopProps) {
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleProceed = () => {
     onClose();
     if (mode === "report") {
+      if (user) {
+        import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
+          addNotification(user.id, {
+            title: "Report Downloaded 📄",
+            message: `Inspection report for car #${carId} downloaded.`,
+            type: "report",
+            cta: { label: "View Again", href: `/details/report?id=${carId}` }
+          });
+        });
+      }
       router.push(`/details/report?id=${carId}`);
     } else {
       router.push(`/pay?id=${carId}`);

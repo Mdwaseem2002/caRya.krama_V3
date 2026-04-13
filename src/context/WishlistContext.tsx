@@ -77,6 +77,18 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       : [...wishlist, car];
       
     syncWishlist(updated);
+
+    // If adding (not removing), trigger notification
+    if (!exists && user) {
+      import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
+        addNotification(user.id, {
+          title: "Car Added to Wishlist ❤️",
+          message: `You saved ${car.name} successfully.`,
+          type: "wishlist",
+          cta: { label: "View Wishlist", href: "/wishlist" }
+        });
+      });
+    }
   };
 
   const isInWishlist = (id: number) => wishlist.some((item) => item.id === id);

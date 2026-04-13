@@ -15,6 +15,7 @@ export default function Pay() {
   const carId = searchParams.get('id');
   const [selectedMethod, setSelectedMethod] = useState("card");
   const [isSuccess, setIsSuccess] = useState(false);
+  const { user } = useAuth();
 
   const car = cars.find(c => c.id.toString() === carId?.toString());
   const report = carId ? getReportByCarId(carId) : null;
@@ -24,6 +25,19 @@ export default function Pay() {
     if (carId) {
       addPurchase(carId);
     }
+    
+    // Trigger notification
+    if (user) {
+        import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
+          addNotification(user.id, {
+            title: "Payment Successful 💳",
+            message: `Your payment of ₹${price} is confirmed.`,
+            type: "payment",
+            cta: { label: "View Report", href: `/details/report?id=${carId}` }
+          });
+        });
+    }
+
     setIsSuccess(true);
   };
 
