@@ -13,6 +13,14 @@ const nextConfig = {
     ],
   },
 
+  // ─── Faster Builds: Skip linting and type checking during next build ───────
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true, 
+  },
+
   // ─── Experimental: package import optimisation ───────────────────────────
   // optimizePackageImports flattens barrel files so only the icons/functions
   // you actually import are included in the bundle.

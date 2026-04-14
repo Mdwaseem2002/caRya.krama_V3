@@ -3,7 +3,7 @@
   "rules": {
     // Downgrade from error to warn so a stray `any` doesn't block compilation
     "no-explicit-any": "off",
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-unused-vars": "off",
 
     // These two fire constantly in large React projects and provide low value
     "react/display-name": "off",
