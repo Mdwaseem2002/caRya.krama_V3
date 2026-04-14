@@ -17,7 +17,8 @@ export interface ICar extends Omit<Document, "model"> {
   status: "draft" | "published";
   createdAt: Date;
   media: {
-    coverImage: string;
+    coverImage: string;       // Full-quality (used in detail page)
+    coverThumbnail?: string;  // Small 400px WebP (used in listing cards — fast!)
     images: string[];
   };
   pricing: {
@@ -75,8 +76,9 @@ const CarSchema = new Schema<ICar>(
     },
 
     media: {
-      coverImage: { type: String, default: "" },
-      images: { type: [String], default: [] },
+      coverImage:     { type: String, default: "" },
+      coverThumbnail: { type: String, default: "" }, // Tiny 400px WebP for listing speed
+      images:         { type: [String], default: [] },
     },
 
     pricing: {
@@ -131,7 +133,12 @@ const CarSchema = new Schema<ICar>(
 );
 
 // ── Indexing for Performance ────────────────────────────────────────────────────
+// Main listing query: WHERE status='published' ORDER BY createdAt DESC
 CarSchema.index({ status: 1, createdAt: -1 });
+// Tag-based filtering (Featured, New Arrival pills)
+CarSchema.index({ tags: 1 });
+// Brand filter (used in admin + future brand-page feature)
+CarSchema.index({ brand: 1, status: 1 });
 
 // ── Model Export (singleton pattern to avoid re-compilation on hot-reload) ────
 

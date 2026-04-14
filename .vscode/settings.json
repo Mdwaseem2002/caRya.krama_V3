@@ -1,0 +1,46 @@
+{
+  // ── TypeScript ──────────────────────────────────────────────────────────
+  // Use the workspace's own TypeScript version instead of VS Code's bundled one.
+  // This guarantees path aliases and tsconfig plugins resolve correctly.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // Increase TS language server memory limit to handle large projects.
+  // Default is 3072 MB; 4096 gives more headroom before GC pauses.
+  "typescript.tsserver.maxTsServerMemory": 4096,
+
+  // Disable project-wide diagnostics mode — only type-check the open file.
+  // Run `npm run type-check` manually for a full project check.
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+
+  // ── ESLint ──────────────────────────────────────────────────────────────
+  // Run ESLint only on file save, not on every keystroke.
+  // Eliminates the ~200–800 ms CPU spike that used to happen as you type.
+  "eslint.run": "onSave",
+
+  // ── Editor ──────────────────────────────────────────────────────────────
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // ── File Watcher exclusions ─────────────────────────────────────────────
+  // Prevents VS Code from watching .next and node_modules, which contain
+  // hundreds of thousands of files and cause high CPU / memory on Windows.
+  "files.watcherExclude": {
+    "**/.next/**": true,
+    "**/node_modules/**": true,
+    "**/tmp/**": true
+  },
+  "files.exclude": {
+    "**/.next": true
+  },
+
+  // ── Search exclusions ───────────────────────────────────────────────────
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/tmp": true,
+    "**/OMNI_SKILLS_v1.0": true
+  }
+}

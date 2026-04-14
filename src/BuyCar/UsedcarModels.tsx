@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { getPublishedStoredCars, StoredCar } from "@/Admin/Upload/CarStorage";
 import { CheckCircle2, Navigation, Fuel, Calendar, MapPin, Heart, ChevronRight, Lock, ShieldCheck, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,7 +10,6 @@ import { useWishlist } from "@/context/WishlistContext";
 export default function UsedcarModels() {
   const [allCars, setAllCars] = useState<StoredCar[]>([]);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toggleWishlist, isInWishlist } = useWishlist();
 
@@ -24,7 +24,6 @@ export default function UsedcarModels() {
   const fuelOptions = ["All Fuel Types", "Petrol", "Diesel", "Electric"];
 
   useEffect(() => {
-    setMounted(true);
     getPublishedStoredCars()
       .then(data => { setAllCars(data); setLoading(false); })
       .catch(() => setLoading(false));
@@ -53,8 +52,6 @@ export default function UsedcarModels() {
     if (activeSort === "Year: Newest") return parseInt(b.year) - parseInt(a.year);
     return 0;
   });
-
-  if (!mounted) return null;
 
   // ── SKELETON LOADER ──────────────────────────────────────────────────────────
   if (loading) {
@@ -195,17 +192,21 @@ export default function UsedcarModels() {
                 key={car.id}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.3, delay: Math.min(index * 0.035, 0.28), ease: [0.16, 1, 0.3, 1] }}
                 className="group glass-card-light rounded-[1.5rem] sm:rounded-[2rem] border border-white/40 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col cursor-pointer relative"
                 onMouseEnter={() => setHoveredCard(car.id as any)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
                 {/* IMAGE SECTION */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
-                  <img 
-                    src={car.media.coverImage} 
-                    alt={car.title} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
+                  <Image
+                    src={car.media.coverImage || "/logo/carYakrama.png"}
+                    alt={car.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    unoptimized={car.media.coverImage?.startsWith("data:")}
                   />
 
                   {/* Top Left Badges - Hide on Hover */}

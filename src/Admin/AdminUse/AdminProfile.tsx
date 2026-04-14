@@ -20,7 +20,7 @@ import UserManage from "../UserManagement/UserManage";
 import SellRequestsList from "../SellRequests/SellRequestsList";
 import InspectionReportsList from "../InspectionReports/InspectionReportsList";
 import { Sparkles } from "lucide-react";
-
+import ImageMigrationTool from "@/Details/ImageConvert/ImageConvert";
 
 export default function AdminProfile() {
   const { user, logout } = useAuth();
@@ -233,9 +233,12 @@ export default function AdminProfile() {
                         <motion.div key="list" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>
                             <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', margin: 0 }}>Asset Inventory</h2>
-                            <button onClick={() => { setEditingCar(undefined); setShowUpload(true); }} style={{ padding: '8px 16px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
-                              <Plus size={16} /> Upload
-                            </button>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                              <ImageMigrationTool />
+                              <button onClick={() => { setEditingCar(undefined); setShowUpload(true); }} style={{ padding: '8px 16px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
+                                <Plus size={16} /> Upload
+                              </button>
+                            </div>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {isCarsLoading ? (

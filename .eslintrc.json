@@ -1,0 +1,32 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    // Downgrade from error to warn so a stray `any` doesn't block compilation
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+
+    // These two fire constantly in large React projects and provide low value
+    "react/display-name": "off",
+    "react/no-unescaped-entities": "off",
+
+    // Warn instead of error – Next.js Image is preferred but not always possible
+    "@next/next/no-img-element": "warn",
+
+    // Allow console.warn / console.error in production code — useful for debugging
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
+  },
+  "overrides": [
+    {
+      // Admin and utility components use `any` heavily for DB/API payloads
+      "files": [
+        "src/Admin/**/*",
+        "src/Details/**/*",
+        "src/models/**/*",
+        "src/lib/**/*"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}

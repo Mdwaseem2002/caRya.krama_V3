@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon, Star, CheckCircle, Save, Send, ArrowLeft, ChevronDown, ClipboardCheck, FileUp, FileText as FileTextIcon } from "lucide-react";
 import { saveCarToStorage, updateCarInStorage, StoredCar } from "./CarStorage";
+import { convertToWebP } from "@/Details/ImageConvert/ImageConvert";
 import InspectionReportForm from "../InspectionReports/InspectionReportForm";
 import InspectionReportUpload from "../InspectionReports/InspectionReportUpload";
 
@@ -127,29 +128,8 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new window.Image();
-        img.onload = () => {
-          const MAX_WIDTH = 1600;
-          const scale = Math.min(1, MAX_WIDTH / img.width);
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return reject("Canvas not supported");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          // 0.85 quality = ~85% quality JPEG for high fidelity
-          resolve(canvas.toDataURL("image/jpeg", 0.85));
-        };
-        img.onerror = reject;
-        img.src = reader.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  const compressImage = async (file: File, mode: "full" | "thumbnail" = "full"): Promise<string> => {
+    return convertToWebP(file, mode);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,13 +137,14 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
     if (!files) return;
     for (const file of Array.from(files)) {
       try {
-        const compressed = await compressImage(file);
-        setImages((prev) => {
-          const newImages = [...prev, compressed];
-          if (!coverImage) setCoverImage(compressed);
-          return newImages;
-        });
-        if (!coverImage) setCoverImage(await compressImage(file));
+        // Store full quality in gallery
+        const fullWebp = await compressImage(file, "full");
+        setImages((prev) => [...prev, fullWebp]);
+        // First image becomes cover — store as tiny thumbnail for fast listing loads
+        if (!coverImage) {
+          const thumb = await compressImage(file, "thumbnail");
+          setCoverImage(thumb);
+        }
       } catch (err) {
         console.error("Image compression failed:", err);
       }
@@ -215,7 +196,11 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       const carPayload = {
         id: generatedCarId,
         title, brand, model, year,
-        media: { images, coverImage: coverImage || images[0] },
+        media: {
+          images,
+          coverImage:     coverImage || images[0],      // Full quality for detail page
+          coverThumbnail: coverImage || images[0],      // Already a thumbnail (set during upload)
+        },
         pricing: { actualPrice, sellingPrice, savings: calculateSavings() || "" },
         specs: { mileage, fuelType, transmission, ownership, color, warranty },
         condition: { conditionLabel, score, highlights, inspectionPoints, serviceHistory },

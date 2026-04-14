@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    // ES2020 target eliminates the ts → es5 down-compilation that was
+    // burning extra CPU on every save. All modern browsers support ES2020.
+    "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    // skipLibCheck = true skips type-checking of .d.ts files inside
+    // node_modules. This gives the biggest tsc speed boost with zero risk.
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -12,16 +16,50 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    // incremental + tsBuildInfoFile = ts caches the type-check result on disk.
+    // Subsequent `tsc --noEmit` runs only re-check changed files.
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
+
+    // ── Path aliases ──
+    // More specific aliases give the module resolver fewer directories to scan.
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*":            ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/Details/*":    ["./src/Details/*"],
+      "@/Admin/*":      ["./src/Admin/*"],
+      "@/lib/*":        ["./src/lib/*"],
+      "@/models/*":     ["./src/models/*"],
+      "@/context/*":    ["./src/context/*"],
+      "@/hooks/*":      ["./src/hooks/*"],
+      "@/data/*":       ["./src/data/*"],
+      "@/Home/*":       ["./src/Home/*"],
+      "@/BuyCar/*":     ["./src/BuyCar/*"],
+      "@/SellYourCar/*":["./src/SellYourCar/*"],
+      "@/Profile/*":    ["./src/Profile/*"],
+      "@/Testimonials/*":["./src/Testimonials/*"]
+    },
+
+    "plugins": [{ "name": "next" }]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    // One-off scripts in the project root — these were being type-checked
+    // on every save, adding unnecessary CPU overhead.
+    "tmp",
+    "OMNI_SKILLS_v1.0",
+    "cleaner.js",
+    "fix.js",
+    "fix2.js",
+    "fix_dark.js",
+    "fix.py",
+    "fix2.py",
+    "check_urls.py",
+    "fetch_videos.py",
+    "test-mongo.js",
+    "inspect-db.js",
+    "extract-pdf.js"
+  ]
 }

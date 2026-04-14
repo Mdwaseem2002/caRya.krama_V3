@@ -11,11 +11,20 @@ export const metadata: Metadata = {
   },
 };
 
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
-import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+
+// SmoothScrollProvider initialises Lenis + GSAP ScrollTrigger — both are
+// browser-only and ~70 kB gzipped. Dynamic import with ssr:false means:
+//   • The server renders children immediately without waiting for these libs
+//   • The client downloads Lenis/GSAP in a separate chunk after hydration
+const SmoothScrollProvider = dynamic(
+  () => import("@/components/SmoothScrollProvider"),
+  { ssr: false }
+);
 
 export default function RootLayout({
   children,
@@ -25,9 +34,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Preconnect hints tell the browser to open TCP connections to Google
+            Font servers before the CSS parser even encounters the <link>.
+            This shaves ~150–300 ms off first-contentful-paint on cold loads. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className="antialiased">
         <SmoothScrollProvider>

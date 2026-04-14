@@ -28,9 +28,10 @@ export async function GET(req: NextRequest) {
     const limit = limitParams ? parseInt(limitParams, 10) : 100;
 
     const cars = await Car.find(filter)
+      .select("-media.images")    // EXCLUDE heavy base64 array payload for list optimizations
       .sort({ createdAt: -1 })    // Newest first
       .limit(limit)               // Limit to prevent huge payloads
-      .lean();                     // Return plain JS objects (faster)
+      .lean();                    // Return plain JS objects (faster)
 
     return NextResponse.json({ success: true, cars }, { status: 200 });
   } catch (error) {

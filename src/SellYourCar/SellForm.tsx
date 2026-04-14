@@ -12,6 +12,7 @@ import { saveSellRequest } from "@/Admin/SellRequests/SellStorage";
 import { useAuth } from "@/context/AuthContext";
 import { addAdminNotification } from "@/Details/Notification/AdminNotify";
 import { addNotification } from "@/Details/Notification/CustomerNotify";
+import { convertToWebP } from "@/Details/ImageConvert/ImageConvert";
 
 const STEPS = ["Owner Details", "Car Details", "Inspection"];
 
@@ -149,15 +150,16 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       alert("Only 15 images can be uploaded. Extra files were ignored.");
     }
 
-    filesToUpload.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
+    filesToUpload.forEach(async (file) => {
+      try {
+        const webpString = await convertToWebP(file);
+        setFormData((prev) => ({
           ...prev,
-          images: [...prev.images, reader.result as string].slice(0, 15)
+          images: [...prev.images, webpString].slice(0, 15),
         }));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Failed to convert image to WebP", err);
+      }
     });
   };
 

@@ -41,7 +41,9 @@ export async function connectDB(): Promise<Mongoose> {
     const opts = {
       bufferCommands: false,     // Fail fast if disconnected, don't queue ops
       maxPoolSize: 10,           // Max concurrent connections in the pool
-      serverSelectionTimeoutMS: 10000, // Timeout after 10s if no server found
+      minPoolSize: 2,            // Keep 2 connections warm at all times
+      serverSelectionTimeoutMS: 5000,  // Fail fast after 5s (was 10s)
+      connectTimeoutMS: 10000,   // Initial TCP connect timeout
       socketTimeoutMS: 45000,    // Close sockets after 45s of inactivity
     };
 

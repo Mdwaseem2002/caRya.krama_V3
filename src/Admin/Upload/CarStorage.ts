@@ -17,6 +17,7 @@ export interface StoredCar {
   createdAt: string;
   media: {
     coverImage: string;
+    coverThumbnail?: string; // Fast thumbnail for listing cards
     images: string[];
   };
   pricing: {
@@ -69,7 +70,7 @@ const cache = {
   publishedCars: { data: null as StoredCar[] | null, time: 0 },
   singleProps: {} as Record<string, { data: StoredCar, time: number }>
 };
-const CACHE_TTL = 60 * 1000; // 1 minute (adjustable)
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes – in-memory cache for SPA navigation
 
 // ── PUBLIC API ────────────────────────────────────────────────────────────────
 
@@ -170,15 +171,18 @@ export async function getAllStoredCars(forceRefresh = false): Promise<StoredCar[
   return cars;
 }
 
-/** Get only published cars (customer-facing) */
+/** Get only published cars (customer-facing) — uses the ultra-fast /list endpoint */
 export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   const now = Date.now();
   if (cache.publishedCars.data && now - cache.publishedCars.time < CACHE_TTL) {
     return cache.publishedCars.data;
   }
 
-  const res = await fetch(`${getBaseUrl()}/api/cars?status=published`, {
-    next: { revalidate: 30 }, // Cache for 30s for public-facing pages
+  // /api/cars/list is purpose-built: minimal fields, no gallery images.
+  // next: { revalidate: 30 } lets Next.js cache the fetch response for 30s
+  // AND lets the browser cache it too — avoids a cold MongoDB hit on every load.
+  const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
+    next: { revalidate: 30 },
   });
 
   if (!res.ok) return [];
@@ -186,7 +190,6 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   const data = await res.json();
   const cars = (data.cars || []) as StoredCar[];
   
-  // Update cache
   cache.publishedCars = { data: cars, time: now };
   return cars;
 }
