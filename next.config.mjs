@@ -13,16 +13,16 @@ const nextConfig = {
     ],
   },
 
-  // ─── Experimental: parallel compilation + package import optimisation ─────
-  // optimizePackageImports performs automatic tree-shaking / barrel-file
-  // flattening so you don't get 5 000 lucide SVGs in your bundle anymore.
+  // ─── Experimental: package import optimisation ───────────────────────────
+  // optimizePackageImports flattens barrel files so only the icons/functions
+  // you actually import are included in the bundle.
+  // NOTE: parallelServerCompiles + parallelServerBuildTraces were removed —
+  // they require Node.js build workers unavailable on Vercel.
   experimental: {
-    parallelServerCompiles: true,
-    parallelServerBuildTraces: true,
     optimizePackageImports: [
-      "lucide-react",     // Your most-used import (dozens of components use it)
-      "framer-motion",    // Heavy barrel file – this is a huge win
-      "gsap",             // Prevents pulling in plugins you haven't registered
+      "lucide-react",
+      "framer-motion",
+      "gsap",
     ],
   },
 
