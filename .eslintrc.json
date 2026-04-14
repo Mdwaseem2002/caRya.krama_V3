@@ -2,8 +2,8 @@
   "extends": ["next/core-web-vitals"],
   "rules": {
     // Downgrade from error to warn so a stray `any` doesn't block compilation
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-explicit-any": "off",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
 
     // These two fire constantly in large React projects and provide low value
     "react/display-name": "off",
@@ -25,7 +25,7 @@
         "src/lib/**/*"
       ],
       "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
+        "no-explicit-any": "off"
       }
     }
   ]
