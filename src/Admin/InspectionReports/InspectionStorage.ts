@@ -53,6 +53,10 @@ export interface InspectionReportData {
     purchaseRecommendation: string;
   };
   precautions: string;
+  sellerDetails?: {
+    name: string;
+    contactNumber: string;
+  };
   uploadedFile: string;
   uploadedFileName: string;
   createdAt: string;

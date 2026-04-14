@@ -74,6 +74,10 @@ export default function InspectionReportForm({
   // Precautions
   const [precautions, setPrecautions] = useState(editReport?.precautions || "");
 
+  // Seller Details
+  const [sellerName, setSellerName] = useState(editReport?.sellerDetails?.name || "");
+  const [sellerContact, setSellerContact] = useState(editReport?.sellerDetails?.contactNumber || "");
+
   // ── Styles ──────────────────────────────────────────────────────────────────
   const sectionStyle: React.CSSProperties = { marginBottom: '32px' };
   const sectionHeaderStyle: React.CSSProperties = {
@@ -128,6 +132,10 @@ export default function InspectionReportForm({
           purchaseRecommendation: verdictRecommendation
         },
         precautions,
+        sellerDetails: {
+          name: sellerName,
+          contactNumber: sellerContact
+        },
         uploadedFile: "",
         uploadedFileName: "",
       };
@@ -179,8 +187,21 @@ export default function InspectionReportForm({
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={labelStyle}>Stock ID / Vehicle ID</label>
-            <input value={inputCarId} onChange={e => setInputCarId(e.target.value)} placeholder="e.g. CK-1234567" style={inputStyle} />
+            <label style={labelStyle}>Stock ID / Vehicle ID {carId && <span style={{ color: '#10B981', fontSize: '11px', fontWeight: 800, marginLeft: '6px' }}>✓ Auto-linked</span>}</label>
+            <input 
+              value={inputCarId} 
+              onChange={e => !carId && setInputCarId(e.target.value)} 
+              placeholder="e.g. CK-1234567" 
+              readOnly={!!carId}
+              style={{ 
+                ...inputStyle, 
+                backgroundColor: carId ? '#f0fdf4' : 'white',
+                borderColor: carId ? '#bbf7d0' : '#d1d5db',
+                color: carId ? '#166534' : '#111827',
+                fontWeight: carId ? 700 : 500,
+                cursor: carId ? 'not-allowed' : 'text'
+              }} 
+            />
           </div>
           <div>
             <label style={labelStyle}>Car Name *</label>
@@ -193,6 +214,23 @@ export default function InspectionReportForm({
           <div>
             <label style={labelStyle}>Odometer (KM)</label>
             <input value={vdOdometer} onChange={e => setVdOdometer(e.target.value)} placeholder="e.g. 84000" style={inputStyle} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── 1.5 Seller Details ─────────────────────────────────────────────── */}
+      <section style={sectionStyle}>
+        <h3 style={sectionHeaderStyle}>
+          <ShieldAlert size={18} style={{ color: '#0059A3' }} /> Seller Details
+        </h3>
+        <div style={gridTwoStyle}>
+          <div>
+            <label style={labelStyle}>Seller Name</label>
+            <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="e.g. John Doe / Dealership Name" style={inputStyle} />
+          </div>
+          <div>
+            <label style={labelStyle}>Seller Contact Number</label>
+            <input value={sellerContact} onChange={e => setSellerContact(e.target.value)} placeholder="e.g. +91 9876543210" style={inputStyle} />
           </div>
         </div>
       </section>

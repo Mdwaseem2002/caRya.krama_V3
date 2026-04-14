@@ -10,6 +10,7 @@ export default function UsedcarModels() {
   const [allCars, setAllCars] = useState<StoredCar[]>([]);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   // Filter & Sort States
@@ -24,7 +25,9 @@ export default function UsedcarModels() {
 
   useEffect(() => {
     setMounted(true);
-    getPublishedStoredCars().then(setAllCars).catch(console.error);
+    getPublishedStoredCars()
+      .then(data => { setAllCars(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   // Filtering Logic
@@ -51,7 +54,46 @@ export default function UsedcarModels() {
     return 0;
   });
 
-  if (!mounted || allCars.length === 0) return null;
+  if (!mounted) return null;
+
+  // ── SKELETON LOADER ──────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <section className="py-24 bg-[#f8fafc] relative overflow-hidden">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          <div className="mb-8">
+            <div className="h-8 w-64 bg-gray-200 rounded-xl animate-pulse mb-3" />
+            <div className="h-4 w-80 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-[2rem] border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col"
+                style={{ animation: `pulse 1.5s ease-in-out ${i * 0.08}s infinite alternate` }}
+              >
+                {/* Image placeholder */}
+                <div className="aspect-[4/3] w-full bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
+                {/* Content placeholder */}
+                <div className="p-5 flex flex-col gap-3">
+                  <div className="h-5 w-3/4 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="grid grid-cols-2 gap-2">
+                    {[...Array(4)].map((_, j) => (
+                      <div key={j} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+                    ))}
+                  </div>
+                  <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                    <div className="h-6 w-24 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-9 w-24 bg-gray-100 rounded-xl animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24 bg-[#f8fafc] relative overflow-hidden">
@@ -145,12 +187,15 @@ export default function UsedcarModels() {
 
         {/* Dynamic Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {sortedCars.map((car) => {
+          {sortedCars.map((car, index) => {
             const isSaved = isInWishlist(car.id as any);
             
             return (
-              <div 
-                key={car.id} 
+              <motion.div
+                key={car.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
                 className="group glass-card-light rounded-[1.5rem] sm:rounded-[2rem] border border-white/40 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col cursor-pointer relative"
                 onMouseEnter={() => setHoveredCard(car.id as any)}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -285,7 +330,7 @@ export default function UsedcarModels() {
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

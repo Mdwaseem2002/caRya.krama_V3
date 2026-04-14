@@ -26,14 +26,6 @@ function ReportContent() {
         return;
       }
 
-      // Check if user has purchased the report (simulated)
-      const isPaid = hasPurchased(carId);
-      if (!isPaid) {
-        // Redirect back to car details if not purchased
-        router.push(`/details?id=${carId}`);
-        return;
-      }
-
       try {
         // Fetch Car Cover Image
         let uploadedCars: any[] = [];
@@ -48,13 +40,23 @@ function ReportContent() {
         const coverImage = carData?.media?.coverImage || carData?.image || (carData?.media?.images && carData?.media?.images[0]) || (carData?.images && carData?.images[0]) || "";
         setCarCoverImage(coverImage);
 
-        // Fetch the report from the DB
+        // Fetch the report from the DB first
         const res = await fetch(`/api/inspection-reports?carId=${carId}`);
         const data = await res.json();
         
         if (data.success && data.reports && data.reports.length > 0) {
-          // Select the most recent report
-          setReport(data.reports[0]);
+          // Report exists — check if purchased (for non-admin/customer flow)
+          const isPaid = hasPurchased(carId);
+          const isUploadedCar = !!foundUploaded;
+          
+          // Allow access if: paid OR it's an admin-uploaded car being previewed
+          if (isPaid || isUploadedCar) {
+            setReport(data.reports[0]);
+          } else {
+            // Not purchased — redirect to payment
+            router.push(`/details?id=${carId}`);
+            return;
+          }
         } else {
           setError("No official inspection report has been generated for this vehicle yet.");
         }

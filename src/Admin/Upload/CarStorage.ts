@@ -43,6 +43,7 @@ export interface StoredCar {
     name: string;
     type: string;
     memberSince: string;
+    contactNumber?: string;
   };
   location: {
     area: string;
@@ -61,6 +62,14 @@ function getBaseUrl(): string {
   if (typeof window !== "undefined") return ""; // Browser: use relative URL
   return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 }
+
+// ── IN-MEMORY CACHE (Client-side fast navigation) ─────────────────────────
+const cache = {
+  adminCars: { data: null as StoredCar[] | null, time: 0 },
+  publishedCars: { data: null as StoredCar[] | null, time: 0 },
+  singleProps: {} as Record<string, { data: StoredCar, time: number }>
+};
+const CACHE_TTL = 60 * 1000; // 1 minute (adjustable)
 
 // ── PUBLIC API ────────────────────────────────────────────────────────────────
 
@@ -92,6 +101,11 @@ export async function saveCarToStorage(
     });
   }
 
+  // Invalidate cache
+  cache.adminCars.time = 0;
+  cache.publishedCars.time = 0;
+  cache.singleProps = {};
+
   return savedCar;
 }
 
@@ -114,6 +128,12 @@ export async function updateCarInStorage(
   }
 
   const data = await res.json();
+  
+  // Invalidate cache
+  cache.adminCars.time = 0;
+  cache.publishedCars.time = 0;
+  if (cache.singleProps[id]) delete cache.singleProps[id];
+
   return data.car as StoredCar;
 }
 
@@ -130,7 +150,12 @@ export async function deleteCarFromStorage(id: string): Promise<void> {
 }
 
 /** Get ALL cars (admin view — includes drafts) */
-export async function getAllStoredCars(): Promise<StoredCar[]> {
+export async function getAllStoredCars(forceRefresh = false): Promise<StoredCar[]> {
+  const now = Date.now();
+  if (!forceRefresh && cache.adminCars.data && now - cache.adminCars.time < CACHE_TTL) {
+    return cache.adminCars.data;
+  }
+
   const res = await fetch(`${getBaseUrl()}/api/cars?admin=true`, {
     cache: "no-store",   // Always fresh for admin
   });
@@ -138,11 +163,20 @@ export async function getAllStoredCars(): Promise<StoredCar[]> {
   if (!res.ok) return [];
 
   const data = await res.json();
-  return (data.cars || []) as StoredCar[];
+  const cars = (data.cars || []) as StoredCar[];
+  
+  // Update cache
+  cache.adminCars = { data: cars, time: now };
+  return cars;
 }
 
 /** Get only published cars (customer-facing) */
 export async function getPublishedStoredCars(): Promise<StoredCar[]> {
+  const now = Date.now();
+  if (cache.publishedCars.data && now - cache.publishedCars.time < CACHE_TTL) {
+    return cache.publishedCars.data;
+  }
+
   const res = await fetch(`${getBaseUrl()}/api/cars?status=published`, {
     next: { revalidate: 30 }, // Cache for 30s for public-facing pages
   });
@@ -150,5 +184,41 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   if (!res.ok) return [];
 
   const data = await res.json();
-  return (data.cars || []) as StoredCar[];
+  const cars = (data.cars || []) as StoredCar[];
+  
+  // Update cache
+  cache.publishedCars = { data: cars, time: now };
+  return cars;
+}
+
+/** Get a single car by ID (Super fast for Detail pages) */
+export async function getStoredCarById(id: string): Promise<StoredCar | null> {
+  // 1. Check direct cache
+  const now = Date.now();
+  if (cache.singleProps[id] && now - cache.singleProps[id].time < CACHE_TTL) {
+    return cache.singleProps[id].data;
+  }
+
+  // 2. Check list caches
+  const lists = [cache.publishedCars.data, cache.adminCars.data];
+  for (const list of lists) {
+    if (list) {
+      const found = list.find(c => c.id === id);
+      if (found) return found; // Instant return if we already downloaded the list
+    }
+  }
+
+  // 3. Fallback: Network fetch for single DB document (Fast!)
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/cars/${id}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.success && data.car) {
+      cache.singleProps[id] = { data: data.car, time: now };
+      return data.car;
+    }
+    return null;
+  } catch(e) {
+    return null;
+  }
 }

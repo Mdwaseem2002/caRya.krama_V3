@@ -48,10 +48,28 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     delete body.id;
     delete body.createdAt;
 
+    // ── Flatten nested objects into dot-notation keys ─────────────────────────
+    // This ensures fields like sellerDetails.contactNumber are ALWAYS persisted,
+    // even when the Mongoose model was cached before the field was added to the schema.
+    const flatSet: Record<string, any> = {};
+    for (const [key, value] of Object.entries(body)) {
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
+        for (const [subKey, subValue] of Object.entries(value as Record<string, any>)) {
+          flatSet[`${key}.${subKey}`] = subValue;
+        }
+      } else {
+        flatSet[key] = value;
+      }
+    }
+
     const updated = await Car.findOneAndUpdate(
       { id: params.id },
-      { $set: body },
-      { new: true, runValidators: true }           // Return updated doc + validate
+      { $set: flatSet },
+      { new: true, runValidators: false }  // runValidators:false avoids cached-schema errors
     ).lean();
 
     if (!updated) {

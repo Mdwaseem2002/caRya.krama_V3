@@ -156,6 +156,21 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
           </div>
         </div>
 
+        {/* Seller Details Card */}
+        {report.sellerDetails && (report.sellerDetails.name || report.sellerDetails.contactNumber) && (
+          <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '20px', padding: '24px', marginBottom: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
+              <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', fontWeight: 900, color: '#111827' }}>
+                <ShieldCheck size={20} style={{ color: '#0059A3' }} /> Seller Details
+              </h3>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+               <InfoField label="Seller Name" value={report.sellerDetails.name || "Not Specified"} />
+               <InfoField label="Contact Number" value={report.sellerDetails.contactNumber || "Not Specified"} />
+            </div>
+          </div>
+        )}
+
         {/* 1. Body & Visual Inspection */}
         <SectionHeader number="1" icon={<MapPin size={18} />} title="Body & Visual Inspection" />
         <div style={{ paddingLeft: '16px', marginBottom: '32px' }}>

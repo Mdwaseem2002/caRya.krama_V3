@@ -104,6 +104,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   const [sellerName, setSellerName] = useState(editCar?.sellerDetails.name || "caRya.krama Verified");
   const [sellerType, setSellerType] = useState(editCar?.sellerDetails.type || "Professional");
   const [sellerMemberSince, setSellerMemberSince] = useState(editCar?.sellerDetails.memberSince || "2024");
+  const [sellerContactNumber, setSellerContactNumber] = useState(editCar?.sellerDetails.contactNumber || "");
 
   const [conditionLabel, setConditionLabel] = useState(editCar?.condition.conditionLabel || "Excellent");
   const [score, setScore] = useState(editCar?.condition.score || "9.8");
@@ -218,7 +219,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         pricing: { actualPrice, sellingPrice, savings: calculateSavings() || "" },
         specs: { mileage, fuelType, transmission, ownership, color, warranty },
         condition: { conditionLabel, score, highlights, inspectionPoints, serviceHistory },
-        sellerDetails: { name: sellerName, type: sellerType, memberSince: sellerMemberSince },
+        sellerDetails: { name: sellerName, type: sellerType, memberSince: sellerMemberSince, contactNumber: sellerContactNumber },
         location: { area, city },
         tags,
         status
@@ -482,11 +483,15 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
 
       {/* 8. Seller Details */}
       <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>8. Seller Info</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>8. Seller Details</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Name</label>
             <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="caRya.krama" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Contact Number</label>
+            <input value={sellerContactNumber} onChange={e => setSellerContactNumber(e.target.value)} placeholder="+91 9876543210" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Type</label>

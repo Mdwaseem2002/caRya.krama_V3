@@ -42,10 +42,26 @@ export async function PUT(
     await connectDB();
     const body = await req.json();
 
+    // ── Flatten nested objects into dot-notation keys ─────────────────────────
+    const flatSet: Record<string, any> = {};
+    for (const [key, value] of Object.entries(body)) {
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
+        for (const [subKey, subValue] of Object.entries(value as Record<string, any>)) {
+          flatSet[`${key}.${subKey}`] = subValue;
+        }
+      } else {
+        flatSet[key] = value;
+      }
+    }
+
     const updated = await InspectionReport.findOneAndUpdate(
       { id: params.id },
-      { $set: body },
-      { returnDocument: "after", lean: true }
+      { $set: flatSet },
+      { returnDocument: "after", lean: true, runValidators: false, strict: false }
     );
 
     if (!updated) {

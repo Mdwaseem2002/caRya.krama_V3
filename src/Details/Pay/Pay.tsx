@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Wallet, Building2, Apple, ChevronLeft, Check, ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,6 +8,7 @@ import PaymentDone from "../Popup/PaymentDone";
 import { addPurchase } from "@/Admin/data/purchases";
 import { getReportByCarId } from "@/Admin/data/reports";
 import { cars } from "@/data/inventory";
+import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Pay() {
@@ -16,11 +17,25 @@ export default function Pay() {
   const carId = searchParams.get('id');
   const [selectedMethod, setSelectedMethod] = useState("card");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [uploadedCarName, setUploadedCarName] = useState("");
   const { user } = useAuth();
 
-  const car = cars.find(c => c.id.toString() === carId?.toString());
+  // Find car in static inventory OR uploaded MongoDB cars
+  const staticCar = cars.find(c => c.id.toString() === carId?.toString());
   const report = carId ? getReportByCarId(carId) : null;
   const price = report?.price || 299;
+
+  useEffect(() => {
+    if (!staticCar && carId) {
+      // Try to find in uploaded (MongoDB) cars
+      getAllStoredCars().then(uploadedCars => {
+        const found = uploadedCars.find(c => c.id === carId);
+        if (found) setUploadedCarName(found.title);
+      }).catch(console.error);
+    }
+  }, [carId, staticCar]);
+
+  const carDisplayName = staticCar?.name || uploadedCarName || "this vehicle";
 
   const handlePayment = () => {
     if (carId) {
@@ -176,7 +191,7 @@ export default function Pay() {
               <PaymentDone 
                 isOpen={isSuccess} 
                 onClose={() => setIsSuccess(false)} 
-                carName={car?.name || "this vehicle"} 
+                carName={carDisplayName} 
                 carId={carId || ""}
               />
               

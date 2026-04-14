@@ -70,6 +70,11 @@ export interface IInspectionReport extends Document {
 
   precautions: string;
 
+  sellerDetails?: {
+    name: string;
+    contactNumber: string;
+  };
+
   // For uploaded reports
   uploadedFile: string;
   uploadedFileName: string;
@@ -147,6 +152,11 @@ const InspectionReportSchema = new Schema<IInspectionReport>(
     },
 
     precautions: { type: String, default: "" },
+
+    sellerDetails: {
+      name: { type: String, default: "" },
+      contactNumber: { type: String, default: "" },
+    },
 
     uploadedFile: { type: String, default: "" },
     uploadedFileName: { type: String, default: "" },

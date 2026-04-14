@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Heart, Phone, CreditCard, ShieldCheck, CheckCircle2, Calendar, Gauge, Award, Wrench, Car } from "lucide-react";
 import { cars as staticCars } from "@/data/inventory";
 import { useWishlist } from "@/context/WishlistContext";
-import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
+import { getStoredCarById } from "@/Admin/Upload/CarStorage";
 import ViewFullReport from "./ViewFullReport";
 import ViewReop from "@/Details/Popup/ViewReop";
 
@@ -14,20 +14,62 @@ export default function CarDetails({ id }: { id: string }) {
   const [mounted, setMounted] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [isBuyPopupOpen, setIsBuyPopupOpen] = useState(false);
-
-  const [uploadedCars, setUploadedCars] = useState<any[]>([]);
+  const [uploadedCar, setUploadedCar] = useState<any>(null);
+  const [loadingCars, setLoadingCars] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-    getAllStoredCars().then(setUploadedCars).catch(console.error);
-  }, []);
+    getStoredCarById(id)
+      .then(car => { setUploadedCar(car); setLoadingCars(false); })
+      .catch(() => setLoadingCars(false));
+  }, [id]);
 
   // Find the car based on string ID from params
-  const foundUploaded = uploadedCars.find((c) => c.id === id);
+  const foundUploaded = uploadedCar;
   const foundStatic = staticCars.find((c) => c.id.toString() === id);
   
-  const car = foundUploaded || foundStatic || staticCars[0];
-  
+  const car = foundUploaded || foundStatic || null;
+
+  if (!mounted) return null;
+
+  // ── LOADING SKELETON: don't flash mock car while DB fetches ───────────────────────
+  if (loadingCars) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left skeleton */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="aspect-[16/11] rounded-[2rem] bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
+            <div className="rounded-[2rem] bg-white border border-gray-100 p-8">
+              <div className="h-6 w-40 bg-gray-200 rounded-lg animate-pulse mb-6" />
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />)}
+              </div>
+            </div>
+          </div>
+          {/* Right skeleton */}
+          <div className="space-y-4">
+            <div className="rounded-[2rem] bg-white border border-gray-100 p-8 space-y-4">
+              <div className="h-24 w-full bg-gray-100 rounded-xl animate-pulse" />
+              <div className="h-8 w-3/4 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="h-4 w-1/2 bg-gray-100 rounded-lg animate-pulse" />
+              <div className="h-10 w-36 bg-emerald-100 rounded-xl animate-pulse" />
+              <div className="h-12 w-full bg-blue-50 rounded-2xl animate-pulse" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+                <div className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!car) {
+    return <div className="min-h-screen flex items-center justify-center font-bold text-gray-500">Car not found.</div>;
+  }
+
   // Normalize fields for rendering
   const isUploaded = !!foundUploaded;
   const name = isUploaded ? (car as any).title : (car as any).name;
@@ -44,7 +86,7 @@ export default function CarDetails({ id }: { id: string }) {
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % carImages.length);
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + carImages.length) % carImages.length);
 
-  if (!mounted) return null;
+  // ── Rendering the details ──────────────────────────────────
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12" style={{ background: "var(--background)" }}>

@@ -44,6 +44,7 @@ export interface ICar extends Omit<Document, "model"> {
     name: string;
     type: string;
     memberSince: string;
+    contactNumber?: string;
   };
   location: {
     area: string;
@@ -105,6 +106,7 @@ const CarSchema = new Schema<ICar>(
       name: { type: String, default: "caRya.krama Verified" },
       type: { type: String, default: "Professional" },
       memberSince: { type: String, default: "2024" },
+      contactNumber: { type: String, default: "" },
     },
 
     location: {

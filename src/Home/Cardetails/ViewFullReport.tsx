@@ -130,7 +130,7 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
               <div className="flex items-center gap-2 text-amber-600 font-extrabold text-xl py-2 px-6 bg-amber-50 rounded-2xl w-fit border border-amber-100">
                 Evaluating... Report Coming Soon
               </div>
-            ) : purchased ? (
+            ) : (isUploaded || purchased) ? (
               <Link 
                 href={`/details/report?id=${carId}`}
                 className="flex items-center gap-3 bg-[#10b981] text-white px-8 py-4 rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-emerald-500/20 group w-fit"
@@ -191,7 +191,7 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
                  <CheckCircle2 className="text-blue-400" size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-black tracking-tight text-white">Seller Profile</h3>
+                <h3 className="text-xl font-black tracking-tight text-white">Seller Details</h3>
                 <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Verified Listing Hub</p>
               </div>
             </div>
@@ -202,8 +202,12 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
 
           <div className="grid grid-cols-2 gap-6 relative z-10">
             <div className="space-y-1">
-               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Entity Name</div>
+               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Seller Name</div>
                <div className="text-lg font-black text-white tracking-tight">{isUploaded ? (car as any).sellerDetails?.name : "caRya.krama"}</div>
+            </div>
+            <div className="space-y-1">
+               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact Number</div>
+               <div className="text-lg font-black text-white tracking-tight">{isUploaded ? ((car as any).sellerDetails?.contactNumber || "N/A") : "N/A"}</div>
             </div>
             <div className="space-y-1">
                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Certification</div>
