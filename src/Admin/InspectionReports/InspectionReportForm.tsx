@@ -166,13 +166,18 @@ export default function InspectionReportForm({
   };
 
   return (
-    <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '32px' }}>
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 md:p-8">
       <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#0059A3', fontWeight: 700, cursor: 'pointer', marginBottom: '24px', padding: 0 }}>
         <ArrowLeft size={16} /> Back
       </button>
 
-      <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#111827', marginBottom: '8px' }}>
-        {editReport ? 'Edit Inspection Report' : '🔍 Vehicle Inspection Report'}
+      <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-2 flex items-center gap-2">
+        {editReport ? 'Edit Inspection Report' : (
+          <>
+            <Search size={24} className="text-blue-600" />
+            <span>Vehicle Inspection Report</span>
+          </>
+        )}
       </h2>
       {carName && (
         <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '32px' }}>
@@ -185,7 +190,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <Search size={18} style={{ color: '#0059A3' }} /> Vehicle Details
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label style={labelStyle}>Stock ID / Vehicle ID {carId && <span style={{ color: '#10B981', fontSize: '11px', fontWeight: 800, marginLeft: '6px' }}>✓ Auto-linked</span>}</label>
             <input 
@@ -223,7 +228,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <ShieldAlert size={18} style={{ color: '#0059A3' }} /> Seller Details
         </h3>
-        <div style={gridTwoStyle}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label style={labelStyle}>Seller Name</label>
             <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="e.g. John Doe / Dealership Name" style={inputStyle} />
@@ -281,7 +286,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <Droplets size={18} style={{ color: '#0059A3' }} /> Fluids
         </h3>
-        <div style={gridTwoStyle}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label style={labelStyle}>Engine Oil</label>
             <input value={engineOil} onChange={e => setEngineOil(e.target.value)} placeholder="Condition / level" style={inputStyle} />
@@ -306,7 +311,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <Battery size={18} style={{ color: '#0059A3' }} /> Battery
         </h3>
-        <div style={gridTwoStyle}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label style={labelStyle}>Ignition Voltage</label>
             <input value={ignitionVoltage} onChange={e => setIgnitionVoltage(e.target.value)} placeholder="e.g. 12.50V" style={inputStyle} />
@@ -362,7 +367,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <Cpu size={18} style={{ color: '#0059A3' }} /> OBD Scan
         </h3>
-        <div style={gridTwoStyle}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label style={labelStyle}>Fault Codes Notes</label>
             <textarea
@@ -389,7 +394,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <CarFront size={18} style={{ color: '#0059A3' }} /> Test Drive Observations
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label style={labelStyle}>Driving Performance</label>
             <input value={drivePerformance} onChange={e => setDrivePerformance(e.target.value)} placeholder="e.g. Driving performance is OK" style={inputStyle} />
@@ -415,7 +420,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <CheckCircle size={18} style={{ color: '#10B981' }} /> Overall Summary
         </h3>
-        <div style={gridTwoStyle}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label style={labelStyle}>Mechanical Condition</label>
             <textarea
@@ -442,7 +447,7 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <AlertTriangle size={18} style={{ color: '#F59E0B' }} /> Verdict
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label style={labelStyle}>Mechanical Condition</label>
             <input value={verdictMechanical} onChange={e => setVerdictMechanical(e.target.value)} placeholder="e.g. Mechanically Good" style={inputStyle} />
@@ -475,10 +480,7 @@ export default function InspectionReportForm({
       </section>
 
       {/* ── Submit Bar ─────────────────────────────────────────────────────── */}
-      <div style={{
-        position: 'sticky', bottom: 0, padding: '20px 0', borderTop: '1px solid #e5e7eb',
-        backgroundColor: 'white', display: 'flex', justifyContent: 'flex-start', gap: '16px', zIndex: 10
-      }}>
+      <div className="sticky bottom-0 py-4 sm:py-6 border-t border-gray-200 bg-white flex flex-wrap sm:flex-nowrap items-center justify-start gap-3 sm:gap-4 z-10 -mx-4 sm:mx-0 px-4 sm:px-0">
         <button
           onClick={onBack}
           style={{ padding: '12px 24px', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '12px', fontWeight: 700, border: '1px solid #d1d5db', cursor: 'pointer' }}

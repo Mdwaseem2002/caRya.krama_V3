@@ -15,6 +15,8 @@ import Callus, { FloatingCallButton } from '@/Details/CallUs/Callus';
 import { useNotifications } from '@/Details/Notification/Customerfetch';
 import { NOTIF_EVENT } from '@/Details/Notification/CustomerNotify';
 import { ADMIN_NOTIF_EVENT } from '@/Details/Notification/AdminNotify';
+import { usePathname } from 'next/navigation';
+import { setSplashShown } from '@/lib/splashState';
 
 const navLinks = [
   { label: 'caRya.krama', href: '/' },
@@ -29,6 +31,7 @@ export default function Navbar() {
   const { wishlist } = useWishlist();
   const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const { unreadCount, adminUnreadCount } = useNotifications();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -40,6 +43,12 @@ export default function Navbar() {
   const [activeToast, setActiveToast] = useState<any>(null);
 
   useEffect(() => {
+    // If user lands on ANY page other than Home, mark splash as handled for the session.
+    // This prevents the splash from appearing when they later navigate to Home.
+    if (pathname !== '/') {
+      setSplashShown(true);
+    }
+
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
 

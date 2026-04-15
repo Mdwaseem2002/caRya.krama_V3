@@ -18,9 +18,6 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
   const handleDownloadPDF = async () => {
     if (!printRef.current) return;
     
-    // Create an instance of jsPDF (A4 format)
-    const pdf = new jsPDF("p", "mm", "a4");
-    
     // Scale up for better resolution
     const canvas = await html2canvas(printRef.current, {
       scale: 2,
@@ -30,23 +27,15 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
     
     const imgData = canvas.toDataURL("image/png");
     
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    // Calculate PDF dimensions - maintain A4 width (210mm) and scale height based on content
+    const imgWidth = 210;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
-    // If the content is longer than A4, we need multiple pages
-    let heightLeft = pdfHeight;
-    let position = 0;
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    // Create jsPDF instance with custom page size [width, height]
+    const pdf = new jsPDF("p", "mm", [imgWidth, imgHeight]);
     
-    pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-    heightLeft -= pageHeight;
-    
-    while (heightLeft >= 0) {
-      position = heightLeft - pdfHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
-    }
+    // Add the image as a single continuous block
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
     
     pdf.save(`Inspection_Report_${report.id}.pdf`);
   };

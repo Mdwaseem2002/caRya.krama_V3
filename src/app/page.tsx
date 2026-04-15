@@ -17,12 +17,20 @@ import Splash from "@/Details/Animation/Splash";
 import { getSplashShown, setSplashShown } from "@/lib/splashState";
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(() => {
-    // Check if splash was already shown in this running instance (before navigation)
-    return !getSplashShown();
-  });
+  const [showSplash, setShowSplash] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    // On mount, check if splash has already been seen in this session
+    if (getSplashShown()) {
+      setShowSplash(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     // Force body background to black while splash is active to prevent white flashes
     if (showSplash) {
       document.body.style.backgroundColor = "#030303";
@@ -35,11 +43,16 @@ export default function Home() {
       }, 1200); // Match Splash exit duration
       return () => clearTimeout(timer);
     }
-  }, [showSplash]);
+  }, [showSplash, isMounted]);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
   };
+
+  // Prevent hydration mismatch by rendering a consistent black background until mounted
+  if (!isMounted) {
+    return <main className="bg-[#030303] min-h-screen" />;
+  }
 
   return (
     <main className={`relative min-h-screen ${showSplash ? "bg-[#030303]" : "bg-transparent"}`}>

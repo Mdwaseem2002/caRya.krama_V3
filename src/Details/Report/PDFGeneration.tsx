@@ -70,27 +70,16 @@ export const generatePDF = async (
     });
 
     const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pdfWidth;
+    
+    // Calculate PDF dimensions - maintain A4 width (210mm) and scale height based on content
+    const imgWidth = 210; 
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    // Initialize jsPDF with custom page size [width, height]
+    const pdf = new jsPDF("p", "mm", [imgWidth, imgHeight]);
 
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    // Add first page
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "FAST");
-    heightLeft -= pdfHeight;
-
-    // Add subsequent pages if needed
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "FAST");
-      heightLeft -= pdfHeight;
-    }
+    // Add the image as a single continuous block
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight, undefined, "FAST");
 
     pdf.save(fileName);
   } catch (error) {

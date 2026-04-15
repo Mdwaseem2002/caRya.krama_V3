@@ -1,8 +1,17 @@
-// This module-level variable persists as long as the application is running (internal navigation)
-// but resets whenever the page is hard-refreshed (browser restart/reload).
-let hasShownSplash = false;
+/**
+ * This module manages the persistence of the splash screen state.
+ * It uses sessionStorage to ensure the splash only shows once per browser session.
+ */
 
-export const getSplashShown = () => hasShownSplash;
+const STORAGE_KEY = 'carya_splash_shown';
+
+export const getSplashShown = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return sessionStorage.getItem(STORAGE_KEY) === 'true';
+};
+
 export const setSplashShown = (value: boolean) => {
-  hasShownSplash = value;
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(STORAGE_KEY, value ? 'true' : 'false');
+  }
 };

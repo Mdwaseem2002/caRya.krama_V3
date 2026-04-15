@@ -48,9 +48,9 @@ export default function TrustSections() {
                   desc: "We validate every service log and ownership document to ensure 100% legal and technical clarity." 
                 }
               ].map((item, i) => (
-                <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group">
-                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center border border-slate-100 shadow-sm group-hover:bg-blue-600 group-hover:border-blue-500 transition-all">
-                     <item.icon size={22} className="text-blue-500 group-hover:text-white transition-colors" />
+                <div key={i} className="flex items-start gap-6 p-6 rounded-[2rem] bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group">
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center border border-slate-100 shadow-sm group-hover:bg-blue-600 group-hover:border-blue-500 transition-all shrink-0">
+                     <item.icon size={26} className="text-blue-500 group-hover:text-white transition-colors" />
                   </div>
                   <div>
                     <h4 className="text-base font-black text-gray-900 mb-1">{item.title}</h4>
