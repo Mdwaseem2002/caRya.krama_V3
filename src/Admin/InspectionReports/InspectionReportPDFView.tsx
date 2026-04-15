@@ -74,7 +74,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                   </div>
                 </div>
                 <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
-                  <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em', lineHeight: '1', position: 'relative', top: '-7px' }}>
+                  <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em', lineHeight: '1', position: 'relative', top: '-3px' }}>
                     caRya.<span style={{ color: '#0059A3' }}>krama</span>
                   </h1>
                 </div>
@@ -125,7 +125,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                        <CarIcon size={20} style={{ color: '#0059A3', display: 'block', marginTop: '2px' }} />
                     </div>
                     <div style={{ display: 'table-cell', verticalAlign: 'middle', height: '24px' }}>
-                       <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#111827', lineHeight: '24px', position: 'relative', top: '-4px' }}>Vehicle Identification</h3>
+                       <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#111827', lineHeight: '24px', position: 'relative', top: '1px' }}>Vehicle Identification</h3>
                     </div>
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                                <div style={{ position: 'absolute', top: '1px', left: '3px', width: '3px', height: '6px', borderBottom: '2px solid #16a34a', borderRight: '2px solid #16a34a', transform: 'rotate(45deg)' }}></div>
                              </div>
                           </div>
-                          <div style={{ display: 'table-cell', verticalAlign: 'middle', lineHeight: '1', position: 'relative', top: '-4px' }}>Verified Profile</div>
+                          <div style={{ display: 'table-cell', verticalAlign: 'middle', lineHeight: '1', position: 'relative', top: '1px' }}>Verified Profile</div>
                         </div>
                       </div>
                     </div>
@@ -271,7 +271,7 @@ function SectionHeader({ number, icon, title }: { number: string, icon: React.Re
           </div>
         </div>
         <div style={{ display: 'table-cell', verticalAlign: 'middle', paddingLeft: '16px' }}>
-          <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 900, color: '#111827', textTransform: 'uppercase', lineHeight: '40px', position: 'relative', top: '-4px' }}>
+          <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 900, color: '#111827', textTransform: 'uppercase', lineHeight: '40px', position: 'relative', top: '1px' }}>
             {number}. {title}
           </h2>
         </div>
@@ -295,7 +295,7 @@ function BulletPoint({ text, subtext, warning }: { text: string, subtext?: strin
            </div>
         </div>
         <div style={{ display: 'table-cell', verticalAlign: 'middle', paddingLeft: '12px' }}>
-          <p style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: warning ? '#ef4444' : '#111827', lineHeight: '24px', position: 'relative', top: '-4px' }}>{text}</p>
+          <p style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: warning ? '#ef4444' : '#111827', lineHeight: '24px', position: 'relative', top: '1px' }}>{text}</p>
           {subtext && <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#6b7280', lineHeight: '1.4' }}>{subtext}</p>}
         </div>
       </div>
@@ -318,7 +318,7 @@ function TableRow({ label, status, warning, action }: { label: string, status: s
               )}
             </div>
             <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
-              <span style={{ fontSize: '13px', fontWeight: 900, color: warning ? '#d97706' : '#10b981', lineHeight: '24px', position: 'relative', top: '-4px' }}>{status || "Clean"}</span>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: warning ? '#d97706' : '#10b981', lineHeight: '24px', position: 'relative', top: '1px' }}>{status || "Clean"}</span>
             </div>
           </div>
         </div>
