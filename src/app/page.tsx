@@ -22,10 +22,6 @@ export default function Home() {
 
   useEffect(() => {
     setIsMounted(true);
-    // On mount, check if splash has already been seen in this session
-    if (getSplashShown()) {
-      setShowSplash(false);
-    }
   }, []);
 
   useEffect(() => {
@@ -35,9 +31,6 @@ export default function Home() {
     if (showSplash) {
       document.body.style.backgroundColor = "#030303";
     } else {
-      // Once splash is gone, ensure we don't show it again on navigation
-      setSplashShown(true);
-      
       const timer = setTimeout(() => {
         document.body.style.backgroundColor = "";
       }, 1200); // Match Splash exit duration

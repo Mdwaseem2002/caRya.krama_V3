@@ -31,25 +31,26 @@ export default function UsedcarModels() {
 
   // Filtering Logic
   const filteredCars = allCars.filter((car) => {
+    if (!car) return false;
+    
     const byFilter =
       activeFilter === "All Cars" ? true :
-        activeFilter === "New Arrivals" ? car.tags.includes("New Arrival") :
-          activeFilter === "Featured" ? car.tags.includes("Featured") : true;
+        (car.tags || []).includes(activeFilter === "New Arrivals" ? "New Arrival" : "Featured");
     
-    const byFuel = activeFuel === "All Fuel Types" ? true : car.specs.fuelType === activeFuel;
+    const byFuel = activeFuel === "All Fuel Types" ? true : car.specs?.fuelType === activeFuel;
     
     return byFilter && byFuel;
   });
 
   // Sorting Logic
   const sortedCars = [...filteredCars].sort((a, b) => {
-    const priceA = parseInt(a.pricing.sellingPrice.replace(/[^\d]/g, ""));
-    const priceB = parseInt(b.pricing.sellingPrice.replace(/[^\d]/g, ""));
+    const priceA = parseInt((a.pricing?.sellingPrice || "0").replace(/[^\d]/g, ""));
+    const priceB = parseInt((b.pricing?.sellingPrice || "0").replace(/[^\d]/g, ""));
     
     if (activeSort === "Price: Low to High") return priceA - priceB;
     if (activeSort === "Price: High to Low") return priceB - priceA;
-    if (activeSort === "Inspection Score") return (b.condition.score as any) - (a.condition.score as any);
-    if (activeSort === "Year: Newest") return parseInt(b.year) - parseInt(a.year);
+    if (activeSort === "Inspection Score") return (parseFloat(b.condition?.score || "0")) - (parseFloat(a.condition?.score || "0"));
+    if (activeSort === "Year: Newest") return parseInt(b.year || "0") - parseInt(a.year || "0");
     return 0;
   });
 
@@ -199,26 +200,26 @@ export default function UsedcarModels() {
               >
                 {/* IMAGE SECTION */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
-                  <Image
-                    src={car.media.coverImage || "/logo/carYakrama.png"}
-                    alt={car.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
-                    loading={index < 4 ? "eager" : "lazy"}
-                    unoptimized={car.media.coverImage?.startsWith("data:")}
-                  />
+                    <Image
+                      src={car.media?.coverImage || "/logo/carYakrama.png"}
+                      alt={car.title || "Car"}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
+                      loading={index < 4 ? "eager" : "lazy"}
+                      unoptimized={car.media?.coverImage?.startsWith("data:")}
+                    />
 
                   {/* Top Left Badges - Hide on Hover */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 group-hover:opacity-0 transition-opacity duration-300">
-                    {car.tags.includes("New Arrival") && (
+                    {(car.tags || []).includes("New Arrival") && (
                       <div className="bg-[#0059A3] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg shadow-lg">
                         New Arrival
                       </div>
                     )}
                     <div className="glass-frost glass-stroke px-3 py-1.5 rounded-lg flex items-center gap-2">
                       <ShieldCheck size={12} className="text-[#34d399]" />
-                      <span className="text-[10px] font-black text-white tracking-tight">Score: {car.condition.score}</span>
+                      <span className="text-[10px] font-black text-white tracking-tight">Score: {car.condition?.score || "—"}</span>
                     </div>
                   </div>
 
@@ -232,11 +233,11 @@ export default function UsedcarModels() {
                           id: car.id as any,
                           name: car.title,
                           year: car.year,
-                          image: car.media.coverImage,
-                          odometer: `${car.specs.mileage} km`,
-                          price: car.pricing.sellingPrice,
-                          condition: car.condition.score + "/10",
-                          inspectionScore: car.condition.score + "/10",
+                          image: car.media?.coverImage,
+                          odometer: `${car.specs?.mileage || "0"} km`,
+                          price: car.pricing?.sellingPrice,
+                          condition: (car.condition?.score || "0") + "/10",
+                          inspectionScore: (car.condition?.score || "0") + "/10",
                         };
                         toggleWishlist(normalizedCar as any);
                       }}
@@ -264,7 +265,7 @@ export default function UsedcarModels() {
                           <h4 className="text-lg font-black text-white uppercase tracking-tight">Inspection</h4>
                         </div>
                         <div className="space-y-2.5">
-                          {car.condition.inspectionPoints.slice(0, 3).map((point, idx) => (
+                          {(car.condition?.inspectionPoints || []).slice(0, 3).map((point, idx) => (
                             <div key={idx} className="flex items-center gap-2">
                               <CheckCircle2 size={14} className="text-[#10B981]" />
                               <span className="text-white/80 text-[10px] font-bold uppercase">{point.title}:</span>
@@ -290,10 +291,10 @@ export default function UsedcarModels() {
                   
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     {[
-                      { icon: Fuel, label: "ENERGY", value: car.specs.fuelType },
-                      { icon: Navigation, label: "DRIVE", value: car.specs.transmission },
-                      { icon: CheckCircle2, label: "OWNER", value: car.specs.ownership },
-                      { icon: Calendar, label: "MILEAGE", value: `${car.specs.mileage} KMS` },
+                      { icon: Fuel, label: "ENERGY", value: car.specs?.fuelType },
+                      { icon: Navigation, label: "DRIVE", value: car.specs?.transmission },
+                      { icon: CheckCircle2, label: "OWNER", value: car.specs?.ownership },
+                      { icon: Calendar, label: "MILEAGE", value: `${car.specs?.mileage || "0"} KMS` },
                     ].map((spec, i) => (
                       <div key={i} className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-2xl p-3 flex flex-col gap-1">
                         <div className="flex items-center gap-1.5">
@@ -309,18 +310,18 @@ export default function UsedcarModels() {
                   <div className="flex items-center justify-between mb-6 px-1">
                      <div className="flex items-center gap-2">
                         <MapPin size={12} className="text-[#0059A3]" />
-                        <span className="text-[10px] font-bold text-slate-500 uppercase">{car.location.area}, {car.location.city}</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase">{car.location?.area || "N/A"}, {car.location?.city || ""}</span>
                      </div>
                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${car.specs.warranty ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                        <span className="text-[9px] font-black text-slate-400 uppercase">{car.specs.warranty ? 'Warranty' : 'No Warranty'}</span>
+                        <div className={`w-2 h-2 rounded-full ${car.specs?.warranty ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                        <span className="text-[9px] font-black text-slate-400 uppercase">{car.specs?.warranty ? 'Warranty' : 'No Warranty'}</span>
                      </div>
                   </div>
 
                   <div className="mt-auto pt-5 border-t border-[#f1f5f9] flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <span className="block text-[8px] font-black text-[#94a3b8] uppercase tracking-widest mb-1">Selling Price</span>
-                      <p className="text-lg sm:text-xl font-black text-[#0f172a] tracking-tighter leading-none whitespace-nowrap">{car.pricing.sellingPrice}</p>
+                      <p className="text-lg sm:text-xl font-black text-[#0f172a] tracking-tighter leading-none whitespace-nowrap">{car.pricing?.sellingPrice || "Price TBD"}</p>
                     </div>
                     <button 
                       onClick={() => window.location.href = `/car/${car.id}`}

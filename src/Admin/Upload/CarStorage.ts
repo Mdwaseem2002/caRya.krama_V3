@@ -181,17 +181,25 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   // /api/cars/list is purpose-built: minimal fields, no gallery images.
   // next: { revalidate: 30 } lets Next.js cache the fetch response for 30s
   // AND lets the browser cache it too — avoids a cold MongoDB hit on every load.
-  const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
-    next: { revalidate: 30 },
-  });
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
+      next: { revalidate: 30 },
+    });
 
-  if (!res.ok) return [];
+    if (!res.ok) {
+      console.warn("⚠️ [CarStorage] API responded with error:", res.status);
+      return [];
+    }
 
-  const data = await res.json();
-  const cars = (data.cars || []) as StoredCar[];
-  
-  cache.publishedCars = { data: cars, time: now };
-  return cars;
+    const data = await res.json();
+    const cars = (data.cars || []) as StoredCar[];
+    
+    cache.publishedCars = { data: cars, time: now };
+    return cars;
+  } catch (error) {
+    console.error("❌ [CarStorage] getPublishedStoredCars failed:", error);
+    return []; // Return empty array instead of throwing to prevent component crash
+  }
 }
 
 /** Get a single car by ID (Super fast for Detail pages) */

@@ -11,20 +11,11 @@ export const metadata: Metadata = {
   },
 };
 
-import dynamic from "next/dynamic";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
-
-// SmoothScrollProvider initialises Lenis + GSAP ScrollTrigger — both are
-// browser-only and ~70 kB gzipped. Dynamic import with ssr:false means:
-//   • The server renders children immediately without waiting for these libs
-//   • The client downloads Lenis/GSAP in a separate chunk after hydration
-const SmoothScrollProvider = dynamic(
-  () => import("@/components/SmoothScrollProvider"),
-  { ssr: false }
-);
 
 export default function RootLayout({
   children,

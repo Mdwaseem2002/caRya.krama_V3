@@ -14,14 +14,12 @@ if (!MONGODB_URI) {
   );
 }
 
-// Extend the NodeJS global type to cache the connection
+// Global cache for Mongoose to avoid multiple connections in development
 interface MongooseCache {
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
 }
 
-// In development, Next.js hot-reloads modules; use global cache to avoid
-// re-opening connections every time.
 declare global {
   // eslint-disable-next-line no-var
   var mongooseCache: MongooseCache | undefined;
@@ -30,31 +28,44 @@ declare global {
 const cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
 global.mongooseCache = cached;
 
+/** 
+ * Connects to MongoDB with error handling and connection pooling.
+ * Checks the readyState to ensure we don't try to reconnect if already active.
+ */
 export async function connectDB(): Promise<Mongoose> {
-  // Return cached connection if available
+  // 1. Check if we are already connected (readyState: 1 = connected)
+  if (mongoose.connection.readyState === 1) {
+    return mongoose;
+  }
+
+  // 2. Return cached instance if available
   if (cached.conn) {
     return cached.conn;
   }
 
-  // Create a new connection promise if none exists
+  // 3. Initiate connection if no promise exists
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,     // Fail fast if disconnected, don't queue ops
-      maxPoolSize: 10,           // Max concurrent connections in the pool
-      minPoolSize: 2,            // Keep 2 connections warm at all times
-      serverSelectionTimeoutMS: 5000,  // Fail fast after 5s (was 10s)
-      connectTimeoutMS: 10000,   // Initial TCP connect timeout
-      socketTimeoutMS: 45000,    // Close sockets after 45s of inactivity
+      bufferCommands: true,      // Queue commands while connecting (prevents "App Error" crash)
+      maxPoolSize: 10,           // Max concurrent connections
+      minPoolSize: 2,            // Keep 2 connections warm
+      serverSelectionTimeoutMS: 10000, // Wait 10s for DB to wake up (Standard in serverless)
+      connectTimeoutMS: 15000,   // Initial TCP connect timeout
+      socketTimeoutMS: 45000,    // Time before closing quiet sockets
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts);
+    console.log("🔄 Initiating new MongoDB connection...");
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {
+      console.log("✅ MongoDB Connected Successfully");
+      return m;
+    });
   }
 
   try {
     cached.conn = await cached.promise;
   } catch (e) {
-    // Reset so retries work
-    cached.promise = null;
+    cached.promise = null; // Clear promise so retries can happen
+    console.error("❌ MongoDB Connection Error:", e);
     throw e;
   }
 
