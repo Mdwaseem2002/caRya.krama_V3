@@ -186,8 +186,8 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (status: 'draft' | 'published') => {
-    if (!title || !brand || !sellingPrice || images.length === 0) {
-      alert("Please fill in basic info, pricing, and upload at least one media file.");
+    if (!title || !brand || !model || !year || !sellingPrice || images.length === 0) {
+      alert("Please fill in basic info (Title, Brand, Model, Year), pricing, and upload at least one media file.");
       return;
     }
 

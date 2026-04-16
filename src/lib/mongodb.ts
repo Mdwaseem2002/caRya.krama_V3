@@ -38,38 +38,44 @@ export async function connectDB(): Promise<Mongoose> {
     return mongoose;
   }
 
-  // 2. Return cached instance if available
-  if (cached.conn) {
-    return cached.conn;
+  // 2. Check if we are currently connecting (readyState: 2 = connecting)
+  if (mongoose.connection.readyState === 2) {
+    console.log("⏳ MongoDB is already connecting, waiting for promise...");
+    if (cached.promise) return cached.promise;
   }
 
   // 3. Initiate connection if no promise exists
   if (!cached.promise) {
     const opts = {
-      bufferCommands: true,      // Queue commands while connecting (prevents "App Error" crash)
-      maxPoolSize: 10,           // Max concurrent connections
-      minPoolSize: 2,            // Keep 2 connections warm
-      serverSelectionTimeoutMS: 10000, // Wait 10s for DB to wake up (Standard in serverless)
-      connectTimeoutMS: 15000,   // Initial TCP connect timeout
-      socketTimeoutMS: 45000,    // Time before closing quiet sockets
+      bufferCommands: true,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 20000, // Increased to 20s for more stability
+      connectTimeoutMS: 20000,
+      socketTimeoutMS: 45000,
+      family: 4, // Force IPv4 to avoid some DNS resolution issues in serverless
     };
 
     console.log("🔄 Initiating new MongoDB connection...");
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {
-      console.log("✅ MongoDB Connected Successfully");
+      console.log("✅ MongoDB Connected Successfully to:", m.connection.db?.databaseName || "default");
       return m;
+    }).catch((err) => {
+      console.error("❌ MongoDB Connection Promise Error:", err);
+      cached.promise = null; // Reset so next request can retry
+      throw err;
     });
   }
 
   try {
     cached.conn = await cached.promise;
+    return cached.conn;
   } catch (e) {
-    cached.promise = null; // Clear promise so retries can happen
-    console.error("❌ MongoDB Connection Error:", e);
+    cached.promise = null;
+    cached.conn = null;
+    console.error("❌ MongoDB Final Connection Error:", e);
     throw e;
   }
-
-  return cached.conn;
 }
 
 export default connectDB;

@@ -36,12 +36,12 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   }
 }
 
-// ── PUT /api/cars/:id ─────────────────────────────────────────────────────────
 export async function PUT(req: NextRequest, { params }: RouteContext) {
   try {
     await connectDB();
 
     const body = await req.json();
+    console.log(`📝 Updating car listing: ${params.id}`);
 
     // Remove fields that should not be overwritten via update
     delete body._id;
@@ -49,8 +49,6 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     delete body.createdAt;
 
     // ── Flatten nested objects into dot-notation keys ─────────────────────────
-    // This ensures fields like sellerDetails.contactNumber are ALWAYS persisted,
-    // even when the Mongoose model was cached before the field was added to the schema.
     const flatSet: Record<string, any> = {};
     for (const [key, value] of Object.entries(body)) {
       if (
@@ -69,7 +67,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     const updated = await Car.findOneAndUpdate(
       { id: params.id },
       { $set: flatSet },
-      { new: true, runValidators: false }  // runValidators:false avoids cached-schema errors
+      { new: true, runValidators: true } // Enabled runValidators for better reliability
     ).lean();
 
     if (!updated) {
@@ -80,10 +78,20 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     }
 
     return NextResponse.json({ success: true, car: updated }, { status: 200 });
-  } catch (error) {
-    console.error("[PUT /api/cars/:id] Error:", error);
+  } catch (error: any) {
+    console.error(`[PUT /api/cars/${params.id}] Error:`, error.message || error);
+    
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json(
+        { success: false, error: `Update Failed: ${messages.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, error: "Failed to update car" },
+      { success: false, error: error.message || "Failed to update car" },
       { status: 500 }
     );
   }

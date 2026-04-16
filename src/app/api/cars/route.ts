@@ -43,17 +43,22 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ── POST /api/cars ────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
     const body = await req.json();
 
-    // Validate required fields
-    if (!body.title || !body.brand || !body.pricing?.sellingPrice) {
+    // Validate required fields (including those required by the schema)
+    const requiredFields = ["title", "brand", "model", "year"];
+    const missing = requiredFields.filter((f) => !body[f]);
+    
+    // Also check for pricing
+    if (!body.pricing?.sellingPrice) missing.push("pricing.sellingPrice");
+
+    if (missing.length > 0) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields: title, brand, sellingPrice" },
+        { success: false, error: `Missing required fields: ${missing.join(", ")}` },
         { status: 400 }
       );
     }
@@ -61,10 +66,14 @@ export async function POST(req: NextRequest) {
     // Generate custom ID (or use provided one)
     const id = body.id || `CK-${Math.floor(Math.random() * 10_000_000)}`;
 
+    console.log(`🚀 Creating new car listing: ${body.title} (ID: ${id})`);
     const newCar = await Car.create({ ...body, id });
 
     return NextResponse.json({ success: true, car: newCar }, { status: 201 });
   } catch (error: any) {
+    // Detailed error logging
+    console.error("[POST /api/cars] Error:", error.message || error);
+    
     // Handle duplicate key (race condition on the CK-ID)
     if (error?.code === 11000) {
       return NextResponse.json(
@@ -72,9 +81,18 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
-    console.error("[POST /api/cars] Error:", error);
+
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json(
+        { success: false, error: `Validation Failed: ${messages.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, error: "Failed to create car" },
+      { success: false, error: error.message || "Failed to create car" },
       { status: 500 }
     );
   }
