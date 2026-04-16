@@ -5,6 +5,7 @@ import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Set
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { InspectionReportData } from "./InspectionStorage";
+import InspectionReportDownload, { InspectionReportDownloadHandle } from "./InspectionReportDownload";
 
 interface InspectionReportPDFViewProps {
   report: InspectionReportData;
@@ -18,37 +19,13 @@ const isWarning = (text: string) => {
 };
 
 export default function InspectionReportPDFView({ report, carCoverImage, onClose }: InspectionReportPDFViewProps) {
-  const printRef = useRef<HTMLDivElement>(null);
-
-  const handleDownloadPDF = async () => {
-    if (!printRef.current) return;
-    
-    const pages = printRef.current.querySelectorAll('.pdf-page');
-    if (pages.length === 0) return;
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const imgWidth = 210; // A4 width in mm
-    
-    // Iterate through all 3 pages and append to single PDF
-    for (let i = 0; i < pages.length; i++) {
-       const page = pages[i] as HTMLElement;
-       const canvas = await html2canvas(page, {
-         scale: 2,
-         useCORS: true,
-         logging: false,
-       });
-       
-       const imgData = canvas.toDataURL("image/png");
-       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-       
-       if (i > 0) {
-         pdf.addPage();
-       }
-       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    }
-    
-    pdf.save(`Inspection_Report_${report.id}.pdf`);
-  };
+  const downloadRef = useRef<InspectionReportDownloadHandle>(null);
+ 
+   const handleDownloadPDF = async () => {
+     if (downloadRef.current) {
+       await downloadRef.current.handleDownloadPDF();
+     }
+   };
 
   return (
     <div style={{ backgroundColor: '#f3f4f6', padding: '40px 20px', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -62,8 +39,17 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
         </button>
       </div>
 
-      {/* ── PDF Containers ────────────────────────────────────────────────────────── */}
-      <div ref={printRef} style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+       {/* High-Quality Download Template (Rendered Off-Screen for Capture) */}
+       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+         <InspectionReportDownload 
+           ref={downloadRef}
+           initialReport={report} 
+           carCoverImage={carCoverImage} 
+         />
+       </div>
+ 
+       {/* ── PDF Containers ────────────────────────────────────────────────────────── */}
+       <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
         
         {/* PAGE 1 */}
         <div className="pdf-page" style={pageStyle}>

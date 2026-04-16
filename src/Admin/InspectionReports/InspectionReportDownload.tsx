@@ -1,24 +1,33 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Cpu } from "lucide-react";
 import { InspectionReportData, getInspectionReport } from "./InspectionStorage";
 
 interface Props {
-  reportId?: string;       // To fetch from DB natively
-  initialReport?: InspectionReportData; // Or pass directly
+  reportId?: string;
+  initialReport?: InspectionReportData;
   carCoverImage?: string;
   onClose?: () => void;
 }
 
-export default function InspectionReportDownload({ reportId, initialReport, carCoverImage, onClose }: Props) {
+const isWarning = (text: string) => {
+  const lText = text?.toLowerCase() || "";
+  return lText.includes("need") || lText.includes("leak") || lText.includes("damage") || lText.includes("fault") || lText.includes("issue") || lText.includes("replace") || lText.includes("bad") || lText.includes("attention");
+};
+
+export interface InspectionReportDownloadHandle {
+  handleDownloadPDF: () => Promise<void>;
+}
+
+const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Props>(({ reportId, initialReport, carCoverImage, onClose }, ref) => {
   const [report, setReport] = useState<InspectionReportData | null>(initialReport || null);
   const [loading, setLoading] = useState(!initialReport && !!reportId);
   const [error, setError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Connect with mongoose backend data via API
   useEffect(() => {
     if (!initialReport && reportId) {
       setLoading(true);
@@ -40,14 +49,15 @@ export default function InspectionReportDownload({ reportId, initialReport, carC
 
     const pdf = new jsPDF("p", "mm", "a4");
     const imgWidth = 210;
-    
+
     for (let i = 0; i < pages.length; i++) {
        const page = pages[i] as HTMLElement;
        const canvas = await html2canvas(page, {
-         scale: 2,
+         scale: 3,
          useCORS: true,
          logging: false,
-       });
+         letterRendering: true,
+       } as any);
        
        const imgData = canvas.toDataURL("image/png");
        const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -59,364 +69,313 @@ export default function InspectionReportDownload({ reportId, initialReport, carC
     pdf.save(`Inspection_Report_${report?.id || 'Download'}.pdf`);
   };
 
+  useImperativeHandle(ref, () => ({
+    handleDownloadPDF
+  }));
+
   if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Report Data...</div>;
   if (error) return <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>{error}</div>;
   if (!report) return null;
 
-  const isWarning = (text: string) => {
-    const l = text?.toLowerCase() || "";
-    return l.includes("need") || l.includes("leak") || l.includes("damage") || l.includes("issue") || l.includes("attention");
-  };
-
-  // Safe PDF components breaking down everything to blocks/tables/inline-blocks over flex/grid
-  const PageContainer = ({ children, pageNum }: { children: React.ReactNode, pageNum: number }) => (
-    <div className="pdf-page" style={{ ...pageStyle, position: 'relative' }}>
-      <div style={watermarkStyle}>caRya.krama</div>
-      <div style={{ position: 'relative', zIndex: 1, minHeight: '940px' }}>
-         {children}
-      </div>
-      {/* Footer strictly uses table for rigid columns without flex */}
-      <div style={{ position: 'absolute', bottom: '50px', left: '60px', right: '60px', borderTop: '2px solid #f3f4f6', paddingTop: '16px', display: 'table', width: '674px', fontSize: '11px', color: '#9ca3af', fontWeight: 'bold' }}>
-         <div style={{ display: 'table-cell', textAlign: 'left', width: '33%' }}>Page {pageNum} / 4</div>
-         <div style={{ display: 'table-cell', textAlign: 'center', width: '33%', color: '#0059A3' }}>caRya.krama Vehicle Inspection</div>
-         <div style={{ display: 'table-cell', textAlign: 'right', width: '33%' }}>{new Date().toLocaleDateString('en-GB')}</div>
-      </div>
-    </div>
-  );
-
-  const SectionBox = ({ title, icon, children }: { title: string, icon: string, children: React.ReactNode }) => (
-    <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', marginBottom: '24px', backgroundColor: '#ffffff' }}>
-      <div style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '12px', marginBottom: '16px' }}>
-         <span style={{ display: 'inline-block', fontSize: '18px', width: '28px', color: '#0059A3' }}>{icon}</span>
-         <span style={{ display: 'inline-block', fontSize: '16px', fontWeight: 'bold', color: '#111827', verticalAlign: 'top', marginTop: '2px' }}>{title}</span>
-      </div>
-      <div>{children}</div>
-    </div>
-  );
-
-  const BulletList = ({ text, warn = false }: { text: string, warn?: boolean }) => {
-    if (!text) return null;
-    let bullets = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-    return (
-      <div style={{ marginBottom: '12px' }}>
-        {bullets.map((b, i) => {
-          const w = warn || isWarning(b);
-          return (
-            <div key={i} style={{ marginBottom: '8px' }}>
-              <span style={{ display: 'inline-block', width: '24px', verticalAlign: 'top', color: w ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
-                {w ? '⚠' : '✔'}
-              </span>
-              <span style={{ display: 'inline-block', width: 'calc(100% - 30px)', verticalAlign: 'top', fontSize: '13px', color: '#374151', lineHeight: '1.5' }}>
-                {b}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
     <div style={{ backgroundColor: '#f3f4f6', padding: '40px 20px', minHeight: '100vh', textAlign: 'center' }}>
-      <div style={{ marginBottom: '32px', display: 'inline-block', width: '794px', backgroundColor: '#fff', padding: '16px 24px', borderRadius: '8px', border: '1px solid #e5e7eb', textAlign: 'left' }}>
-         <span style={{ float: 'left' }}>
-            {onClose && <button onClick={onClose} style={{ padding: '8px 16px', background: '#f3f4f6', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>← Back</button>}
-         </span>
-         <span style={{ float: 'right' }}>
-            <button onClick={handleDownloadPDF} style={{ padding: '8px 16px', background: '#0059A3', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>⇩ Download Clean PDF</button>
-         </span>
-         <div style={{ clear: 'both' }}></div>
-      </div>
 
       <div ref={printRef} style={{ display: 'inline-block', textAlign: 'left' }}>
         {/* PAGE 1 */}
-        <PageContainer pageNum={1}>
-           {/* Top Boxed Header */}
-           <div style={{ border: '2px solid #0059A3', borderRadius: '8px', padding: '20px', textAlign: 'center', marginBottom: '20px' }}>
-              <h1 style={{ margin: '0 0 4px 0', color: '#111827', fontSize: '26px' }}>caRya.<span style={{color: '#0059A3'}}>krama</span></h1>
-              <div style={{ fontSize: '11px', color: '#6b7280', letterSpacing: '2px' }}>PROFESSIONAL VEHICLE INSPECTION SERVICES</div>
-           </div>
-           
-           <div style={{ width: '100%', borderBottom: '2px solid #0059A3', marginBottom: '20px' }}></div>
-
-           {/* Info Bar (Table layout avoids flex wrapping) */}
-           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e5e7eb', borderRadius: '8px', marginBottom: '24px', textAlign: 'center' }}>
-             <tbody>
-               <tr>
-                 <td style={{ padding: '12px', borderRight: '1px solid #e5e7eb', width: '33%' }}>
-                   <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>DATE</div>
-                   <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{new Date(report.createdAt).toLocaleDateString()}</div>
-                 </td>
-                 <td style={{ padding: '12px', borderRight: '1px solid #e5e7eb', width: '33%' }}>
-                   <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>REPORT ID</div>
-                   <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{report.id}</div>
-                 </td>
-                 <td style={{ padding: '12px', width: '33%' }}>
-                   <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>INSPECTOR NAME</div>
-                   <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>Master Tech Z.K.</div>
-                 </td>
-               </tr>
-             </tbody>
-           </table>
-
-           {/* Image */}
-           <div style={{ width: '100%', height: '340px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', marginBottom: '24px', textAlign: 'center', overflow: 'hidden' }}>
-             {carCoverImage ? (
-               <img src={carCoverImage} alt="Car" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-             ) : (
-               <div style={{ paddingTop: '140px', color: '#9ca3af', fontSize: '40px' }}>🚗</div>
-             )}
-           </div>
-
-           {/* Vehicle Details */}
-           <SectionBox title="VEHICLE OVERVIEW" icon="🚘">
-             <table style={{ width: '100%', marginBottom: report.sellerDetails ? '16px' : '0' }}>
-               <tbody>
-                 <tr>
-                   <td style={{ width: '25%', padding: '0 8px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>MAKE & MODEL</div>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>{report.vehicleDetails.carName}</div>
-                   </td>
-                   <td style={{ width: '25%', padding: '0 8px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>YEAR / MODEL</div>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>{report.vehicleDetails.year || "-"}</div>
-                   </td>
-                   <td style={{ width: '25%', padding: '0 8px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>ODOMETER</div>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</div>
-                   </td>
-                   <td style={{ width: '25%', padding: '0 8px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '10px', color: '#0059A3', marginBottom: '4px', fontWeight: 'bold' }}>INSPECTION GOAL</div>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0059A3' }}>STANDARD AUDIT</div>
-                   </td>
-                 </tr>
-               </tbody>
-             </table>
-             {report.sellerDetails && (
-               <div style={{ borderTop: '1px dashed #e5e7eb', paddingTop: '16px', marginTop: '8px' }}>
-                 <table style={{ width: '100%' }}>
-                   <tbody>
-                     <tr>
-                       <td style={{ width: '50%', padding: '0 8px' }}>
-                          <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>SELLER NAME</div>
-                          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>{report.sellerDetails.name || "-"}</div>
-                       </td>
-                       <td style={{ width: '50%', padding: '0 8px' }}>
-                          <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>CONTACT NUMBER</div>
-                          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>{report.sellerDetails.contactNumber || "-"}</div>
-                       </td>
-                     </tr>
-                   </tbody>
-                 </table>
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            {/* TABLE FORMAT HEADER */}
+            <div style={{ border: '2px solid #0059A3', borderRadius: '12px', padding: '24px', marginBottom: '24px', backgroundColor: '#ffffff', width: '100%', boxSizing: 'border-box' }}>
+               <div style={{ textAlign: 'center' }}>
+                  <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em', lineHeight: '1' }}>caRya.<span style={{color: '#0059A3'}}>krama</span></h1>
                </div>
-             )}
-           </SectionBox>
-        </PageContainer>
+               <p style={{ margin: '10px 0 0 0', fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
+            </div>
+
+            <div style={{ width: '100%', height: '2px', backgroundColor: '#0059A3', marginBottom: '24px' }}></div>
+            
+            {/* INFO BAR IN TABLE FORMAT */}
+            <div style={{ display: 'table', width: '100%', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', borderCollapse: 'separate', overflow: 'hidden', marginBottom: '32px' }}>
+              <div style={{ display: 'table-row' }}>
+                <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
+                   <p style={labelStyle}>Date</p>
+                   <p style={valueStyle}>{new Date(report.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                </div>
+                <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
+                   <p style={labelStyle}>Report ID</p>
+                   <p style={valueStyle}>{report.id}</p>
+                </div>
+                <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', width: '33.33%' }}>
+                   <p style={labelStyle}>Inspector</p>
+                   <p style={valueStyle}>Master Tech Z.K.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'table', width: '100%', height: '360px', borderRadius: '16px', overflow: 'hidden', marginBottom: '32px', border: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+               <div style={{ display: 'table-row' }}>
+                  <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center' }}>
+                    {carCoverImage ? (
+                      <img src={carCoverImage} alt="Car" style={{ width: '100%', height: '360px', objectFit: 'cover' }} crossOrigin="anonymous" />
+                    ) : (
+                      <div style={{ color: '#cbd5e1' }}>No Image</div>
+                    )}
+                  </div>
+               </div>
+            </div>
+
+            <SectionCard title="Vehicle Overview" 
+              badge={
+                <div style={{ display: 'inline-block', backgroundColor: '#ecfdf5', borderRadius: '20px', border: '1px solid #10b981', padding: '6px 16px', fontSize: '11px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap', verticalAlign: 'middle', position: 'relative', top: '-1px' }}>
+                   Verified Badge
+                </div>
+              }
+            >
+               <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px 0', margin: '0 -12px' }}>
+                  <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                      <p style={labelStyle}>Make & Model</p>
+                      <p style={valueStyle}>{report.vehicleDetails.carName}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                      <p style={labelStyle}>Year / Model</p>
+                      <p style={valueStyle}>{report.vehicleDetails.year || "-"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                      <p style={labelStyle}>Odometer</p>
+                      <p style={valueStyle}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                      <p style={{ ...labelStyle, color: '#0059A3' }}>Inspection Goal</p>
+                      <p style={{ ...valueStyle, color: '#0059A3', fontSize: '16px' }}>STANDARD AUDIT</p>
+                    </div>
+                  </div>
+               </div>
+               
+               {report.sellerDetails && (
+                 <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '32px 0', marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed #e5e7eb', marginLeft: '-32px' }}>
+                    <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', paddingLeft: '32px' }}>
+                        <p style={labelStyle}>Seller Name</p>
+                        <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails.name || "-"}</p>
+                      </div>
+                      <div style={{ display: 'table-cell' }}>
+                        <p style={labelStyle}>Contact Number</p>
+                        <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails.contactNumber || "-"}</p>
+                      </div>
+                    </div>
+                 </div>
+               )}
+            </SectionCard>
+          </div>
+          <Footer pageNum={1} />
+        </div>
 
         {/* PAGE 2 */}
-        <PageContainer pageNum={2}>
-           <div style={{ borderBottom: '2px solid #0059A3', paddingBottom: '12px', marginBottom: '24px' }}>
-             <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>INSPECTION DETAILS</span>
-             <span style={{ float: 'right', fontSize: '12px', color: '#6b7280', marginTop: '6px', fontWeight: 'bold' }}>REF: {report.id}</span>
-             <div style={{ clear: 'both' }}></div>
-           </div>
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                <div style={{ display: 'table-row' }}>
+                   <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                      <span>INSPECTION DETAILS</span>
+                   </div>
+                   <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                      <span style={refStyle}>REF: {report.id}</span>
+                   </div>
+                </div>
+             </div>
 
-           <SectionBox title="1. BODY & VISUAL INSPECTION" icon="🔎">
-              <BulletList text={report.bodyInspection.panelsChecked || "No observation"} />
-              {report.bodyInspection.notes && report.bodyInspection.notes.trim() !== (report.engineBay || "").trim() && (
-                <BulletList text={report.bodyInspection.notes} />
-              )}
-           </SectionBox>
+             <SectionCard title="1. BODY & VISUAL INSPECTION">
+                <BulletList text={report.bodyInspection.panelsChecked || "No observation"} warning={false} />
+                {report.bodyInspection.notes && report.bodyInspection.notes.trim() !== (report.engineBay || "").trim() && (
+                  <BulletList text={report.bodyInspection.notes} warning={false} />
+                )}
+             </SectionCard>
 
-           <SectionBox title="2. ENGINE BAY" icon="⚙">
-              <BulletList text={report.engineBay || "No observations"} />
-           </SectionBox>
-
-           {report.interiors && (
-             <SectionBox title="3. INTERIORS & CABIN" icon="🛋">
-                <BulletList text={report.interiors.condition || "No interior observations"} />
-                <BulletList text={report.interiors.issues} warn={true} />
-             </SectionBox>
-           )}
-        </PageContainer>
+             <SectionCard title="2. ENGINE BAY">
+               <BulletList text={report.engineBay || "No observations"} warning={false} />
+             </SectionCard>
+             
+             <SectionCard title="3. INTERIORS & CABIN">
+               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
+               <BulletList text={report.interiors.issues} warning={true} />
+             </SectionCard>
+          </div>
+          <Footer pageNum={2} />
+        </div>
 
         {/* PAGE 3 */}
-        <PageContainer pageNum={3}>
-           <div style={{ borderBottom: '2px solid #0059A3', paddingBottom: '12px', marginBottom: '24px' }}>
-             <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>TECHNICAL DETAILS</span>
-             <span style={{ float: 'right', fontSize: '12px', color: '#6b7280', marginTop: '6px', fontWeight: 'bold' }}>REF: {report.id}</span>
-             <div style={{ clear: 'both' }}></div>
-           </div>
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                <div style={{ display: 'table-row' }}>
+                   <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                      <span>TECHNICAL DETAILS</span>
+                   </div>
+                   <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                      <span style={refStyle}>REF: {report.id}</span>
+                   </div>
+                </div>
+             </div>
 
-           <SectionBox title="4. FLUIDS DEGRADATION & LEAKS" icon="💧">
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid #e5e7eb', fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Fluid Type</th>
-                    <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid #e5e7eb', fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Status</th>
-                    <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid #e5e7eb', fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>Engine Oil</td>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px' }}>
-                      <span style={{ color: isWarning(report.fluids.engineOil) ? '#d97706' : '#10b981', fontWeight: 'bold' }}>
-                        {isWarning(report.fluids.engineOil) ? '⚠ ' : '✔ '}{report.fluids.engineOil || "Clean"}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px', color: '#6b7280', fontWeight: 'bold' }}>{report.fluids.serviceNotes || "-"}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>Coolant / Antifreeze</td>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px' }}>
-                      <span style={{ color: isWarning(report.fluids.coolant) ? '#d97706' : '#10b981', fontWeight: 'bold' }}>
-                        {isWarning(report.fluids.coolant) ? '⚠ ' : '✔ '}{report.fluids.coolant || "Clean"}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px', color: '#6b7280', fontWeight: 'bold' }}>-</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px', fontWeight: 'bold', color: '#111827' }}>Brake Fluid</td>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px' }}>
-                      <span style={{ color: isWarning(report.fluids.brakeOil) ? '#d97706' : '#10b981', fontWeight: 'bold' }}>
-                        {isWarning(report.fluids.brakeOil) ? '⚠ ' : '✔ '}{report.fluids.brakeOil || "Clean"}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 10px', borderBottom: '1px solid #e5e7eb', fontSize: '13px', color: '#6b7280', fontWeight: 'bold' }}>-</td>
-                  </tr>
-                </tbody>
-              </table>
-           </SectionBox>
-
-           <SectionBox title="5. BATTERY & ELECTRICAL" icon="⚡">
-              <table style={{ width: '100%', marginBottom: '16px' }}>
-                <tbody>
-                  <tr>
-                    <td style={{ width: '24%', verticalAlign: 'top', padding: '12px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px' }}>
-                       <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>IGNITION</div>
-                       <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{report.battery.ignitionVoltage || "-"}</div>
-                    </td>
-                    <td style={{ width: '1%' }}></td>
-                    <td style={{ width: '24%', verticalAlign: 'top', padding: '12px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px' }}>
-                       <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>CRANKING</div>
-                       <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{report.battery.crankingVoltage || "-"}</div>
-                    </td>
-                    <td style={{ width: '1%' }}></td>
-                    <td style={{ width: '24%', verticalAlign: 'top', padding: '12px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px' }}>
-                       <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>CHARGING</div>
-                       <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{report.battery.chargingVoltage || "-"}</div>
-                    </td>
-                    <td style={{ width: '1%' }}></td>
-                    <td style={{ width: '24%', verticalAlign: 'top', padding: '12px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px' }}>
-                       <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px', fontWeight: 'bold' }}>LOAD RANGE</div>
-                       <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{report.battery.loadRange || "-"}</div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div style={{ backgroundColor: report.battery.systemWorking ? '#ecfdf5' : '#fef2f2', padding: '16px', borderRadius: '6px', border: `1px solid ${report.battery.systemWorking ? '#a7f3d0' : '#fecaca'}` }}>
-                 <span style={{ display: 'inline-block', fontSize: '18px', width: '30px', verticalAlign: 'top', color: report.battery.systemWorking ? '#059669' : '#dc2626' }}>
-                    {report.battery.systemWorking ? '✔' : '⚠'}
-                 </span>
-                 <span style={{ display: 'inline-block', verticalAlign: 'top', width: 'calc(100% - 35px)' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: report.battery.systemWorking ? '#059669' : '#dc2626', marginBottom: '2px' }}>SYSTEM HEALTH</div>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: report.battery.systemWorking ? '#047857' : '#b91c1c' }}>
-                      {report.battery.systemWorking ? "Battery & alternator charging system working properly" : "Charging system requires attention"}
-                    </div>
-                 </span>
-              </div>
-           </SectionBox>
-
-           <SectionBox title="6. OBD DIAGNOSTICS" icon="💻">
-              <BulletList text={`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`} warn={isWarning(report.obdScan.faultCodes)} />
-              <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warn={isWarning(report.obdScan.ecmStatus)} />
-           </SectionBox>
-        </PageContainer>
-
-        {/* PAGE 4 */}
-        <PageContainer pageNum={4}>
-           <div style={{ borderBottom: '2px solid #0059A3', paddingBottom: '12px', marginBottom: '24px' }}>
-             <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>ROAD TEST & FINAL SUMMARY</span>
-             <span style={{ float: 'right', fontSize: '12px', color: '#6b7280', marginTop: '6px', fontWeight: 'bold' }}>REF: {report.id}</span>
-             <div style={{ clear: 'both' }}></div>
-           </div>
-
-           {report.testDrive && (
-             <SectionBox title="7. TEST DRIVE OBSERVATIONS" icon="🛣">
-                <table style={{ width: '100%', marginBottom: '16px' }}>
-                  <tbody>
-                    <tr>
-                      <td style={{ width: '50%', paddingRight: '12px', verticalAlign: 'top' }}>
-                         <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 'bold', marginBottom: '8px', textTransform: 'uppercase' }}>Driving Performance</div>
-                         <BulletList text={report.testDrive.performance || "Not evaluated"} warn={isWarning(report.testDrive.performance)} />
-                      </td>
-                      <td style={{ width: '50%', paddingLeft: '12px', verticalAlign: 'top' }}>
-                         <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 'bold', marginBottom: '8px', textTransform: 'uppercase' }}>Braking & Stability</div>
-                         <BulletList text={report.testDrive.braking || "Not evaluated"} warn={isWarning(report.testDrive.braking)} />
-                      </td>
+             <SectionCard title="4. FLUIDS DEGRADATION & LEAKS">
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8fafc', fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', textAlign: 'left' }}>
+                      <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Fluid Type</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Status</th>
+                      <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Action</th>
                     </tr>
+                  </thead>
+                  <tbody>
+                     <FluidRow label="Engine Oil" status={report.fluids.engineOil} warning={isWarning(report.fluids.engineOil)} action={report.fluids.serviceNotes || "-"} />
+                     <FluidRow label="Coolant / Antifreeze" status={report.fluids.coolant} warning={isWarning(report.fluids.coolant)} action="-" />
+                     <FluidRow label="Brake Fluid" status={report.fluids.brakeOil} warning={isWarning(report.fluids.brakeOil)} action="-" />
                   </tbody>
                 </table>
-                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                   <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 'bold', marginBottom: '8px', textTransform: 'uppercase' }}>Transmission & Suspension</div>
-                   <BulletList text={report.testDrive.observations || "No specific observations"} />
-                </div>
-             </SectionBox>
-           )}
+             </SectionCard>
 
-           <SectionBox title="8. VERDICT SECTION" icon="🛡">
-              <div style={{ marginBottom: '12px', padding: '16px', backgroundColor: '#f0fdf4', border: '1px solid #d1fae5', borderLeft: '5px solid #10b981', borderRadius: '4px' }}>
-                 <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#065f46', marginBottom: '4px' }}>MECHANICALLY SOUND</div>
-                 <div style={{ fontSize: '13px', color: '#064e3b', fontWeight: 'bold' }}>{report.verdict.mechanicalCondition || report.overallSummary?.mechanical || "-"}</div>
-              </div>
-
-              {report.overallSummary?.body && (
-              <div style={{ marginBottom: '12px', padding: '16px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderLeft: '5px solid #3b82f6', borderRadius: '4px' }}>
-                 <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#1e40af', marginBottom: '4px' }}>BODY CONDITION SUMMARY</div>
-                 <div style={{ fontSize: '13px', color: '#1e3a8a', fontWeight: 'bold' }}>{report.overallSummary.body}</div>
-              </div>
-              )}
-
-              {report.verdict.issuesAttention && (
-              <div style={{ marginBottom: '12px', padding: '16px', backgroundColor: '#fffbeb', border: '1px solid #fef3c7', borderLeft: '5px solid #f59e0b', borderRadius: '4px' }}>
-                 <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#92400e', marginBottom: '4px' }}>ISSUES REQUIRING ATTENTION</div>
-                 <div style={{ fontSize: '13px', color: '#78350f', fontWeight: 'bold' }}>{report.verdict.issuesAttention}</div>
-              </div>
-              )}
-
-              <div style={{ padding: '16px', backgroundColor: '#f0f9ff', border: '1px solid #e0f2fe', borderLeft: '5px solid #0059A3', borderRadius: '4px' }}>
-                 <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#0059A3', marginBottom: '4px' }}>PURCHASE RECOMMENDATION</div>
-                 <div style={{ fontSize: '14px', color: '#0369a1', fontWeight: 'bold' }}>{report.verdict.purchaseRecommendation || "Not Provided"}</div>
-              </div>
-           </SectionBox>
-
-           <SectionBox title="9. PRECAUTIONS & RECOMMENDATIONS" icon="⚠">
-              <BulletList text={report.precautions || "No generic precautions indicated."} />
-              {(report.fluids?.serviceNotes && report.fluids.serviceNotes !== "-") && (
-                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed #e5e7eb' }}>
-                    <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 'bold', marginBottom: '8px', textTransform: 'uppercase' }}>SERVICE RECOMMENDATIONS</div>
-                    <BulletList text={report.fluids.serviceNotes} />
+             <SectionCard title="5. BATTERY & ELECTRICAL">
+                 <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px', margin: '-12px', marginTop: '4px' }}>
+                    <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                         <p style={labelStyle}>Ignition</p>
+                         <p style={batteryValueStyle}>{report.battery.ignitionVoltage || "-"}</p>
+                      </div>
+                      <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                         <p style={labelStyle}>Cranking</p>
+                         <p style={batteryValueStyle}>{report.battery.crankingVoltage || "-"}</p>
+                      </div>
+                      <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                         <p style={labelStyle}>Charging</p>
+                         <p style={batteryValueStyle}>{report.battery.chargingVoltage || "-"}</p>
+                      </div>
+                      <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                         <p style={labelStyle}>Load Range</p>
+                         <p style={batteryValueStyle}>{report.battery.loadRange || "-"}</p>
+                      </div>
+                    </div>
                  </div>
-              )}
-           </SectionBox>
-        </PageContainer>
+
+                 <div style={{ display: 'table', width: '100%', backgroundColor: report.battery.systemWorking ? '#ecfdf5' : '#fef2f2', padding: '16px', borderRadius: '12px', border: `1px solid ${report.battery.systemWorking ? '#a7f3d0' : '#fecaca'}`, marginTop: '16px', boxSizing: 'border-box' }}>
+                         <p style={{ margin: '0 0 2px 0', fontSize: '11px', color: report.battery.systemWorking ? '#059669' : '#dc2626', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em' }}>System Health</p>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: report.battery.systemWorking ? '#047857' : '#b91c1c' }}>{report.battery.systemWorking ? "Battery & alternator charging system working properly" : "Charging system requires attention"}</p>
+                      </div>
+             </SectionCard>
+
+             <SectionCard title="6. OBD DIAGNOSTICS">
+                 <BulletList text={`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`} warning={isWarning(report.obdScan.faultCodes)} />
+                 <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warning={isWarning(report.obdScan.ecmStatus)} />
+             </SectionCard>
+          </div>
+          <Footer pageNum={3} />
+        </div>
+
+        {/* PAGE 4 */}
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                <div style={{ display: 'table-row' }}>
+                   <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                      <span>ROAD TEST & FINAL SUMMARY</span>
+                   </div>
+                   <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                      <span style={refStyle}>REF: {report.id}</span>
+                   </div>
+                </div>
+             </div>
+
+             {report.testDrive && (
+             <SectionCard title="7. TEST DRIVE OBSERVATIONS">
+                 <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '16px 0', marginLeft: '-16px' }}>
+                    <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', width: '50%', paddingLeft: '16px' }}>
+                        <p style={subHeaderStyle}>Driving Performance</p>
+                        <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} />
+                      </div>
+                      <div style={{ display: 'table-cell', width: '50%' }}>
+                        <p style={subHeaderStyle}>Braking & Stability</p>
+                        <BulletList text={report.testDrive.braking || "Not evaluated"} warning={isWarning(report.testDrive.braking)} />
+                      </div>
+                    </div>
+                 </div>
+                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+                      <p style={subHeaderStyle}>Transmission & Suspension</p>
+                      <BulletList text={report.testDrive.observations || "No specific observations"} warning={false} />
+                 </div>
+             </SectionCard>
+             )}
+
+             <SectionCard title="8. VERDICT SECTION">
+                <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 12px' }}>
+                   <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#10b981', '#f0fdf4', '#065f46') }}>
+                        <p style={verdictLabelStyle('#065f46')}>Mechanically Sound</p>
+                        <p style={verdictTextStyle('#064e3b')}>{report.verdict.mechanicalCondition || report.overallSummary?.mechanical || "-"}</p>
+                      </div>
+                   </div>
+                   {report.overallSummary?.body && (
+                   <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#3b82f6', '#eff6ff', '#1e40af') }}>
+                        <p style={verdictLabelStyle('#1e40af')}>Body Condition Summary</p>
+                        <p style={verdictTextStyle('#1e3a8a')}>{report.overallSummary.body}</p>
+                      </div>
+                   </div>
+                   )}
+                   {report.verdict.issuesAttention && (
+                   <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#f59e0b', '#fffbeb', '#92400e') }}>
+                        <p style={verdictLabelStyle('#92400e')}>Issues Requiring Attention</p>
+                        <p style={verdictTextStyle('#78350f')}>{report.verdict.issuesAttention}</p>
+                      </div>
+                   </div>
+                   )}
+                   <div style={{ display: 'table-row' }}>
+                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0059A3') }}>
+                        <p style={verdictLabelStyle('#0059A3')}>Purchase Recommendation</p>
+                        <p style={{ ...verdictTextStyle('#0369a1'), fontSize: '15px', fontWeight: 800 }}>{report.verdict.purchaseRecommendation || "Not Provided"}</p>
+                      </div>
+                   </div>
+                </div>
+             </SectionCard>
+
+             <SectionCard title="9. PRECAUTIONS & RECOMMENDATIONS">
+                <BulletList text={report.precautions || "No generic precautions indicated."} warning={false} forceBullet={true} />
+                {(report.fluids?.serviceNotes && report.fluids.serviceNotes !== "-") && (
+                   <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e5e7eb' }}>
+                      <p style={subHeaderStyle}>Service Recommendations</p>
+                      <BulletList text={report.fluids.serviceNotes} warning={false} forceBullet={true} />
+                   </div>
+                )}
+             </SectionCard>
+          </div>
+          <Footer pageNum={4} />
+        </div>
       </div>
     </div>
   );
-}
+});
+
+export default InspectionReportDownload;
+
+// ── Shared Subcomponents & Styles ──────────────────────────────────────────
 
 const pageStyle: React.CSSProperties = {
   width: '794px',
-  height: '1123px', // EXACT A4
+  height: '1123px',
   backgroundColor: '#ffffff',
   padding: '50px 60px',
   boxSizing: 'border-box',
-  fontFamily: 'Arial, Helvetica, sans-serif',
+  fontFamily: 'Arial, sans-serif',
+  position: 'relative',
   pageBreakAfter: 'always',
   overflow: 'hidden',
-  marginBottom: '24px' // Used for space between pages visually on screen
+  marginBottom: '24px',
+  boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
 };
 
 const watermarkStyle: React.CSSProperties = {
@@ -426,9 +385,96 @@ const watermarkStyle: React.CSSProperties = {
   transform: 'translate(-50%, -50%) rotate(-45deg)',
   fontSize: '110px',
   fontWeight: 'bold',
-  color: '#0059A3',
-  opacity: 0.03,
+  color: 'rgba(0, 89, 163, 0.03)',
   whiteSpace: 'nowrap',
   zIndex: 0,
   pointerEvents: 'none'
 };
+
+const labelStyle: React.CSSProperties = { margin: '0 0 6px 0', fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' };
+const valueStyle: React.CSSProperties = { margin: 0, fontSize: '14px', fontWeight: 800, color: '#111827' };
+const pageHeaderStyle: React.CSSProperties = { margin: '0 0 28px 0', fontSize: '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' };
+const refStyle: React.CSSProperties = { fontSize: '12px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' };
+const subHeaderStyle: React.CSSProperties = { margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' };
+const batteryStatBoxStyle: React.CSSProperties = { backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb' };
+const batteryValueStyle: React.CSSProperties = { margin: 0, fontSize: '17px', fontWeight: 900, color: '#111827' };
+
+function Footer({ pageNum }: { pageNum: number }) {
+  return (
+    <div style={{ position: 'absolute', bottom: '50px', left: '60px', right: '60px', display: 'table', width: '674px', borderTop: '2px solid #f3f4f6', paddingTop: '20px', fontSize: '11px', color: '#9ca3af', fontWeight: 700, zIndex: 1 }}>
+      <div style={{ display: 'table-row' }}>
+         <div style={{ display: 'table-cell', textAlign: 'left', width: '33.3%' }}>Page {pageNum} / 4</div>
+         <div style={{ display: 'table-cell', textAlign: 'center', width: '33.3%', color: '#0059A3', fontWeight: 900, letterSpacing: '0.05em' }}>caRya.krama Vehicle Inspection</div>
+         <div style={{ display: 'table-cell', textAlign: 'right', width: '33.3%' }}>Confidential</div>
+      </div>
+    </div>
+  );
+}
+
+function SectionCard({ title, children, badge }: { title: string, children: React.ReactNode, badge?: React.ReactNode }) {
+  return (
+    <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+      <div style={{ display: 'table', width: '100%', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '20px' }}>
+         <div style={{ display: 'table-row' }}>
+            <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
+               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: '1.2', position: 'relative', top: '-1px' }}>{title}</h3>
+            </div>
+            <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'right' }}>
+               {badge}
+            </div>
+         </div>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function BulletList({ text, warning, forceBullet = false }: { text: string, warning: boolean, forceBullet?: boolean }) {
+  if (!text) return null;
+  let bullets = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+  if (bullets.length === 1 && bullets[0].length > 40 && bullets[0].includes('. ') && forceBullet) {
+    bullets = bullets[0].split('. ').map(s => s.trim() + (s.endsWith('.') ? '' : '.')).filter(s => s.length > 1);
+  }
+
+  return (
+    <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px', marginTop: '4px' }}>
+      {bullets.map((bullet, i) => {
+         const isWarn = warning || isWarning(bullet);
+         return (
+           <div key={i} style={{ display: 'table-row' }}>
+              <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
+                 <p style={{ margin: 0, fontSize: '14px', color: isWarn ? '#991b1b' : '#374151', lineHeight: '1.4', fontWeight: 600, position: 'relative', top: '-1.5px' }}>
+                    • {bullet}
+                 </p>
+              </div>
+           </div>
+         );
+      })}
+    </div>
+  );
+}
+
+function FluidRow({ label, status, warning, action }: { label: string, status: string, warning: boolean, action: string }) {
+  const isWarn = warning || status.toLowerCase().includes("dirty") || status.toLowerCase().includes("low") || status.toLowerCase().includes("attention");
+  return (
+    <tr>
+      <td style={{ padding: '14px 12px', fontSize: '14px', fontWeight: 700, color: '#111827', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>{label}</td>
+      <td style={{ padding: '14px 12px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>
+         <span style={{ fontSize: '14px', fontWeight: 800, color: isWarn ? '#d97706' : '#10b981', lineHeight: '1.2', position: 'relative', top: '-1.5px' }}>{status || "Clean"}</span>
+      </td>
+      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#6b7280', borderBottom: '1px solid #e5e7eb', fontWeight: 600, verticalAlign: 'middle' }}>{action}</td>
+    </tr>
+  );
+}
+
+const verdictBoxStyle = (borderColor: string, bgColor: string, accentColor: string): React.CSSProperties => ({
+  borderLeft: `5px solid ${borderColor}`,
+  backgroundColor: bgColor,
+  padding: '16px 20px',
+  borderRadius: '0 12px 12px 0',
+  border: `1px solid ${borderColor}`,
+  borderLeftWidth: '5px'
+});
+
+const verdictLabelStyle = (color: string): React.CSSProperties => ({ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 800, color, textTransform: 'uppercase', letterSpacing: '0.05em', transform: 'translateY(-1px)' });
+const verdictTextStyle = (color: string): React.CSSProperties => ({ margin: 0, fontSize: '14px', color, fontWeight: 600, lineHeight: '1.5' });
