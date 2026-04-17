@@ -127,7 +127,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
 
             <SectionCard title="Vehicle Overview" 
               badge={
-                <div style={{ display: 'inline-block', backgroundColor: '#ecfdf5', borderRadius: '20px', border: '1px solid #10b981', padding: '6px 16px', fontSize: '11px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap', verticalAlign: 'middle', position: 'relative', top: '-1px' }}>
+                <div style={{ display: 'inline-block', fontSize: '11px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap', verticalAlign: 'middle', position: 'relative', top: '-1px', textDecoration: 'underline' }}>
                    Verified Badge
                 </div>
               }
