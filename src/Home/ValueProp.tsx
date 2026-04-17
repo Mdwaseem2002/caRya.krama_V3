@@ -54,7 +54,7 @@ const cardVariants = {
 
 export default function ValueProp() {
   return (
-    <section className="relative min-h-screen flex items-center py-12 md:py-20 overflow-hidden" style={{ background: "var(--background)" }}>
+    <section className="relative md:min-h-screen flex items-center py-8 md:py-20 overflow-hidden" style={{ background: "var(--background)" }}>
       {/* Subtle Background Elements */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-20"
@@ -67,7 +67,7 @@ export default function ValueProp() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         
         {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

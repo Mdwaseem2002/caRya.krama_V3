@@ -28,8 +28,8 @@ export default function SellYourCarPage() {
           >
             <Hero onStart={scrollToForm} />
             <HowItWorks />
-            <div className="bg-slate-50 py-12 md:py-20">
-               <div className="max-w-7xl mx-auto px-6 text-center mb-12">
+            <div className="bg-slate-50 py-8 md:py-16">
+               <div className="max-w-7xl mx-auto px-6 text-center mb-6 md:mb-10">
                   <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">Begin Your <span className="text-royal">Submission.</span></h2>
                   <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Fill in your details to schedule a professional inspection.</p>
                </div>

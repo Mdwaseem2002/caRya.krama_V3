@@ -17,10 +17,14 @@ import Splash from "@/Details/Animation/Splash";
 import { getSplashShown, setSplashShown } from "@/lib/splashState";
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    const splashShown = getSplashShown();
+    if (!splashShown) {
+      setShowSplash(true);
+    }
     setIsMounted(true);
   }, []);
 
@@ -40,6 +44,7 @@ export default function Home() {
 
   const handleSplashComplete = () => {
     setShowSplash(false);
+    setSplashShown(true);
   };
 
   // Prevent hydration mismatch by rendering a consistent black background until mounted
@@ -67,7 +72,7 @@ export default function Home() {
             <TrustSections />
             <InspectedCar />
             <OurStory />
-            <div className="max-w-7xl mx-auto px-6 mb-20">
+            <div className="max-w-7xl mx-auto px-6 mb-10 md:mb-20">
               <StatisticsSection />
             </div>
             <TestimonialsHome />

@@ -6,7 +6,7 @@ import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function Hero({ onStart }: { onStart: () => void }) {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#f8fafc] py-20 px-6">
+    <section className="relative min-h-[60vh] md:min-h-[75vh] flex items-center justify-center overflow-hidden bg-[#f8fafc] py-10 md:py-20 px-6">
       {/* Seamless Background Elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent" />
@@ -77,11 +77,11 @@ export default function Hero({ onStart }: { onStart: () => void }) {
            initial={{ opacity: 0, y: 40 }}
            animate={{ opacity: 1, y: 0 }}
            transition={{ delay: 0.5, duration: 1.2 }}
-           className="relative mt-16 md:mt-24"
+           className="relative mt-8 md:mt-16"
         >
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-gradient-to-b from-blue-50/40 to-transparent rounded-[3rem]" />
            {/* Mobile-friendly spacing */}
-           <div className="h-10 md:h-20" />
+           <div className="h-4 md:h-10" />
         </motion.div>
       </div>
     </section>

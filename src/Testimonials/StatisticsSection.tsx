@@ -39,7 +39,7 @@ const StatisticsSection = () => {
   ];
 
   return (
-    <section className="bg-white border border-slate-100 rounded-[2.5rem] p-12 md:p-20 grid grid-cols-2 md:grid-cols-4 gap-12 text-center shadow-sm relative overflow-hidden">
+    <section className="bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 text-center shadow-sm relative overflow-hidden">
       {/* Background Subtle Shape */}
       <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl pointer-events-none" />
       

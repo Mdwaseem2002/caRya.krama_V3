@@ -65,7 +65,7 @@ const cars = [
 
 export default function ShowCar() {
   return (
-    <section className="min-h-screen flex items-center py-8 md:py-20 bg-ghost overflow-hidden">
+    <section className="md:min-h-screen flex items-center py-8 md:py-20 bg-ghost overflow-hidden">
       <div className="max-w-7xl mx-auto px-4">
         
         {/* ── HEADING SECTION ── */}

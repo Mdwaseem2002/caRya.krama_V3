@@ -28,11 +28,11 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-12 md:py-24 bg-gray-50 overflow-hidden">
+    <section className="py-8 md:py-24 bg-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Heading Section */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-10 md:mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

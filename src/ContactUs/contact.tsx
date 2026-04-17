@@ -21,7 +21,7 @@ export default function Contact() {
   }, { scope: containerRef });
 
   return (
-    <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-24 pb-32 overflow-hidden">
+    <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-10 md:pt-24 pb-16 md:pb-32 overflow-hidden">
       {/* Background gradients */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full"></div>
@@ -31,7 +31,7 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         {/* ── HEADER ── */}
-        <section className="text-center mb-24 reveal-item">
+        <section className="text-center mb-10 md:mb-16 reveal-item">
           <div className="inline-block px-4 py-1.5 rounded-full bg-blue-500/5 backdrop-blur-md border border-blue-500/10 mb-6 group">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500/60 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
@@ -128,7 +128,7 @@ export default function Contact() {
           </div>
 
           {/* ── RIGHT: INTERACTIVE MAP ── */}
-          <div className="flex flex-col gap-8 reveal-item lg:pt-12">
+          <div className="flex flex-col gap-8 reveal-item">
             
             <div className="glass-light border border-white/40 rounded-[2.5rem] p-10 relative overflow-hidden group shadow-sm">
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">

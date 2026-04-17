@@ -254,7 +254,7 @@ export default function Testimonials() {
   const visibleItems = testimonials.slice(startIndex, startIndex + visibleCount);
 
   return (
-    <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-24 pb-32 overflow-hidden">
+    <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-10 md:pt-24 pb-16 md:pb-32 overflow-hidden">
       {/* Background radial gradients */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full"></div>
@@ -264,7 +264,7 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
 
         {/* ── HEADER ── */}
-        <section className="text-center mb-24">
+        <section className="text-center mb-10 md:mb-16">
           <div className="inline-block px-4 py-1.5 rounded-full bg-blue-50 border border-blue-500/10 mb-6 group">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
@@ -283,8 +283,8 @@ export default function Testimonials() {
 
 
         {/* ── TESTIMONIAL SLIDING WINDOW CAROUSEL ── */}
-        <section className="mb-40 relative px-4 md:px-12">
-           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
+        <section className="mb-20 md:mb-32 relative px-4 md:px-12">
+           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
                 <h2 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-4">Community</h2>
                 <h3 className="text-3xl md:text-5xl font-black tracking-tighter">Voices of <span className="text-blue-500">Satisfaction.</span></h3>
@@ -348,8 +348,8 @@ export default function Testimonials() {
         <StatisticsSection />
 
         {/* ── CTA ── */}
-        <section className="mt-32 text-center">
-            <h4 className="text-2xl md:text-4xl font-black mb-10 tracking-tighter">Ready to write your <span className="text-blue-500">own story?</span></h4>
+        <section className="mt-16 md:mt-24 text-center">
+            <h4 className="text-2xl md:text-4xl font-black mb-6 tracking-tighter">Ready to write your <span className="text-blue-500">own story?</span></h4>
             <button className="bg-gradient-to-br from-[#0A2A6E] to-[#1B4FD8] text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-[1.05] active:scale-[0.95] transition-all shadow-2xl shadow-blue-900/40 flex items-center gap-3 mx-auto group">
                Start My Journey
                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

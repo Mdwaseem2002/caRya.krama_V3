@@ -30,8 +30,8 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-24 bg-white px-6">
-      <div className="max-w-7xl mx-auto space-y-20">
+    <section className="py-10 md:py-16 bg-white px-6">
+      <div className="max-w-7xl mx-auto space-y-10 md:space-y-16">
         {/* Section Header */}
         <div className="text-center space-y-4">
           <motion.h2 

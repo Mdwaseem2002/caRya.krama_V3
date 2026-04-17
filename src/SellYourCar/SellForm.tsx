@@ -233,8 +233,8 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-6 py-8" id="sell-form-container">
-      <div className="text-center mb-8">
+    <div className="w-full max-w-4xl mx-auto px-6 py-4 md:py-8" id="sell-form-container">
+      <div className="text-center mb-6">
         <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mb-2">Sell Your Car</h2>
         <p className="text-slate-500 font-medium tracking-wide text-sm sm:text-base">Fill in the details below and we'll handle the rest.</p>
       </div>

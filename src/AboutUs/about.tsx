@@ -58,7 +58,7 @@ export default function About() {
   ];
 
   return (
-    <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-24 pb-32 overflow-hidden">
+    <main ref={containerRef} className="relative min-h-screen bg-[#F8FAFC] text-[#0f172a] pt-10 md:pt-24 pb-16 md:pb-32 overflow-hidden">
       {/* Background radial gradients for depth */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full"></div>
@@ -68,7 +68,7 @@ export default function About() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         {/* ── HEADER SECTION ── */}
-        <section className="text-center mb-16 sm:mb-24 reveal-item px-4">
+        <section className="text-center mb-10 md:mb-16 reveal-item px-4">
           <div className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6 group">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
@@ -85,7 +85,7 @@ export default function About() {
         </section>
 
         {/* ── HERO IMAGE ── */}
-        <div className="reveal-item rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-2xl mb-24 sm:mb-32 relative w-full h-[350px] sm:h-[500px] md:h-[650px] group mx-auto">
+        <div className="reveal-item rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-2xl mb-12 md:mb-20 relative w-full h-[350px] sm:h-[500px] md:h-[650px] group mx-auto">
           <Image
             src="/caRya.png"
             alt="The Sovereign Standard"
@@ -106,8 +106,8 @@ export default function About() {
         </div>
 
         {/* ── QUALITY STANDARDS SECTION ── */}
-        <section className="mb-40 reveal-item">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-left">
+        <section className="mb-20 md:mb-32 reveal-item">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-8 text-left">
             <div>
               <h2 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-4">Quality Control</h2>
               <h3 className="text-3xl md:text-5xl font-black tracking-tighter">Only the elite make the <span className="text-blue-500">cut.</span></h3>
@@ -146,8 +146,8 @@ export default function About() {
         </section>
 
         {/* ── TIMELINE SECTION ── */}
-        <section className="mb-40 reveal-item">
-          <div className="text-center mb-20">
+        <section className="mb-20 md:mb-32 reveal-item">
+          <div className="text-center mb-10 md:mb-16">
              <h2 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-4">Our Protocol</h2>
              <h3 className="text-3xl md:text-5xl font-black tracking-tighter">How we select your <span className="text-blue-500">perfect ride.</span></h3>
           </div>
@@ -158,7 +158,7 @@ export default function About() {
                <div className="absolute top-0 left-0 w-full h-[30%] bg-gradient-to-b from-transparent via-blue-500 to-transparent animate-scanline"></div>
             </div>
 
-            <div className="space-y-16 lg:space-y-32">
+            <div className="space-y-10 md:space-y-20">
               {steps.map((step, index) => {
                 const Icon = step.icon;
                 const isEven = index % 2 === 0;

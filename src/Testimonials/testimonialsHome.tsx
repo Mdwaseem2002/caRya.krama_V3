@@ -17,10 +17,10 @@ export default function TestimonialsHome() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none"></div>
 
       {/* ── TESTIMONIALS SECTION ── */}
-      <section className="py-32 relative z-10">
+      <section className="py-12 md:py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 md:mb-16 gap-8">
             <div className="text-left">
               <div className="inline-block px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400">Social Proof</span>
@@ -104,12 +104,12 @@ export default function TestimonialsHome() {
       </section>
 
       {/* ── FINAL CTA SECTION ── */}
-      <section className="relative py-32 px-6 lg:px-12 overflow-hidden">
+      <section className="relative py-12 md:py-20 px-6 lg:px-12 overflow-hidden">
         {/* Cinematic gradient mask */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/5 to-transparent pointer-events-none"></div>
         
         <div className="max-w-7xl mx-auto">
-           <div className="bg-white border border-slate-100 rounded-[3.5rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl">
+           <div className="bg-white border border-slate-100 rounded-[3.5rem] p-6 md:p-16 text-center relative overflow-hidden shadow-2xl">
               {/* Internal glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
               
@@ -119,11 +119,11 @@ export default function TestimonialsHome() {
                 viewport={{ once: true }}
                 transition={{ duration: 1 }}
               >
-                <h2 className="text-4xl md:text-8xl font-black text-[#0f172a] mb-8 tracking-tighter leading-[0.9]">
+                <h2 className="text-4xl md:text-8xl font-black text-[#0f172a] mb-4 tracking-tighter leading-[0.9]">
                   Deploy Your <br className="hidden md:block" />
                   <span className="text-blue-500">Perfect Ride.</span>
                 </h2>
-                <p className="text-lg md:text-2xl text-slate-500 font-medium mb-16 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg md:text-2xl text-slate-500 font-medium mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
                   Explore thousands of verified, audited, and trusted assets with absolute confidence. 
                   Your mission starts here.
                 </p>
@@ -137,7 +137,7 @@ export default function TestimonialsHome() {
                 </Link>
 
                 {/* Performance Metrics */}
-                <div className="mt-12 md:mt-24 grid grid-cols-3 gap-2 md:gap-8 pt-8 md:pt-12 border-t border-slate-100">
+                <div className="mt-8 md:mt-12 grid grid-cols-3 gap-2 md:gap-8 pt-8 md:pt-12 border-t border-slate-100">
                   <div className="flex flex-col items-center text-center">
                     <div className="w-8 h-8 md:w-12 md:h-12 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-2 md:mb-4 text-blue-500 shadow-sm">
                        <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />

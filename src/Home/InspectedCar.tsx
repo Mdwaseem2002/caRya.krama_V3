@@ -15,7 +15,7 @@ export default function InspectedCar() {
   ];
 
   return (
-    <section className="min-h-screen flex items-center py-8 md:py-20 bg-ghost overflow-hidden relative">
+    <section className="md:min-h-screen flex items-center py-6 md:py-20 bg-ghost overflow-hidden relative">
       {/* Background Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/30 blur-[120px] rounded-full -z-10" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-50/40 blur-[100px] rounded-full -z-10" />
@@ -40,7 +40,7 @@ export default function InspectedCar() {
               <span className="text-royal">Before You Buy.</span>
             </h2>
             
-            <p className="text-base md:text-lg text-gray-500 font-medium mb-10 leading-relaxed max-w-xl">
+            <p className="text-base md:text-lg text-gray-500 font-medium mb-6 md:mb-10 leading-relaxed max-w-xl">
               Get access to a comprehensive inspection report covering everything from the engine heart to the finest interior stitches.
             </p>
 

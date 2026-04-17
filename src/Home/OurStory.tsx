@@ -46,7 +46,7 @@ export default function OurStory() {
   return (
     <section 
       ref={containerRef}
-      className="w-full min-h-screen flex items-center py-12 md:py-20 overflow-hidden bg-ghost"
+      className="w-full md:min-h-screen flex items-center py-8 md:py-20 overflow-hidden bg-ghost"
     >
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         
