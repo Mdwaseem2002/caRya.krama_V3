@@ -204,6 +204,12 @@
   color: #ffffff;
 }
 
+/* ── REMOVE BROWSER PASSOWRD EYE ── */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+
 /* ═══════════════════════════════════════════
    LAYOUT PRIMITIVES
    ═══════════════════════════════════════════ */

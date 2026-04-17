@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Mail, Lock, CheckCircle } from "lucide-react";
+import { User, Mail, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -13,6 +13,7 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role] = useState<'admin' | 'customer'>('customer');
   const router = useRouter();
 
@@ -78,8 +79,12 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
 
         <motion.div variants={itemVariants} style={inputRow}>
           <Lock style={{ color: '#9ca3af', flexShrink: 0 }} size={mobile ? 18 : 20} strokeWidth={1.5} />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required
+          <input type={showPassword ? "text" : "password"} placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required
             style={{ width: '100%', border: 'none', outline: 'none', backgroundColor: 'transparent', fontSize: mobile ? '14px' : '15px', fontWeight: 500, color: '#111827' }} />
+          <button type="button" onClick={() => setShowPassword(!showPassword)} 
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'opacity 0.2s', opacity: password ? 1 : 0.4 }}>
+            {showPassword ? <EyeOff size={18} className="text-[#9ca3af]" /> : <Eye size={18} className="text-[#9ca3af]" />}
+          </button>
         </motion.div>
 
         <motion.div variants={itemVariants} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: mobile ? '12px' : '13px', color: '#6b7280', padding: '4px 0 12px' }}>
