@@ -12,6 +12,7 @@ import { saveSellRequest } from "@/Admin/SellRequests/SellStorage";
 import { useAuth } from "@/context/AuthContext";
 import { addAdminNotification } from "@/Details/Notification/AdminNotify";
 import { addNotification } from "@/Details/Notification/CustomerNotify";
+import { useNotification } from "@/context/NotificationContext";
 import { convertToWebP } from "@/Details/ImageConvert/ImageConvert";
 
 const STEPS = ["Owner Details", "Car Details", "Inspection"];
@@ -50,7 +51,7 @@ const FormInput = memo(({ label, value, onChange, placeholder, icon: Icon, type 
           onChange={handleInputChange}
           placeholder={placeholder}
           style={{ paddingLeft: Icon ? '84px' : '24px' }}
-          className="w-full bg-white border border-slate-100 py-5 pr-5 rounded-[1.25rem] outline-none focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all text-sm font-bold text-gray-900"
+          className="w-full bg-white border border-slate-100 py-3.5 pr-5 rounded-[1.25rem] outline-none focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all text-sm font-bold text-gray-900"
         />
       </div>
     </div>
@@ -105,6 +106,7 @@ const CustomSelect = ({ value, onChange, options, placeholder }: { value: string
 };
 
 export default function SellForm({ onSuccess }: { onSuccess: (id: string) => void }) {
+  const { showNotification } = useNotification();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -133,13 +135,13 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
     const remainingSlots = 15 - currentCount;
     
     if (remainingSlots <= 0) {
-      alert("Maximum limit of 15 images reached.");
+      showNotification("Maximum limit of 15 images reached.", "warning");
       return;
     }
 
     const validFiles = Array.from(files).filter(file => {
       if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} exceeds the 5MB size limit.`);
+        showNotification(`${file.name} exceeds the 5MB size limit.`, "error");
         return false;
       }
       return true;
@@ -147,7 +149,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
 
     const filesToUpload = validFiles.slice(0, remainingSlots);
     if (filesToUpload.length < validFiles.length) {
-      alert("Only 15 images can be uploaded. Extra files were ignored.");
+      showNotification("Only 15 images can be uploaded. Extra files were ignored.", "info");
     }
 
     filesToUpload.forEach(async (file) => {
@@ -168,7 +170,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
   const handleSubmit = async () => {
     // Basic Validation
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.brand || !formData.model) {
-      alert("Please fill in all the required fields.");
+      showNotification("Please fill in all the required fields.", "warning");
       return;
     }
 
@@ -222,24 +224,25 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       }
 
       onSuccess(saved.id);
+      showNotification("Sell request submitted successfully!", "success");
     } catch (err: any) {
-      alert(`Failed to save request: ${err?.message || 'Unknown error'}`);
+      showNotification(`Failed to save request: ${err?.message || 'Unknown error'}`, "error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-6 py-12" id="sell-form-container">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Sell Your Car</h2>
-        <p className="text-slate-500 font-medium tracking-wide">Fill in the details below and we'll handle the rest.</p>
+    <div className="w-full max-w-4xl mx-auto px-6 py-8" id="sell-form-container">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mb-2">Sell Your Car</h2>
+        <p className="text-slate-500 font-medium tracking-wide text-sm sm:text-base">Fill in the details below and we'll handle the rest.</p>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.06)] border border-slate-50 overflow-hidden min-h-[500px] flex flex-col group/form">
-        <div className="flex-1 p-8 md:p-14 space-y-12">
+      <div className="bg-white rounded-[2rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.06)] border border-slate-50 overflow-hidden flex flex-col group/form">
+        <div className="flex-1 p-5 sm:p-10 space-y-8">
           {/* Owner Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput label="First Name" name="firstName" icon={User} value={formData.firstName} onChange={(v:any) => updateField("firstName", v)} placeholder="Ex: John" />
             <FormInput label="Last Name" name="lastName" icon={User} value={formData.lastName} onChange={(v:any) => updateField("lastName", v)} placeholder="Ex: Doe" />
             <FormInput label="Phone Number" name="phone" icon={Phone} value={formData.phone} onChange={(v:any) => updateField("phone", v)} placeholder="+91 00000 00000" />
@@ -249,7 +252,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
           <div className="h-px bg-slate-100 w-full" />
 
           {/* Car Details */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <FormInput label="Car Brand" icon={Car} value={formData.brand} onChange={(v:any) => updateField("brand", v)} placeholder="Ex: BMW" />
             <FormInput label="Car Name / Model" icon={Settings2} value={formData.model} onChange={(v:any) => updateField("model", v)} placeholder="Ex: 5 Series" />
             <FormInput label="Kilometres Driven" icon={Gauge} value={formData.mileage} onChange={(v:any) => updateField("mileage", v)} placeholder="Ex: 12,000" />
@@ -262,10 +265,10 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
             <label className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8] ml-1">Vehicle Media Portfolio</label>
             <div 
               onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-slate-100 rounded-[2rem] p-12 text-center hover:border-[#0059A3] hover:bg-blue-50/30 transition-all cursor-pointer group"
+              className="border-2 border-dashed border-slate-100 rounded-[2rem] p-8 text-center hover:border-[#0059A3] hover:bg-blue-50/30 transition-all cursor-pointer group"
             >
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100 group-hover:scale-110 group-hover:bg-white transition-all">
-                <Upload className="w-6 h-6 text-slate-300 group-hover:text-[#0059A3]" />
+              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100 group-hover:scale-110 group-hover:bg-white transition-all">
+                <Upload className="w-5 h-5 text-slate-300 group-hover:text-[#0059A3]" />
               </div>
               <p className="text-sm font-black text-gray-900">Drop files or <span className="text-[#0059A3]">browse device</span></p>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Max 15 images • 5MB per image</p>
@@ -320,7 +323,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
         </div>
 
         {/* Action Bar */}
-        <div className="bg-slate-50/50 px-8 md:px-14 py-12 flex justify-center items-center border-t border-slate-100 rounded-b-[2.5rem]">
+        <div className="bg-slate-50/50 px-6 py-10 flex justify-center items-center border-t border-slate-100 rounded-b-[2rem]">
            <button 
               onClick={handleSubmit}
               disabled={isSubmitting}

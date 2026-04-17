@@ -14,9 +14,11 @@ import {
   Sparkles, Check
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNotification } from "@/context/NotificationContext";
 import { saveCarToStorage } from "../Upload/CarStorage";
 
 export default function SellRequestsList() {
+  const { showNotification } = useNotification();
   const [requests, setRequests] = useState<SellRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<SellRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +41,7 @@ export default function SellRequestsList() {
         setSelectedRequest({ ...selectedRequest, status });
       }
     } catch (err: any) {
-      alert(`Failed to update status: ${err?.message || 'Unknown error'}`);
+      showNotification(`Failed to update status: ${err?.message || 'Unknown error'}`, "error");
     }
   };
 
@@ -115,9 +117,9 @@ export default function SellRequestsList() {
         }
       }
 
-      alert("Listing approved and published to marketplace!");
+      showNotification("Listing approved and published to marketplace!", "success");
     } catch (err: any) {
-      alert(`Failed to approve listing: ${err?.message || 'Unknown error'}`);
+      showNotification(`Failed to approve listing: ${err?.message || 'Unknown error'}`, "error");
     }
   };
 
@@ -128,9 +130,10 @@ export default function SellRequestsList() {
       await deleteSellRequest(id);
       const updated = await getAllSellRequests();
       setRequests(updated);
+      showNotification("Request deleted successfully", "success");
       if (selectedRequest?.id === id) setSelectedRequest(null);
     } catch (err: any) {
-      alert(`Failed to delete: ${err?.message || 'Unknown error'}`);
+      showNotification(`Failed to delete: ${err?.message || 'Unknown error'}`, "error");
     }
   };
 

@@ -6,6 +6,7 @@ import {
   Battery, Armchair, Cpu, CarFront, CheckCircle, AlertTriangle,
   ShieldAlert
 } from "lucide-react";
+import { useNotification } from "@/context/NotificationContext";
 import { saveInspectionReport, updateInspectionReport, InspectionReportData } from "./InspectionStorage";
 
 interface InspectionReportFormProps {
@@ -21,6 +22,7 @@ interface InspectionReportFormProps {
 export default function InspectionReportForm({
   onBack, onSuccess, carId, carName, year, odometer, editReport
 }: InspectionReportFormProps) {
+  const { showNotification } = useNotification();
   const [isSaving, setIsSaving] = useState(false);
 
   // Vehicle Details
@@ -79,18 +81,18 @@ export default function InspectionReportForm({
   const [sellerContact, setSellerContact] = useState(editReport?.sellerDetails?.contactNumber || "");
 
   // ── Styles ──────────────────────────────────────────────────────────────────
-  const sectionStyle: React.CSSProperties = { marginBottom: '32px' };
+  const sectionStyle: React.CSSProperties = { marginBottom: '24px' };
   const sectionHeaderStyle: React.CSSProperties = {
-    fontSize: '16px', fontWeight: 700, color: '#374151',
-    marginBottom: '16px', borderBottom: '2px solid #e5e7eb',
-    paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px'
+    fontSize: '15px', fontWeight: 700, color: '#374151',
+    marginBottom: '12px', borderBottom: '2px solid #e5e7eb',
+    paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px'
   };
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 700,
     color: '#6b7280', marginBottom: '4px'
   };
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px', borderRadius: '8px',
+    width: '100%', padding: '10px', borderRadius: '8px',
     border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box',
     fontSize: '14px', fontWeight: 500
   };
@@ -104,7 +106,7 @@ export default function InspectionReportForm({
 
   const handleSubmit = async () => {
     if (!vdCarName) {
-      alert("Please enter the car name in Vehicle Details.");
+      showNotification("Please enter the car name in Vehicle Details.", "warning");
       return;
     }
 
@@ -158,15 +160,16 @@ export default function InspectionReportForm({
       }
 
       onSuccess();
+      showNotification(editReport ? "Inspection report updated!" : "Inspection report saved!", "success");
     } catch (err: any) {
-      alert(`Failed to save report: ${err?.message || "Unknown error"}`);
+      showNotification(`Failed to save report: ${err?.message || "Unknown error"}`, "error");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 md:p-8">
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-8">
       <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#0059A3', fontWeight: 700, cursor: 'pointer', marginBottom: '24px', padding: 0 }}>
         <ArrowLeft size={16} /> Back
       </button>

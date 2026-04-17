@@ -16,6 +16,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import { NotificationContainer } from "@/components/Notification";
 
 export default function RootLayout({
   children,
@@ -38,11 +40,14 @@ export default function RootLayout({
       <body className="antialiased">
         <SmoothScrollProvider>
           <AuthProvider>
-            <WishlistProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </WishlistProvider>
+            <NotificationProvider>
+              <WishlistProvider>
+                <Navbar />
+                {children}
+                <Footer />
+                <NotificationContainer />
+              </WishlistProvider>
+            </NotificationProvider>
           </AuthProvider>
         </SmoothScrollProvider>
       </body>

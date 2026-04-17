@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon, Star, CheckCircle, Save, Send, ArrowLeft, ChevronDown, ClipboardCheck, FileUp, FileText as FileTextIcon } from "lucide-react";
+import { useNotification } from "@/context/NotificationContext";
 import { saveCarToStorage, updateCarInStorage, StoredCar } from "./CarStorage";
 import { convertToWebP } from "@/Details/ImageConvert/ImageConvert";
 import InspectionReportForm from "../InspectionReports/InspectionReportForm";
@@ -80,6 +81,7 @@ interface UploadcarProps {
 }
 
 export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps) {
+  const { showNotification } = useNotification();
   const [title, setTitle] = useState(editCar?.title || "");
   const [brand, setBrand] = useState(editCar?.brand || "");
   const [model, setModel] = useState(editCar?.model || "");
@@ -187,7 +189,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
 
   const handleSubmit = async (status: 'draft' | 'published') => {
     if (!title || !brand || !model || !year || !sellingPrice || images.length === 0) {
-      alert("Please fill in basic info (Title, Brand, Model, Year), pricing, and upload at least one media file.");
+      showNotification("Please fill in basic info (Title, Brand, Model, Year), pricing, and upload at least one media file.", "warning");
       return;
     }
 
@@ -217,25 +219,26 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       }
 
       onSuccess();
+      showNotification(editCar ? "Car updated successfully!" : "Car published successfully!", "success");
     } catch (err: any) {
-      alert(`Failed to save car: ${err?.message || 'Unknown error'}`);
+      showNotification(`Failed to save car: ${err?.message || 'Unknown error'}`, "error");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '32px' }}>
-      <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#0059A3', fontWeight: 700, cursor: 'pointer', marginBottom: '24px', padding: 0 }}>
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-8">
+      <button onClick={onBack} className="flex items-center gap-2 bg-none border-none text-[#0059A3] font-bold cursor-pointer mb-6 p-0 hover:underline">
         <ArrowLeft size={16} /> Back to Inventory
       </button>
 
-      <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#111827', marginBottom: '32px' }}>{editCar ? 'Edit Car Details' : 'Upload New Car'}</h2>
+      <h2 className="text-xl sm:text-2xl font-extrabold text-[#111827] mb-6">{editCar ? 'Edit Car Details' : 'Upload New Car'}</h2>
 
       {/* 1. Basic Info */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>1. Basic Info</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">1. Basic Info</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Car Title</label>
             <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Infiniti QX60 Autograph" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
@@ -256,8 +259,8 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 2. Car Media */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>2. Car Media</h3>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">2. Car Media</h3>
         <div 
           onClick={() => fileInputRef.current?.click()}
           style={{ width: '100%', padding: '40px 20px', border: '2px dashed #d1d5db', borderRadius: '12px', textAlign: 'center', backgroundColor: '#f9fafb', cursor: 'pointer', marginBottom: '16px' }}
@@ -313,9 +316,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 3. Pricing */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>3. Pricing</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">3. Pricing</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Actual Price</label>
             <input value={actualPrice} onChange={e => setActualPrice(e.target.value)} placeholder="₹46.50 Lakh" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
@@ -331,9 +334,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 4. Specifications */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>4. Specifications</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">4. Specifications</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Mileage (KM)</label>
             <input value={mileage} onChange={e => setMileage(e.target.value)} placeholder="e.g. 15,000 km" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
@@ -386,8 +389,8 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 5. Condition & Highlights */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>5. Condition & Highlights</h3>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">5. Condition & Highlights</h3>
         {/* Condition Score fields removed */}
         
         <div style={{ marginBottom: '24px' }}>
@@ -424,8 +427,8 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 7. Inspection Summary */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>7. Inspection Summary</h3>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">7. Inspection Summary</h3>
         {/* Overall Inspection Score display removed */}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -441,7 +444,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
                 <input type="checkbox" checked={insHighlight} onChange={e => setInsHighlight(e.target.checked)} id="insHighlight" />
                 <label htmlFor="insHighlight" style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563' }}>Highlt</label>
               </div>
-              <button onClick={handleAddInspectionPoint} style={{ padding: '12px 20px', backgroundColor: '#0059A3', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Add</button>
+              <button onClick={handleAddInspectionPoint} className="h-[46px] px-5 bg-[#0059A3] text-white border-none rounded-lg font-bold cursor-pointer hover:bg-[#004a87] transition-colors">Add</button>
            </div>
 
            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -467,9 +470,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 8. Seller Details */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>8. Seller Details</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">8. Seller Details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Name</label>
             <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="caRya.krama" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
@@ -495,9 +498,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 9. Location */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>9. Location</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">9. Location</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Area</label>
             <input value={area} onChange={e => setArea(e.target.value)} placeholder="Indiranagar" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
@@ -510,9 +513,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       </section>
 
       {/* 10. Vehicle Inspection Report */}
-      <section style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#374151', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ClipboardCheck size={18} style={{ color: '#0059A3' }} /> 10. Vehicle Inspection Report
+      <section className="mb-8">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2 flex items-center gap-2">
+          <ClipboardCheck size={18} className="text-[#0059A3]" /> 10. Vehicle Inspection Report
         </h3>
 
         {inspectionSaved ? (

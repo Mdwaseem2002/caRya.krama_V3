@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { ArrowLeft, Upload, FileUp, X, Save, FileText, FileSpreadsheet, File } from "lucide-react";
+import { useNotification } from "@/context/NotificationContext";
 import { saveInspectionReport } from "./InspectionStorage";
 
 interface InspectionReportUploadProps {
@@ -32,6 +33,7 @@ function getFileIcon(name: string) {
 export default function InspectionReportUpload({
   onBack, onSuccess, carId, carName
 }: InspectionReportUploadProps) {
+  const { showNotification } = useNotification();
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
   const [uploadedFileName, setUploadedFileName] = useState<string>("");
@@ -44,12 +46,12 @@ export default function InspectionReportUpload({
     if (!file) return;
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      alert("Unsupported file format. Please upload PDF, Excel, or Word documents.");
+      showNotification("Unsupported file format. Please upload PDF, Excel, or Word documents.", "warning");
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      alert("File too large. Maximum allowed size is 10MB.");
+      showNotification("File too large. Maximum allowed size is 10MB.", "error");
       return;
     }
 
@@ -63,11 +65,11 @@ export default function InspectionReportUpload({
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
-      alert("Please upload a file first.");
+      showNotification("Please upload a file first.", "warning");
       return;
     }
     if (!reportCarName) {
-      alert("Please enter the car name.");
+      showNotification("Please enter the car name.", "warning");
       return;
     }
 
@@ -95,8 +97,9 @@ export default function InspectionReportUpload({
         uploadedFileName,
       });
       onSuccess();
+      showNotification("Inspection report uploaded successfully!", "success");
     } catch (err: any) {
-      alert(`Failed to upload report: ${err?.message || "Unknown error"}`);
+      showNotification(`Failed to upload report: ${err?.message || "Unknown error"}`, "error");
     } finally {
       setIsSaving(false);
     }
