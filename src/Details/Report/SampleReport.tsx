@@ -253,7 +253,7 @@ const SampleReport = () => {
         </div>
 
       {/* Floating Actions */}
-      <div className="fixed bottom-10 left-6 md:auto md:top-1/3 md:-translate-y-1/2 md:left-[calc(50%-585px)] z-[100] flex items-center gap-3 no-print origin-left md:scale-90 xl:scale-100">
+      <div className="fixed bottom-10 left-6 md:auto md:top-[22%] md:-translate-y-1/2 md:left-[calc(50%-640px)] z-[100] flex items-center gap-3 no-print origin-left md:scale-90 xl:scale-100">
           <button 
             onClick={() => router.back()}
             className="w-14 h-14 bg-white border border-slate-200 text-slate-600 rounded-2xl shadow-2xl flex items-center justify-center hover:bg-slate-50 transition-all group"
