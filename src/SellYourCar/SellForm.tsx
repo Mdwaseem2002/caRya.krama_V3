@@ -210,7 +210,8 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
       addAdminNotification({
         title: "New Sell Request 🚗",
         message: `${formData.firstName} ${formData.lastName} requested to sell a ${formData.brand} ${formData.model}.`,
-        type: "sell_request"
+        type: "sell_request",
+        cta: { label: "Review Request", href: "/admin/requests" }
       });
 
       // Trigger Customer Notification (System)
@@ -219,12 +220,12 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
           title: "Sell Request Submitted 🚗",
           message: `Your request for ${formData.brand} ${formData.model} is pending review.`,
           type: "system",
-          cta: { label: "View Status", href: "/Profile" }
+          cta: { label: "View Status", href: "/Profile?tab=requests" }
         });
       }
 
       onSuccess(saved.id);
-      showNotification("Sell request submitted successfully!", "success");
+      // showNotification("Sell request submitted successfully!", "success"); // Removed redundant notification
     } catch (err: any) {
       showNotification(`Failed to save request: ${err?.message || 'Unknown error'}`, "error");
     } finally {

@@ -185,11 +185,52 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
     }
   };
 
+  // Sync state if editCar changes (backup for remounting)
+  useEffect(() => {
+    if (editCar) {
+      setTitle(editCar.title || "");
+      setBrand(editCar.brand || "");
+      setModel(editCar.model || "");
+      setYear(editCar.year || "");
+      setImages(editCar.media.images || []);
+      setCoverImage(editCar.media.coverImage || null);
+      setActualPrice(editCar.pricing.actualPrice || "");
+      setSellingPrice(editCar.pricing.sellingPrice || "");
+      setMileage(editCar.specs.mileage || "");
+      setFuelType(editCar.specs.fuelType || "");
+      setTransmission(editCar.specs.transmission || "");
+      setOwnership(editCar.specs.ownership || "");
+      setColor(editCar.specs.color || "");
+      setWarranty(editCar.specs.warranty || false);
+      setServiceHistory(editCar.condition.serviceHistory || []);
+      setSellerName(editCar.sellerDetails.name || "caRya.krama Verified");
+      setSellerType(editCar.sellerDetails.type || "Professional");
+      setSellerMemberSince(editCar.sellerDetails.memberSince || "2024");
+      setSellerContactNumber(editCar.sellerDetails.contactNumber || "");
+      setConditionLabel(editCar.condition.conditionLabel || "Excellent");
+      setScore(editCar.condition.score || "9.8");
+      setHighlights(editCar.condition.highlights || []);
+      setInspectionPoints(editCar.condition.inspectionPoints || []);
+      setArea(editCar.location.area || "");
+      setCity(editCar.location.city || "Bangalore");
+      setTags(editCar.tags || ["New Arrival"]);
+    }
+  }, [editCar]);
+
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (status: 'draft' | 'published') => {
-    if (!title || !brand || !model || !year || !sellingPrice || images.length === 0) {
-      showNotification("Please fill in basic info (Title, Brand, Model, Year), pricing, and upload at least one media file.", "warning");
+    // Validation
+    const missing = [];
+    if (!title) missing.push("Title");
+    if (!brand) missing.push("Brand");
+    if (!model) missing.push("Model");
+    if (!year) missing.push("Year");
+    if (!sellingPrice) missing.push("Selling Price");
+    if (images.length === 0) missing.push("at least one Image");
+
+    if (missing.length > 0) {
+      showNotification(`Please fill in: ${missing.join(", ")}`, "warning");
       return;
     }
 
@@ -588,15 +629,16 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           disabled={isSaving}
           style={{ padding: '12px 24px', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '12px', fontWeight: 700, border: '1px solid #d1d5db', cursor: isSaving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isSaving ? 0.7 : 1 }}
         >
-          <Save size={18} /> {isSaving ? 'Saving...' : 'Save Draft'}
+          <Save size={18} /> {isSaving ? 'Saving...' : editCar ? 'Save as Draft' : 'Save Draft'}
         </button>
         <button 
           onClick={() => handleSubmit('published')}
           disabled={isSaving}
           style={{ padding: '12px 32px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: isSaving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(0, 89, 163, 0.3)', opacity: isSaving ? 0.7 : 1 }}
         >
-          <Send size={18} /> {isSaving ? 'Publishing...' : 'Publish Car'}
+          <Send size={18} /> {isSaving ? 'Saving...' : editCar ? 'Save Changes' : 'Publish Car'}
         </button>
+
       </div>
 
     </div>

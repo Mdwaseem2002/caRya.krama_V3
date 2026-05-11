@@ -17,6 +17,8 @@ export interface IPayment extends Document {
   amount: number;
   date: string;
   status: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ── Schema Definition ─────────────────────────────────────────────────────────

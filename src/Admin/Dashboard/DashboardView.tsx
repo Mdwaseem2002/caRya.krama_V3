@@ -15,6 +15,7 @@ export default function DashboardView({
 }: { 
   onAction: (tab: "cars" | "reports" | "payments", action?: string) => void 
 }) {
+  const [adminStats, setAdminStats] = useState<any>(null);
   const [stats, setStats] = useState<AnalyticsStats>({ totalVisitors: 0, totalReportDownloads: 0 });
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [totalCars, setTotalCars] = useState(0);
@@ -24,19 +25,57 @@ export default function DashboardView({
     Promise.all([
       getAnalyticsStats(),
       getAllPayments(),
-      getAllStoredCars()
-    ]).then(([fetchedStats, fetchedPayments, fetchedCars]) => {
+      getAllStoredCars(),
+      fetch('/api/admin/stats').then(res => res.json())
+    ]).then(([fetchedStats, fetchedPayments, fetchedCars, adminData]) => {
       setStats(fetchedStats);
       setPayments(fetchedPayments);
       setTotalCars(fetchedCars.length);
+      if (adminData.success) setAdminStats(adminData.stats);
     }).catch(console.error);
   }, []);
 
   const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
 
-  // MOCK GRAPH DATA
-  const revenueHeights = [30, 50, 45, 80, 60, 90, 100]; // Last 7 days
-  const activityHeights = [40, 60, 30, 70, 50, 85, 95];
+  // Helper to get relative time (e.g., "10 mins ago")
+  const getRelativeTime = (dateString: string) => {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diffInMs = now.getTime() - past.getTime();
+    const diffInMins = Math.floor(diffInMs / 60000);
+    if (diffInMins < 1) return "Just now";
+    if (diffInMins < 60) return `${diffInMins}m ago`;
+    const diffInHours = Math.floor(diffInMins / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    return `${Math.floor(diffInHours / 24)}d ago`;
+  };
+
+  // MOCK GRAPH DATA fallback (while loading or if empty)
+  const defaultHeights = [10, 10, 10, 10, 10, 10, 10];
+  
+  // Calculate Revenue Heights from Last 7 Days
+  const getRevenueHeights = () => {
+    if (!adminStats?.charts?.revenue?.length) return defaultHeights;
+    const max = Math.max(...adminStats.charts.revenue.map((d: any) => d.amount), 1);
+    const heights = adminStats.charts.revenue.map((d: any) => (d.amount / max) * 100);
+    // Pad to 7 if less
+    while (heights.length < 7) heights.unshift(10);
+    return heights.slice(-7);
+  };
+
+  // Calculate Activity Heights from Last 7 Days
+  const getActivityHeights = () => {
+    if (!adminStats?.charts?.activity?.length) return defaultHeights;
+    const max = Math.max(...adminStats.charts.activity.map((d: any) => d.count), 1);
+    const heights = adminStats.charts.activity.map((d: any) => (d.count / max) * 100);
+    while (heights.length < 7) heights.unshift(10);
+    return heights.slice(-7);
+  };
+
+  const revenueHeights = getRevenueHeights();
+  const activityHeights = getActivityHeights();
+  const recentActivities = adminStats?.recentActivity || [];
+
 
   return (
     <div className="relative min-h-screen space-y-8 pb-12">
@@ -99,7 +138,7 @@ export default function DashboardView({
               <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full border border-blue-100 uppercase tracking-widest">Last 7 Days</span>
            </div>
            <div className="flex-1 flex items-end justify-between gap-3 mt-auto px-2">
-             {revenueHeights.map((h, i) => (
+             {revenueHeights.map((h: number, i: number) => (
                <div key={i} className="w-full bg-gray-50 rounded-2xl relative group h-full flex items-end overflow-hidden border border-gray-100">
                  <motion.div 
                    initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -124,7 +163,7 @@ export default function DashboardView({
               </div>
            </div>
            <div className="flex-1 flex items-end justify-between gap-3 mt-auto px-2">
-             {activityHeights.map((h, i) => (
+             {activityHeights.map((h: number, i: number) => (
                <div key={i} className="w-full bg-gray-50 rounded-2xl relative group h-full flex items-end overflow-hidden border border-gray-100">
                  <motion.div 
                    initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -132,6 +171,7 @@ export default function DashboardView({
                  ></motion.div>
                </div>
              ))}
+
            </div>
         </div>
       </div>
@@ -148,23 +188,27 @@ export default function DashboardView({
                Live Updates
             </h3>
             <div className="space-y-6">
-               {[
-                 { icon: Car, text: "New car added: Fortuner Legender", time: "10 mins ago", color: "text-teal-600", bg: "bg-teal-50 border-teal-100" },
-                 { icon: FileText, text: "Report downloaded by John", time: "25 mins ago", color: "text-indigo-600", bg: "bg-indigo-50 border-indigo-100" },
-                 { icon: IndianRupee, text: "Payment received ₹299", time: "1 hour ago", color: "text-green-600", bg: "bg-green-50 border-green-100" },
-                 { icon: Users, text: "New user signed up", time: "2 hours ago", color: "text-blue-600", bg: "bg-blue-50 border-blue-100" },
-                 { icon: CheckCircle2, text: "System sync completed", time: "5 hours ago", color: "text-gray-600", bg: "bg-gray-100 border-gray-200" }
-               ].map((act, i) => (
-                 <div key={i} className="flex items-center gap-5 group cursor-default">
-                    <div className={`w-12 h-12 rounded-2xl ${act.bg} ${act.color} flex items-center justify-center shrink-0 border group-hover:scale-110 transition-transform`}>
-                      <act.icon size={20} />
-                    </div>
-                    <div className="flex-1 border-b border-gray-100 pb-5 last:border-0 last:pb-0">
-                      <div className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-blue-600 transition-colors uppercase">{act.text}</div>
-                      <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1.5">{act.time}</div>
-                    </div>
-                 </div>
-               ))}
+               {recentActivities.length > 0 ? (
+                 recentActivities.map((act: any, i: number) => {
+                   const Icon = act.type === 'car' ? Car : act.type === 'payment' ? IndianRupee : Users;
+                   const color = act.type === 'car' ? 'text-teal-600' : act.type === 'payment' ? 'text-green-600' : 'text-blue-600';
+                   const bg = act.type === 'car' ? 'bg-teal-50 border-teal-100' : act.type === 'payment' ? 'bg-green-50 border-green-100' : 'bg-blue-50 border-blue-100';
+                   
+                   return (
+                     <div key={i} className="flex items-center gap-5 group cursor-default">
+                        <div className={`w-12 h-12 rounded-2xl ${bg} ${color} flex items-center justify-center shrink-0 border group-hover:scale-110 transition-transform`}>
+                          <Icon size={20} />
+                        </div>
+                        <div className="flex-1 border-b border-gray-100 pb-5 last:border-0 last:pb-0">
+                          <div className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-blue-600 transition-colors uppercase">{act.text}</div>
+                          <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1.5">{getRelativeTime(act.time)}</div>
+                        </div>
+                     </div>
+                   );
+                 })
+               ) : (
+                 <div className="text-center py-10 text-gray-400 font-bold uppercase text-xs tracking-widest">No recent activity</div>
+               )}
             </div>
          </div>
 

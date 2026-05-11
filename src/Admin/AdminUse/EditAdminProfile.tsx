@@ -1,22 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   User, Mail, Phone, Lock, Camera, MapPin, Save, ArrowLeft, Shield, 
-  Settings, Building2, Bell, AlertTriangle, Activity, X, Check, FileText, CheckCircle2, ChevronDown, ListChecks, LogOut, Trash2, Clock, CheckSquare, Square
+  Settings, Building2, Bell, AlertTriangle, Activity, X, Check, FileText, CheckCircle2, ChevronDown, ListChecks, LogOut, Trash2, Clock, CheckSquare, Square,
+  Eye, EyeOff, Loader2
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 // Toggles for forms
 const Toggle = ({ enabled, onChange, label }: { enabled: boolean; onChange: () => void; label: string }) => (
   <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
     <span className="text-sm font-bold text-gray-700">{label}</span>
-    <button 
-      onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? 'bg-[#0059A3]' : 'bg-gray-200'}`}
-    >
+    <button onClick={onChange} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? 'bg-[#0059A3]' : 'bg-gray-200'}`}>
       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   </div>
@@ -32,52 +29,83 @@ const CheckboxRow = ({ checked, onChange, label }: { checked: boolean; onChange:
   </label>
 );
 
-export default function EditAdminProfile() {
-  const { user, updateProfile } = useAuth();
-  const router = useRouter();
+const DEFAULT_FORM = {
+  name: "", email: "", phone: "", profilePhoto: "",
+  username: "", twoFactor: false,
+  role: "Super Admin",
+  permissions: { uploadCars: true, editCars: true, deleteCars: false, manageReports: true, viewPayments: true },
+  companyName: "", companyLogo: "", supportEmail: "", contactNumber: "", address: "",
+  notifyUploads: true, notifyPayments: true, notifyReports: false, notifySignups: true,
+};
 
-  // State
-  const [formData, setFormData] = useState({
-    // Step 1: Basic Info
-    name: user?.name || "Zuhaib Admin",
-    email: user?.email || "admin@caryakrama.com",
-    phone: user?.phone || "+971 50 123 4567",
-    profilePhoto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    
-    // Step 2: Account Settings
-    username: "zuhaib_root",
-    twoFactor: true,
-    
-    // Step 3: Role & Permissions
-    role: "Super Admin", // Super Admin, Admin, Manager
-    permissions: {
-      uploadCars: true,
-      editCars: true,
-      deleteCars: false,
-      manageReports: true,
-      viewPayments: true,
-    },
-    
-    // Step 4: Business Info
-    companyName: "caRya.krama Dealers",
-    companyLogo: "https://ui-avatars.com/api/?name=caRya&background=0059A3&color=fff&rounded=true",
-    supportEmail: "support@caryakrama.com",
-    contactNumber: "+971 4 123 4567",
-    address: "Dubai Motor City, UAE",
-    
-    // Step 5: Notifications
-    notifyUploads: true,
-    notifyPayments: true,
-    notifyReports: false,
-    notifySignups: true,
-  });
+export default function EditAdminProfile() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [formData, setFormData] = useState({ ...DEFAULT_FORM });
+  const [originalData, setOriginalData] = useState({ ...DEFAULT_FORM });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveMessage, setSaveMessage] = useState("");
 
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [passForm, setPassForm] = useState({ current: "", new: "", confirm: "" });
+  const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
+  const [passStatus, setPassStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [passMessage, setPassMessage] = useState("");
 
-  const handleSave = () => {
-    // Save logic
-    alert("Profile structure saved successfully!");
+  // ── Fetch profile from MongoDB on mount ──
+  useEffect(() => {
+    if (!user?.email) { setIsLoading(false); return; }
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/profile?email=${encodeURIComponent(user.email)}`);
+        if (res.ok) {
+          const { profile: p } = await res.json();
+          const loaded = {
+            name: p.name || "", email: p.email || "", phone: p.phone || "", profilePhoto: p.profilePhoto || "",
+            username: p.username || "", twoFactor: p.twoFactor ?? false, role: p.adminRole || "Super Admin",
+            permissions: { uploadCars: p.permissions?.uploadCars ?? true, editCars: p.permissions?.editCars ?? true, deleteCars: p.permissions?.deleteCars ?? false, manageReports: p.permissions?.manageReports ?? true, viewPayments: p.permissions?.viewPayments ?? true },
+            companyName: p.companyName || "", companyLogo: p.companyLogo || "", supportEmail: p.supportEmail || "", contactNumber: p.contactNumber || "", address: p.address || "",
+            notifyUploads: p.notifications?.notifyUploads ?? true, notifyPayments: p.notifications?.notifyPayments ?? true, notifyReports: p.notifications?.notifyReports ?? false, notifySignups: p.notifications?.notifySignups ?? true,
+          };
+          setFormData(loaded);
+          setOriginalData(loaded);
+        }
+      } catch (err) { console.error("Failed to fetch admin profile:", err); }
+      finally { setIsLoading(false); }
+    })();
+  }, [user]);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { setSaveStatus('error'); setSaveMessage('Image must be under 2MB'); setTimeout(() => setSaveStatus('idle'), 3000); return; }
+    const reader = new FileReader();
+    reader.onloadend = () => setFormData(prev => ({ ...prev, profilePhoto: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async () => {
+    if (!user?.email) return;
+    setIsSaving(true); setSaveStatus('idle');
+    try {
+      const res = await fetch('/api/admin/profile', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email, name: formData.name, phone: formData.phone, profilePhoto: formData.profilePhoto,
+          username: formData.username, twoFactor: formData.twoFactor, adminRole: formData.role, permissions: formData.permissions,
+          companyName: formData.companyName, companyLogo: formData.companyLogo, supportEmail: formData.supportEmail,
+          contactNumber: formData.contactNumber, address: formData.address,
+          notifications: { notifyUploads: formData.notifyUploads, notifyPayments: formData.notifyPayments, notifyReports: formData.notifyReports, notifySignups: formData.notifySignups },
+        }),
+      });
+      if (res.ok) { setSaveStatus('success'); setSaveMessage('Profile saved successfully!'); setOriginalData({ ...formData }); }
+      else { const err = await res.json(); setSaveStatus('error'); setSaveMessage(err.error || 'Failed to save'); }
+    } catch { setSaveStatus('error'); setSaveMessage('Network error'); }
+    finally { setIsSaving(false); setTimeout(() => setSaveStatus('idle'), 4000); }
   };
 
   const SectionCard = ({ icon: Icon, title, desc, children }: any) => (
@@ -95,8 +123,54 @@ export default function EditAdminProfile() {
     </div>
   );
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-[#0059A3] animate-spin" />
+          <p className="text-sm font-bold text-gray-500">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 font-inter text-gray-900 selection:bg-[#0059A3] selection:text-white">
+
+      {/* ─── ENHANCED ANIMATED STATUS POPUP ─── */}
+      {saveStatus !== 'idle' && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className={`bg-white rounded-[32px] p-8 shadow-2xl border flex flex-col items-center text-center max-w-sm w-full animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 ${saveStatus === 'success' ? 'border-green-100' : 'border-red-100'}`}>
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 ${saveStatus === 'success' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
+                 {saveStatus === 'success' ? (
+                   <div className="relative">
+                      <CheckCircle2 className="w-12 h-12 relative z-10 animate-in zoom-in duration-500 delay-150" />
+                      <div className="absolute inset-0 bg-green-200 rounded-full animate-ping opacity-20"></div>
+                   </div>
+                 ) : (
+                   <AlertTriangle className="w-12 h-12" />
+                 )}
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">
+                {saveStatus === 'success' ? 'Configuration Saved' : 'Update Failed'}
+              </h3>
+              <p className="text-gray-500 font-bold text-sm mb-8 leading-relaxed">
+                {saveMessage}
+              </p>
+              <button 
+                onClick={() => setSaveStatus('idle')}
+                className={`w-full py-4 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-lg ${
+                  saveStatus === 'success' 
+                    ? 'bg-[#0059A3] text-white shadow-blue-500/20' 
+                    : 'bg-red-500 text-white shadow-red-500/20'
+                }`}
+              >
+                Continue Working
+              </button>
+           </div>
+        </div>
+      )}
+
       
       {/* Top Bar */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-[40] px-4 md:px-8 py-4 shadow-sm">
@@ -125,13 +199,27 @@ export default function EditAdminProfile() {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Left: Photo */}
             <div className="flex flex-col items-center gap-4">
-              <div className="relative w-32 h-32 rounded-full ring-4 ring-gray-50 overflow-hidden bg-gray-100 group">
-                <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <div className="relative w-32 h-32 rounded-full ring-4 ring-gray-50 overflow-hidden bg-gray-100 group flex items-center justify-center">
+                {formData.profilePhoto ? (
+                  <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-16 h-16 text-gray-300" />
+                )}
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
                   <Camera className="w-6 h-6 text-white mb-1" />
                   <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
                 </div>
               </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handlePhotoChange} 
+                accept="image/*" 
+                className="hidden" 
+              />
             </div>
             {/* Right: Fields */}
             <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -357,6 +445,26 @@ export default function EditAdminProfile() {
             </div>
         </div>
 
+        {/* ACTION AREA - Moved above Danger Zone */}
+        <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 mb-8">
+           <div className="flex flex-col sm:flex-row items-center justify-end gap-3 sm:gap-4">
+              <button 
+                onClick={() => { setFormData({ ...originalData }); setSaveStatus('idle'); }} 
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-extrabold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Discard Changes
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={isSaving}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-white bg-[#0059A3] hover:bg-[#004a87] active:scale-[0.98] transition-all shadow-lg shadow-[#0059A3]/30 flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+           </div>
+        </div>
+
         {/* Danger Zone standalone */}
         <div className="bg-white rounded-[24px] p-6 shadow-sm border border-red-100 relative overflow-hidden mb-8">
              <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
@@ -370,10 +478,10 @@ export default function EditAdminProfile() {
                 </div>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-                <button className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-bold text-gray-700 flex items-center justify-between group shadow-sm">
+                <button onClick={() => { logout(); router.push('/'); }} className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-bold text-gray-700 flex items-center justify-between group shadow-sm">
                    <span className="flex items-center gap-2"><LogOut className="w-4 h-4 text-gray-400 group-hover:text-gray-700 transition-colors" /> Logout from all devices</span>
                 </button>
-                <button className="w-full px-5 py-4 bg-red-50 border border-red-100 rounded-xl hover:bg-red-100 transition-colors font-bold text-red-600 flex items-center justify-between group shadow-sm">
+                <button onClick={async () => { if (!user?.id || !confirm('Are you absolutely sure? This cannot be undone.')) return; try { const r = await fetch(`/api/users/${user.id}`, { method: 'DELETE' }); if (r.ok) { logout(); router.push('/'); } else { alert('Failed to delete account'); } } catch { alert('Network error'); } }} className="w-full px-5 py-4 bg-red-50 border border-red-100 rounded-xl hover:bg-red-100 transition-colors font-bold text-red-600 flex items-center justify-between group shadow-sm">
                    <span className="flex items-center gap-2"><Trash2 className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" /> Delete Account</span>
                 </button>
              </div>
@@ -381,23 +489,6 @@ export default function EditAdminProfile() {
 
       </div>
 
-      {/* STEP 6: SAVE / ACTION AREA */}
-      <div className="fixed bottom-0 left-0 right-0 glass-light p-4 md:p-6 z-50">
-         <div className="max-w-5xl mx-auto flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
-            <button 
-              onClick={() => router.back()} 
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-extrabold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
-            >
-              Discard Changes
-            </button>
-            <button 
-              onClick={handleSave} 
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-white bg-[#0059A3] hover:bg-[#004a87] active:scale-[0.98] transition-all shadow-lg shadow-[#0059A3]/30 flex items-center justify-center gap-2"
-            >
-              <Save className="w-5 h-5" /> Save Changes
-            </button>
-         </div>
-      </div>
 
       {/* Password Modal */}
       {isPasswordModalOpen && (
@@ -415,19 +506,51 @@ export default function EditAdminProfile() {
              <div className="space-y-4">
                 <div>
                   <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Current Password</label>
-                  <input type="password" placeholder="••••••••" value={passForm.current} onChange={e=>setPassForm({...passForm, current: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
+                  <div className="relative">
+                    <input type={showPass.current ? "text" : "password"} placeholder="••••••••" value={passForm.current} onChange={e=>setPassForm({...passForm, current: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
+                    <button type="button" onClick={() => setShowPass({...showPass, current: !showPass.current})} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                      {showPass.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">New Password</label>
-                  <input type="password" placeholder="••••••••" value={passForm.new} onChange={e=>setPassForm({...passForm, new: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
+                  <div className="relative">
+                    <input type={showPass.new ? "text" : "password"} placeholder="••••••••" value={passForm.new} onChange={e=>setPassForm({...passForm, new: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
+                    <button type="button" onClick={() => setShowPass({...showPass, new: !showPass.new})} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                      {showPass.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Confirm New Password</label>
-                  <input type="password" placeholder="••••••••" value={passForm.confirm} onChange={e=>setPassForm({...passForm, confirm: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
+                  <div className="relative">
+                    <input type={showPass.confirm ? "text" : "password"} placeholder="••••••••" value={passForm.confirm} onChange={e=>setPassForm({...passForm, confirm: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
+                    <button type="button" onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                      {showPass.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
              </div>
-             <button onClick={() => { alert('Password updated successfully!'); setPasswordModalOpen(false); }} className="w-full mt-8 py-4 bg-[#0059A3] hover:bg-[#004a87] text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-[#0059A3]/20 active:scale-[0.98]">
-                Update Password
+             {passStatus === 'error' && <p className="text-sm font-bold text-red-500 mt-2">{passMessage}</p>}
+             {passStatus === 'success' && <p className="text-sm font-bold text-green-600 mt-2">{passMessage}</p>}
+             <button 
+               onClick={async () => {
+                 if (!user?.email) return;
+                 if (passForm.new !== passForm.confirm) { setPassStatus('error'); setPassMessage('Passwords do not match'); return; }
+                 if (passForm.new.length < 6) { setPassStatus('error'); setPassMessage('Min 6 characters'); return; }
+                 setPassStatus('saving');
+                 try {
+                   const res = await fetch('/api/admin/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: user.email, currentPassword: passForm.current, newPassword: passForm.new }) });
+                   const data = await res.json();
+                   if (res.ok) { setPassStatus('success'); setPassMessage('Password updated!'); setTimeout(() => { setPasswordModalOpen(false); setPassForm({ current: '', new: '', confirm: '' }); setPassStatus('idle'); }, 2000); }
+                   else { setPassStatus('error'); setPassMessage(data.error || 'Failed'); }
+                 } catch { setPassStatus('error'); setPassMessage('Network error'); }
+               }}
+               disabled={passStatus === 'saving'}
+               className="w-full mt-8 py-4 bg-[#0059A3] hover:bg-[#004a87] text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-[#0059A3]/20 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
+             >
+                {passStatus === 'saving' ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating...</> : 'Update Password'}
              </button>
            </div>
         </div>

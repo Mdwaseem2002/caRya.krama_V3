@@ -5,9 +5,11 @@ import { motion } from "framer-motion";
 import { CheckCircle2, MessageSquare, Mail, ArrowLeft, RefreshCw, Sparkles, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import RescheduleModal from "./RescheduleModal";
+import Callus from "@/Details/CallUs/Callus";
 
 export default function SellSuccess({ requestId }: { requestId: string }) {
   const [showReschedule, setShowReschedule] = useState(false);
+  const [showCallus, setShowCallus] = useState(false);
 
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-24 text-center space-y-12 bg-white min-h-[90vh] flex flex-col justify-center">
@@ -59,7 +61,8 @@ export default function SellSuccess({ requestId }: { requestId: string }) {
            initial={{ opacity: 0, x: -20 }}
            animate={{ opacity: 1, x: 0 }}
            transition={{ delay: 0.2 }}
-           className="p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl transition-all"
+           onClick={() => setShowCallus(true)}
+           className="p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl transition-all cursor-pointer"
         >
           <div className="w-14 h-14 rounded-2xl bg-emerald-100/50 flex items-center justify-center shrink-0 shadow-sm">
              <MessageSquare className="w-6 h-6 text-emerald-600" />
@@ -70,20 +73,22 @@ export default function SellSuccess({ requestId }: { requestId: string }) {
           </div>
         </motion.div>
 
-        <motion.div 
-           initial={{ opacity: 0, x: 20 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ delay: 0.3 }}
-           className="p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl transition-all"
-        >
-          <div className="w-14 h-14 rounded-2xl bg-royal/10 flex items-center justify-center shrink-0 shadow-sm">
-             <Mail className="w-6 h-6 text-royal" />
-          </div>
-          <div className="text-left">
-            <h4 className="text-sm font-black text-gray-900 uppercase tracking-tight">Email Confirmation</h4>
-            <p className="text-[11px] text-slate-500 font-bold mt-1 leading-tight">Sent to your inbox.</p>
-          </div>
-        </motion.div>
+        <Link href="/Contact" className="block">
+          <motion.div 
+             initial={{ opacity: 0, x: 20 }}
+             animate={{ opacity: 1, x: 0 }}
+             transition={{ delay: 0.3 }}
+             className="p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl transition-all h-full"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-royal/10 flex items-center justify-center shrink-0 shadow-sm">
+               <Mail className="w-6 h-6 text-royal" />
+            </div>
+            <div className="text-left">
+              <h4 className="text-sm font-black text-gray-900 uppercase tracking-tight">Email Confirmation</h4>
+              <p className="text-[11px] text-slate-500 font-bold mt-1 leading-tight">Sent to your inbox.</p>
+            </div>
+          </motion.div>
+        </Link>
       </div>
 
       {/* Action Buttons */}
@@ -115,6 +120,11 @@ export default function SellSuccess({ requestId }: { requestId: string }) {
         isOpen={showReschedule}
         onClose={() => setShowReschedule(false)}
         requestId={requestId}
+      />
+
+      <Callus 
+        isOpen={showCallus}
+        onClose={() => setShowCallus(false)}
       />
     </div>
   );

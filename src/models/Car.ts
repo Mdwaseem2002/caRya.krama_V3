@@ -52,6 +52,7 @@ export interface ICar extends Omit<Document, "model"> {
     city: string;
   };
   tags: string[];
+  updatedAt: Date;
 }
 
 // ── Schema Definition ─────────────────────────────────────────────────────────

@@ -64,8 +64,7 @@ function CarCard({ car, index }: { car: StoredCar; index: number }) {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   // Convert "CK-1234567" → numeric for wishlist compatibility
-  const numericId = parseInt(car.id.replace(/\D/g, ""), 10) || index + 9000;
-  const isSaved = isInWishlist(numericId);
+  const isSaved = isInWishlist(car.id);
 
   const fallbackImage = "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800";
 
@@ -102,7 +101,7 @@ function CarCard({ car, index }: { car: StoredCar; index: number }) {
               e.preventDefault();
               e.stopPropagation();
               toggleWishlist({ 
-                id: numericId, 
+                id: car.id, 
                 name: car.title,
                 year: car.year,
                 image: car.media?.coverImage,

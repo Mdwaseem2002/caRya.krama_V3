@@ -97,7 +97,8 @@ export async function saveCarToStorage(
       addAdminNotification({
         title: "Car Uploaded Successfully ✅",
         message: `You uploaded ${savedCar.title}.`,
-        type: "upload"
+        type: "upload",
+        cta: { label: "View Inventory", href: "/admin/inventory" }
       });
     });
   }
@@ -210,12 +211,13 @@ export async function getStoredCarById(id: string): Promise<StoredCar | null> {
     return cache.singleProps[id].data;
   }
 
-  // 2. Check list caches
+  // 2. Check list caches (ONLY if they contain full images)
   const lists = [cache.publishedCars.data, cache.adminCars.data];
   for (const list of lists) {
     if (list) {
       const found = list.find(c => c.id === id);
-      if (found) return found; // Instant return if we already downloaded the list
+      // Ensure the cached version has images (isn't the lightweight /list version)
+      if (found && found.media?.images?.length > 0) return found;
     }
   }
 

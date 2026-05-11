@@ -15,16 +15,34 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [role] = useState<'admin' | 'customer'>('customer');
+  const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!agreed) {
+      setError("Please agree to the Terms & Conditions to continue.");
+      return;
+    }
+
     if (name && email && password) {
-      const success = await signup(name, email, role, password);
-      // Auto redirect to profile on successful signup
-      if (success) {
-        if (onSuccess) onSuccess();
-        router.push('/Profile');
+      setIsLoading(true);
+      try {
+        const success = await signup(name, email, role, password);
+        if (success) {
+          if (onSuccess) onSuccess();
+          router.push('/Profile');
+        } else {
+          setError("Failed to create account. Please check your details or try again later.");
+        }
+      } catch (err: any) {
+        setError(err?.message || "An unexpected error occurred during signup.");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -88,13 +106,46 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
         </motion.div>
 
         <motion.div variants={itemVariants} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: mobile ? '12px' : '13px', color: '#6b7280', padding: '4px 0 12px' }}>
-          <input type="checkbox" id="terms" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
-          <label htmlFor="terms">I agree to the <span style={{ color: '#0059A3', fontWeight: 700, cursor: 'pointer' }}>Terms & Conditions</span></label>
+          <input 
+            type="checkbox" 
+            id="terms" 
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            style={{ width: '16px', height: '16px', flexShrink: 0, cursor: 'pointer' }} 
+          />
+          <label htmlFor="terms" style={{ cursor: 'pointer' }}>
+            I agree to the <span style={{ color: '#0059A3', fontWeight: 700 }}>Terms & Conditions</span>
+          </label>
         </motion.div>
 
-        <motion.button type="submit" variants={itemVariants} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-          style={{ width: '100%', padding: mobile ? '12px' : '14px', backgroundColor: '#0059A3', color: '#ffffff', fontWeight: 700, borderRadius: mobile ? '14px' : '16px', border: 'none', cursor: 'pointer', fontSize: mobile ? '14px' : '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(0,89,163,0.3)' }}>
-          Sign Up Now <CheckCircle size={18} strokeWidth={2} />
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            style={{ color: '#ef4444', fontSize: '12px', fontWeight: 600, marginBottom: '16px', textAlign: 'center', backgroundColor: '#fef2f2', padding: '8px', borderRadius: '8px', border: '1px solid #fee2e2' }}
+          >
+            {error}
+          </motion.div>
+        )}
+
+        <motion.button 
+          type="submit" 
+          disabled={isLoading}
+          variants={itemVariants} 
+          whileHover={isLoading ? {} : { scale: 1.02 }} 
+          whileTap={isLoading ? {} : { scale: 0.98 }}
+          style={{ 
+            width: '100%', padding: mobile ? '12px' : '14px', 
+            backgroundColor: isLoading ? '#9ca3af' : '#0059A3', 
+            color: '#ffffff', fontWeight: 700, borderRadius: mobile ? '14px' : '16px', 
+            border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', 
+            fontSize: mobile ? '14px' : '15px', display: 'flex', alignItems: 'center', 
+            justifyContent: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(0,89,163,0.3)',
+            opacity: isLoading ? 0.8 : 1
+          }}
+        >
+          {isLoading ? 'Creating Account...' : 'Sign Up Now'} 
+          {!isLoading && <CheckCircle size={18} strokeWidth={2} />}
         </motion.button>
       </motion.form>
 

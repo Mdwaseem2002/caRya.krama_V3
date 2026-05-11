@@ -1,17 +1,38 @@
 "use client";
 
-import React, { useState } from "react";
-import { User, Heart, MessageSquare, Settings, LogOut, ShieldCheck, Lock, Edit3, Car, Phone, MapPin, Mail } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { User, Heart, MessageSquare, Settings, LogOut, ShieldCheck, Lock, Edit3, Car, Phone, MapPin, Mail, Clock, RefreshCw, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { getUserSellRequests, SellRequest } from "@/Admin/SellRequests/SellStorage";
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const mobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<"personal" | "settings">("personal");
+  const [activeTab, setActiveTab] = useState<"personal" | "settings" | "requests">("personal");
+  const [requests, setRequests] = useState<SellRequest[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+
+  // Deep Link Handling
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'requests') setActiveTab('requests');
+  }, [searchParams]);
+
+  // Fetch Requests
+  useEffect(() => {
+    if (activeTab === "requests" && user?.email) {
+      setLoadingRequests(true);
+      getUserSellRequests(user.email).then(data => {
+        setRequests(data);
+        setLoadingRequests(false);
+      });
+    }
+  }, [activeTab, user?.email]);
 
   if (!user) {
     return (
@@ -28,6 +49,7 @@ export default function Profile() {
 
   const tabs = [
     { id: "personal" as const, label: "Personal Info", icon: User },
+    { id: "requests" as const, label: "My Requests", icon: Car },
     { id: "settings" as const, label: "Settings", icon: Settings },
   ];
 
@@ -179,9 +201,84 @@ export default function Profile() {
                   </div>
                 )}
 
-                {/* ── WISHLIST TAB REMOVED ── */}
+                {/* ── SELL REQUESTS ── */}
+                {activeTab === "requests" && (
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>
+                      <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', margin: 0 }}>Sell Requests</h2>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#6b7280', backgroundColor: '#F3F4F6', padding: '4px 10px', borderRadius: '50px' }}>
+                        {requests.length} Total
+                      </span>
+                    </div>
 
-                {/* ── INQUIRIES TAB REMOVED ── */}
+                    {loadingRequests ? (
+                      <div style={{ padding: '60px 0', textAlign: 'center', color: '#9ca3af' }}>
+                        <RefreshCw size={32} className="animate-spin mx-auto mb-4 opacity-20" />
+                        <p style={{ fontSize: '14px', fontWeight: 700 }}>Synchronizing with database...</p>
+                      </div>
+                    ) : requests.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {requests.map((req) => (
+                          <div key={req.id} style={{ 
+                            padding: mobile ? '16px' : '20px', backgroundColor: '#F9FAFB', borderRadius: '20px', border: '1px solid #f3f4f6',
+                            display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '16px', alignItems: mobile ? 'flex-start' : 'center',
+                            transition: 'all 0.2s'
+                          }} className="hover:bg-white hover:shadow-lg hover:shadow-slate-200/50">
+                            {/* Car Thumbnail */}
+                            <div style={{ width: mobile ? '100%' : '140px', height: '90px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#e5e7eb', flexShrink: 0 }}>
+                              {req.car.images?.[0] ? (
+                                <img src={req.car.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={req.car.model} />
+                              ) : (
+                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <Car size={24} style={{ color: '#d1d5db' }} />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Details */}
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 900, color: '#0059A3', backgroundColor: '#E8F0FE', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>{req.id}</span>
+                                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#111827', margin: 0 }}>{req.car.brand} {req.car.model}</h3>
+                              </div>
+                              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#6b7280', fontWeight: 600 }}>
+                                  <Clock size={12} /> {new Date(req.createdAt).toLocaleDateString()}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#6b7280', fontWeight: 600 }}>
+                                  <MapPin size={12} /> {req.inspection.location} Inspection
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Status Badge */}
+                            <div style={{ 
+                              padding: '8px 16px', borderRadius: '50px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
+                              backgroundColor: 
+                                req.status === 'pending' ? '#FEF3C7' : 
+                                req.status === 'approved' ? '#DCFCE7' : 
+                                req.status === 'rejected' ? '#FEE2E2' : '#E0F2FE',
+                              color: 
+                                req.status === 'pending' ? '#D97706' : 
+                                req.status === 'approved' ? '#16A34A' : 
+                                req.status === 'rejected' ? '#EF4444' : '#0369A1',
+                              minWidth: '100px', textAlign: 'center'
+                            }}>
+                              {req.status}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '60px 24px', backgroundColor: '#F9FAFB', borderRadius: '20px', border: '1px dashed #d1d5db' }}>
+                        <Car size={40} style={{ color: '#d1d5db', marginBottom: '16px' }} />
+                        <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#111827', marginBottom: '8px' }}>No Sell Requests</h3>
+                        <p style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '24px' }}>You haven't submitted any cars for sale yet.</p>
+                        <button onClick={() => router.push('/sell-your-car')} style={{ padding: '12px 28px', backgroundColor: '#0059A3', color: '#ffffff', border: 'none', borderRadius: '14px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>Sell Your Car</button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* ── SETTINGS ── */}
                 {activeTab === "settings" && (

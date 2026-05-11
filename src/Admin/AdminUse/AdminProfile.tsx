@@ -33,6 +33,8 @@ export default function AdminProfile() {
   const [cars, setCars] = useState<StoredCar[]>([]);
   const [isCarsLoading, setIsCarsLoading] = useState(true);
 
+  const [stats, setStats] = useState({ revenue: 0, liveAssets: 0, totalUsers: 0 });
+
   React.useEffect(() => {
     if (activeTab === 'cars' && !showUpload) {
       setIsCarsLoading(true);
@@ -42,6 +44,31 @@ export default function AdminProfile() {
         .finally(() => setIsCarsLoading(false));
     }
   }, [activeTab, showUpload]);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+          setStats(data.stats);
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin stats:", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const formatStat = (num: number, isCurrency = false) => {
+    if (isCurrency) {
+      if (num >= 1000000) return `₹${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `₹${(num / 1000).toFixed(1)}k`;
+      return `₹${num}`;
+    }
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+    return num.toString();
+  };
 
 
   const handleDashboardAction = (tab: "cars" | "reports" | "payments", action?: string) => {
@@ -104,7 +131,15 @@ export default function AdminProfile() {
               backgroundColor: 'rgba(255,255,255,0.2)', border: '3px solid rgba(255,255,255,0.5)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)', flexShrink: 0
             }}>
-              <ShieldCheck size={mobile ? 28 : 44} style={{ color: '#ffffff' }} strokeWidth={1.5} />
+              {user.profilePhoto ? (
+                <img 
+                  src={user.profilePhoto} 
+                  alt="Admin" 
+                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                />
+              ) : (
+                <ShieldCheck size={mobile ? 28 : 44} style={{ color: '#ffffff' }} strokeWidth={1.5} />
+              )}
             </div>
             <div>
               <h1 style={{ fontSize: mobile ? '20px' : '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Insight Center</h1>
@@ -125,9 +160,9 @@ export default function AdminProfile() {
         {/* Quick Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', backgroundColor: 'rgba(255,255,255,0.1)', borderTop: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
           {[
-            { value: "₹48.2k", label: "Revenue" },
-            { value: "840", label: "Live Assets" },
-            { value: "1.2k", label: "Users" },
+            { value: formatStat(stats.revenue, true), label: "Revenue" },
+            { value: formatStat(stats.liveAssets), label: "Live Assets" },
+            { value: formatStat(stats.totalUsers), label: "Users" },
           ].map((stat, i) => (
             <div key={stat.label} style={{ padding: mobile ? '12px 8px' : '20px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' }}>
               <h4 style={{ fontSize: mobile ? '20px' : '28px', fontWeight: 800, color: '#ffffff', margin: 0 }}>{stat.value}</h4>
@@ -226,9 +261,10 @@ export default function AdminProfile() {
                   <div>
                     <AnimatePresence mode="wait">
                       {showUpload ? (
-                        <motion.div key="upload" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                        <motion.div key={editingCar?.id || "upload"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                           <Uploadcar onBack={() => { setShowUpload(false); setEditingCar(undefined); }} onSuccess={() => { setShowUpload(false); setEditingCar(undefined); }} editCar={editingCar} />
                         </motion.div>
+
                       ) : (
                         <motion.div key="list" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: mobile ? '16px' : '24px', paddingBottom: '16px', borderBottom: '2px solid #f3f4f6' }}>
@@ -282,9 +318,46 @@ export default function AdminProfile() {
                                     <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>{item.id} • <span style={{ color: '#0059A3', fontWeight: 600 }}>{item.pricing.sellingPrice}</span></p>
                                   </div>
                                   <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => { setEditingCar(item); setShowUpload(true); }} style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#6b7280', cursor: 'pointer' }}><Edit3 size={16} /></button>
+                                    <button 
+                                      onClick={async (e) => {
+                                        const btn = e.currentTarget;
+                                        btn.disabled = true;
+                                        btn.style.opacity = '0.5';
+                                        try {
+                                          const { getStoredCarById } = await import("../Upload/CarStorage");
+                                          // Force a full fetch to get images array
+                                          let fullCar = await getStoredCarById(item.id);
+                                          
+                                          // Verification: If cache gave us something without images, fetch fresh
+                                          if (!fullCar || !fullCar.media?.images?.length) {
+                                             const res = await fetch(`/api/cars/${item.id}`);
+                                             const data = await res.json();
+                                             if (data.success && data.car) fullCar = data.car;
+                                          }
+
+                                          if (fullCar) {
+                                            setEditingCar(fullCar);
+                                            setShowUpload(true);
+                                          } else {
+                                            alert("Failed to load car details (images might be missing in DB).");
+                                            setEditingCar(item);
+                                            setShowUpload(true);
+                                          }
+                                        } catch (err) {
+                                          console.error("Edit fetch failed:", err);
+                                          alert("Error loading car data.");
+                                        } finally {
+                                          btn.disabled = false;
+                                          btn.style.opacity = '1';
+                                        }
+                                      }} 
+                                      style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#6b7280', cursor: 'pointer' }}
+                                    >
+                                      <Edit3 size={16} />
+                                    </button>
                                     <button onClick={() => handleDelete(item.id)} style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#EF4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
                                   </div>
+
                                 </div>
                               ))
                             )}

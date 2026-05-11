@@ -22,6 +22,7 @@ export interface User {
   };
   role: 'admin' | 'customer';
   status: 'active' | 'inactive';
+  profilePhoto?: string;
   lastActivity?: string;
   wishlist?: any[];
 }
@@ -64,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const adminUser: User = {
           id: 'admin_1',
           name: 'Admin',
-          email: 'admin@Pentacloud.com', // Keep correct format in user object
+          email: 'admin@Pentacloud.com',
           joinDate: new Date().toISOString(),
           lastActivity: new Date().toISOString(),
           status: 'active',
@@ -72,6 +73,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: 'admin',
           wishlist: []
         };
+
+        // Seed admin in MongoDB so profile page has a real DB record
+        try {
+          const seedRes = await fetch('/api/admin/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: normalizedEmail,
+              name: 'Admin',
+              password: password,
+            }),
+          });
+          if (seedRes.ok) {
+            const seedData = await seedRes.json();
+            // Use DB id if available
+            if (seedData.profile?.id) {
+              adminUser.id = seedData.profile.id;
+            }
+            if (seedData.profile?.name) {
+              adminUser.name = seedData.profile.name;
+            }
+          }
+        } catch (seedErr) {
+          console.warn('Admin DB seed failed (non-blocking):', seedErr);
+        }
         
         setUser(adminUser);
         localStorage.setItem(SESSION_KEY, JSON.stringify(adminUser));
@@ -81,7 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           addAdminNotification({
             title: "Welcome Back Admin 👋",
             message: "You're now in control of the system.",
-            type: "system"
+            type: "system",
+            cta: { label: "Go to Dashboard", href: "/admin/dashboard" }
           });
         });
 

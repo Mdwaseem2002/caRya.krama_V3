@@ -27,18 +27,20 @@ function ReportContent() {
       }
 
       try {
-        // Fetch Car Cover Image
-        let uploadedCars: any[] = [];
-        try {
-          uploadedCars = await getAllStoredCars();
-        } catch (e) {}
+        // Fetch Car Detail (including full images)
+        const { getStoredCarById } = await import("@/Admin/Upload/CarStorage");
+        const carData = await getStoredCarById(carId);
         
-        const foundUploaded = uploadedCars.find((c: any) => c.id === carId);
-        const foundStatic = cars.find((c: any) => c.id.toString() === carId.toString());
-        const carData = foundUploaded || foundStatic || cars[0];
-        
-        const coverImage = carData?.media?.coverImage || carData?.image || (carData?.media?.images && carData?.media?.images[0]) || (carData?.images && carData?.images[0]) || "";
-        setCarCoverImage(coverImage);
+        if (carData) {
+          const coverImage = carData.media?.coverImage || carData.media?.coverThumbnail || (carData.media?.images && carData.media.images[0]) || "";
+          setCarCoverImage(coverImage);
+        } else {
+          // Fallback to static data if not found in DB
+          const foundStatic = cars.find((c: any) => c.id.toString() === carId.toString());
+          if (foundStatic) {
+             setCarCoverImage(foundStatic.image || "");
+          }
+        }
 
         // Fetch the report from the DB first
         const res = await fetch(`/api/inspection-reports?carId=${carId}`);
@@ -47,7 +49,7 @@ function ReportContent() {
         if (data.success && data.reports && data.reports.length > 0) {
           // Report exists — check if purchased (for non-admin/customer flow)
           const isPaid = hasPurchased(carId);
-          const isUploadedCar = !!foundUploaded;
+          const isUploadedCar = !!carData;
           
           // Allow access if: paid OR it's an admin-uploaded car being previewed
           if (isPaid || isUploadedCar) {

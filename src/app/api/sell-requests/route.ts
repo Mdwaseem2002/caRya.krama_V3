@@ -14,10 +14,12 @@ export async function GET(req: NextRequest) {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const status = searchParams.get("status"); // e.g. ?status=pending
+    const status = searchParams.get("status");
+    const email = searchParams.get("email");
 
-    const filter: Record<string, string> = {};
+    const filter: any = {};
     if (status) filter.status = status;
+    if (email) filter["owner.email"] = email;
 
     const limitParams = searchParams.get("limit");
     const limit = limitParams ? parseInt(limitParams, 10) : 100;

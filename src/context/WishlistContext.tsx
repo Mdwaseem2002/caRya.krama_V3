@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 
 // Define the car object matching the ones in Card.tsx
 export type CarType = {
-  id: number;
+  id: number | string;
   name: string;
   year: string;
   image: string;
@@ -20,16 +20,18 @@ export type CarType = {
 };
 
 type WishlistContextType = {
-  wishlist: CarType[];
   toggleWishlist: (car: CarType) => void;
-  isInWishlist: (id: number) => boolean;
+  isInWishlist: (id: number | string) => boolean;
 };
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
+import AuthRequiredModal from "@/components/AuthRequiredModal";
+
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<CarType[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, updateProfile } = useAuth();
 
   // Sync on mount or when user changes
@@ -71,6 +73,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleWishlist = (car: CarType) => {
+    // SECURITY CHECK: If user is not logged in, show popup instead of wishlisting
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     const exists = wishlist.some((item) => item.id === car.id);
     const updated = exists 
       ? wishlist.filter((item) => item.id !== car.id) 
@@ -91,11 +99,23 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const isInWishlist = (id: number) => wishlist.some((item) => item.id === id);
+  const openGlobalAuth = (mode: 'login' | 'signup') => {
+    setShowAuthModal(false);
+    window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode } }));
+  };
+
+  const isInWishlist = (id: number | string) => 
+    wishlist.some((item) => item.id.toString() === id.toString());
 
   return (
     <WishlistContext.Provider value={{ wishlist, toggleWishlist, isInWishlist }}>
       {children}
+      <AuthRequiredModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLogin={() => openGlobalAuth('login')}
+        onSignup={() => openGlobalAuth('signup')}
+      />
     </WishlistContext.Provider>
   );
 }

@@ -4,7 +4,7 @@ import React from "react";
 import { 
   User, Settings, LogOut, ShieldCheck, Lock, 
   Car, FileText, IndianRupee, Users, LayoutDashboard,
-  ClipboardCheck, Sparkles
+  ClipboardCheck, Sparkles, Bell
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
@@ -20,6 +20,33 @@ export default function AdminPages({ children }: AdminPagesProps) {
   const router = useRouter();
   const pathname = usePathname();
   const mobile = useIsMobile();
+
+  const [stats, setStats] = React.useState({ revenue: 0, liveAssets: 0, totalUsers: 0 });
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+          setStats(data.stats);
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin stats:", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const formatStat = (num: number, isCurrency = false) => {
+    if (isCurrency) {
+      if (num >= 1000000) return `₹${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `₹${(num / 1000).toFixed(1)}k`;
+      return `₹${num}`;
+    }
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+    return num.toString();
+  };
 
   // Don't show the layout for the main admin login page
   if (pathname === '/admin' || pathname === '/admin/') {
@@ -41,6 +68,7 @@ export default function AdminPages({ children }: AdminPagesProps) {
 
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
+    { id: "notifications", label: "Notifications", icon: Bell, href: "/details" },
     { id: "cars", label: "Car Management", icon: Car, href: "/admin/carmanagement" },
     { id: "reports", label: "Report Management", icon: FileText, href: "/admin/reports" },
     { id: "payments", label: "Payment Tracking", icon: IndianRupee, href: "/admin/payments" },
@@ -67,7 +95,15 @@ export default function AdminPages({ children }: AdminPagesProps) {
               backgroundColor: 'rgba(255,255,255,0.2)', border: '3px solid rgba(255,255,255,0.5)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)', flexShrink: 0
             }}>
-              <ShieldCheck size={mobile ? 28 : 44} style={{ color: '#ffffff' }} strokeWidth={1.5} />
+              {user.profilePhoto ? (
+                <img 
+                  src={user.profilePhoto} 
+                  alt="Admin" 
+                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                />
+              ) : (
+                <ShieldCheck size={mobile ? 28 : 44} style={{ color: '#ffffff' }} strokeWidth={1.5} />
+              )}
             </div>
             <div>
               <h1 style={{ fontSize: mobile ? '20px' : '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Insight Center</h1>
@@ -90,9 +126,9 @@ export default function AdminPages({ children }: AdminPagesProps) {
         {/* Quick Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', backgroundColor: 'rgba(255,255,255,0.1)', borderTop: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
           {[
-            { value: "₹48.2k", label: "Revenue" },
-            { value: "840", label: "Live Assets" },
-            { value: "1.2k", label: "Users" },
+            { value: formatStat(stats.revenue, true), label: "Revenue" },
+            { value: formatStat(stats.liveAssets), label: "Live Assets" },
+            { value: formatStat(stats.totalUsers), label: "Users" },
           ].map((stat, i) => (
             <div key={stat.label} style={{ padding: mobile ? '12px 8px' : '20px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' }}>
               <h4 style={{ fontSize: mobile ? '20px' : '28px', fontWeight: 800, color: '#ffffff', margin: 0 }}>{stat.value}</h4>
@@ -101,6 +137,7 @@ export default function AdminPages({ children }: AdminPagesProps) {
           ))}
         </div>
       </div>
+
 
       {/* ═══ CONTENT GRID ═══ */}
       <div style={{ display: mobile ? 'flex' : 'grid', flexDirection: 'column', gridTemplateColumns: '280px 1fr', gap: '16px' }}>

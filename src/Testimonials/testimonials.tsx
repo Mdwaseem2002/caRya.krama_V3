@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Star, Quote, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -346,15 +346,6 @@ export default function Testimonials() {
 
         {/* ── STATS BAR ── */}
         <StatisticsSection />
-
-        {/* ── CTA ── */}
-        <section className="mt-16 md:mt-24 text-center">
-            <h4 className="text-2xl md:text-4xl font-black mb-6 tracking-tighter">Ready to write your <span className="text-blue-500">own story?</span></h4>
-            <button className="bg-gradient-to-br from-[#0A2A6E] to-[#1B4FD8] text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-[1.05] active:scale-[0.95] transition-all shadow-2xl shadow-blue-900/40 flex items-center gap-3 mx-auto group">
-               Start My Journey
-               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-        </section>
 
       </div>
     </main>

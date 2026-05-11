@@ -15,11 +15,38 @@ export interface IUserReport {
   amount: number;
 }
 
+export interface IAdminPermissions {
+  uploadCars: boolean;
+  editCars: boolean;
+  deleteCars: boolean;
+  manageReports: boolean;
+  viewPayments: boolean;
+}
+
+export interface IAdminNotifications {
+  notifyUploads: boolean;
+  notifyPayments: boolean;
+  notifyReports: boolean;
+  notifySignups: boolean;
+}
+
 export interface IUser extends Document {
   id: string;              // Custom U-XXXX identifier
   name: string;
   email: string;
   password?: string;       // Hashed password for DB authentication
+  phone?: string;
+  profilePhoto?: string;   // Base64 or URL
+  username?: string;
+  twoFactor?: boolean;
+  adminRole?: string;      // Super Admin, Admin, Manager
+  permissions?: IAdminPermissions;
+  companyName?: string;
+  companyLogo?: string;
+  supportEmail?: string;
+  contactNumber?: string;
+  address?: string;
+  notifications?: IAdminNotifications;
   role: "admin" | "customer";
   status: "active" | "blocked";
   joinedDate: string;
@@ -27,6 +54,8 @@ export interface IUser extends Document {
   reportsPurchased: IUserReport[];
   totalSpend: number;
   wishlist: any[];         // Added for wishlist persistence
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ── Schema Definition ─────────────────────────────────────────────────────────
@@ -58,6 +87,35 @@ const UserSchema = new Schema<IUser>(
       },
     },
     password: { type: String, required: false },
+    phone: { type: String, default: "" },
+    profilePhoto: { type: String, default: "" },
+    username: { type: String, default: "" },
+    twoFactor: { type: Boolean, default: false },
+    adminRole: { type: String, default: "Super Admin" },
+    permissions: {
+      type: new Schema({
+        uploadCars: { type: Boolean, default: true },
+        editCars: { type: Boolean, default: true },
+        deleteCars: { type: Boolean, default: false },
+        manageReports: { type: Boolean, default: true },
+        viewPayments: { type: Boolean, default: true },
+      }, { _id: false }),
+      default: () => ({}),
+    },
+    companyName: { type: String, default: "" },
+    companyLogo: { type: String, default: "" },
+    supportEmail: { type: String, default: "" },
+    contactNumber: { type: String, default: "" },
+    address: { type: String, default: "" },
+    notifications: {
+      type: new Schema({
+        notifyUploads: { type: Boolean, default: true },
+        notifyPayments: { type: Boolean, default: true },
+        notifyReports: { type: Boolean, default: false },
+        notifySignups: { type: Boolean, default: true },
+      }, { _id: false }),
+      default: () => ({}),
+    },
     role: {
       type: String,
       enum: ["admin", "customer"],

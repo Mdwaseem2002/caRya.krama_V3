@@ -117,6 +117,18 @@ export async function getAllSellRequests(): Promise<SellRequest[]> {
   return (data.requests || []) as SellRequest[];
 }
 
+/** Get requests for a specific user email */
+export async function getUserSellRequests(email: string): Promise<SellRequest[]> {
+  const res = await fetch(`${getBaseUrl()}/api/sell-requests?email=${encodeURIComponent(email)}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  return (data.requests || []) as SellRequest[];
+}
+
 /** Delete a request permanently */
 export async function deleteSellRequest(id: string): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/sell-requests/${id}`, {

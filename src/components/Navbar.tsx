@@ -59,13 +59,22 @@ export default function Navbar() {
             setTimeout(() => setActiveToast(null), 5000);
         }
     };
+
+    // Global Auth Trigger
+    const handleOpenAuth = (e: any) => {
+      const mode = e.detail?.mode || 'login';
+      setAuthMode(mode);
+    };
+
     window.addEventListener(NOTIF_EVENT, handleNewNotif);
     window.addEventListener(ADMIN_NOTIF_EVENT, handleNewNotif);
+    window.addEventListener('OPEN_AUTH', handleOpenAuth);
 
     return () => {
         window.removeEventListener('scroll', onScroll);
         window.removeEventListener(NOTIF_EVENT, handleNewNotif);
         window.removeEventListener(ADMIN_NOTIF_EVENT, handleNewNotif);
+        window.removeEventListener('OPEN_AUTH', handleOpenAuth);
     };
   }, []);
 

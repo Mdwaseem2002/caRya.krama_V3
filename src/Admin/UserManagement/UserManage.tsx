@@ -61,21 +61,26 @@ export default function UserManage() {
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
-      const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const name = user.name || "";
+      const email = user.email || "";
+      const query = searchQuery.toLowerCase();
+      
+      const matchesSearch = name.toLowerCase().includes(query) || 
+                             email.toLowerCase().includes(query);
       const matchesRole = roleFilter === "all" || user.role === roleFilter;
       const matchesStatus = statusFilter === "all" || user.status === statusFilter;
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [users, searchQuery, roleFilter, statusFilter]);
 
+
   const stats = useMemo(() => {
     const total = users.length;
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const newUsers = users.filter(u => new Date(u.joinedDate) >= sevenDaysAgo).length;
-    const payingUsers = users.filter(u => u.reportsPurchased.length > 0).length;
-    const blockedUsers = users.filter(u => u.status === "blocked").length;
+    const payingUsers = users.filter(u => (u.reportsPurchased || []).length > 0).length;
+    const blockedUsers = users.filter(u => (u.status || "") === "blocked").length;
 
     return { total, newUsers, payingUsers, blockedUsers };
   }, [users]);
@@ -164,7 +169,7 @@ export default function UserManage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                        {user.name[0]}
+                        {user.name ? user.name[0] : '?'}
                       </div>
                       <div>
                         <div className="text-sm font-bold text-gray-900">{user.name}</div>
@@ -185,19 +190,19 @@ export default function UserManage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5">
                       <ShoppingBag size={14} className="text-gray-400" />
-                      <span className="text-xs font-bold text-gray-900">{user.reportsPurchased.length} Reports</span>
+                      <span className="text-xs font-bold text-gray-900">{(user.reportsPurchased || []).length} Reports</span>
                     </div>
-                    {user.reportsPurchased.length >= 3 && (
+                    {(user.reportsPurchased || []).length >= 3 && (
                       <div className="mt-1">
                         <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">Verified</span>
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                     <span className={`flex items-center gap-1.5 text-[10px] font-bold ${user.status === 'active' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      <span className={`flex items-center gap-1.5 text-[10px] font-bold ${user.status === 'active' ? 'text-emerald-600' : 'text-rose-600'}`}>
                         <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500'}`}></div>
-                        {user.status.toUpperCase()}
-                     </span>
+                        {(user.status || 'unknown').toUpperCase()}
+                      </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -256,7 +261,7 @@ export default function UserManage() {
                 {/* Profile Header */}
                 <div className="flex flex-col items-center text-center mb-8">
                   <div className="w-24 h-24 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-3xl mb-4 border-4 border-white shadow-xl">
-                    {selectedUser.name[0]}
+                    {selectedUser.name ? selectedUser.name[0] : '?'}
                   </div>
                   <h3 className="text-2xl font-black text-gray-900">{selectedUser.name}</h3>
                   <div className="text-sm font-medium text-gray-500 mb-4">{selectedUser.email}</div>
@@ -297,7 +302,7 @@ export default function UserManage() {
                         <ShoppingBag size={18} />
                         <span className="text-sm font-bold">Reports Bought</span>
                       </div>
-                      <span className="text-sm font-black text-gray-900">{selectedUser.reportsPurchased.length}</span>
+                      <span className="text-sm font-black text-gray-900">{(selectedUser.reportsPurchased || []).length}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 text-gray-500">
@@ -312,7 +317,7 @@ export default function UserManage() {
                   <div>
                     <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Purchase History</h4>
                     <div className="space-y-3">
-                      {selectedUser.reportsPurchased.length > 0 ? (
+                      {(selectedUser.reportsPurchased || []).length > 0 ? (
                         selectedUser.reportsPurchased.map(report => (
                           <div key={report.id} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
                             <div className="flex items-center gap-3">

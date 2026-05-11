@@ -154,7 +154,8 @@ export default function InspectionReportForm({
           addAdminNotification({
             title: "Report Generated 📄",
             message: `Inspection report for ${vdCarName} created successfully.`,
-            type: "report"
+            type: "report",
+            cta: { label: "View Reports", href: "/admin/reports" }
           });
         });
       }

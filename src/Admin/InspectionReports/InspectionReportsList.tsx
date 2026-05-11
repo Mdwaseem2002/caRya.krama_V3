@@ -14,6 +14,24 @@ export default function InspectionReportsList() {
   const [view, setView] = useState<"list" | "create" | "upload" | "view">("list");
   const [editReport, setEditReport] = useState<InspectionReportData | undefined>(undefined);
   const [viewReport, setViewReport] = useState<InspectionReportData | null>(null);
+  const [carCoverImage, setCarCoverImage] = useState<string | undefined>(undefined);
+
+  // Fetch car cover image when a report is selected
+  useEffect(() => {
+    if (viewReport?.carId && viewReport.carId !== "unlinked") {
+      import("../Upload/CarStorage").then(({ getStoredCarById }) => {
+        getStoredCarById(viewReport.carId).then(car => {
+          if (car?.media?.coverThumbnail || car?.media?.coverImage) {
+            setCarCoverImage(car.media.coverThumbnail || car.media.coverImage);
+          } else {
+            setCarCoverImage(undefined);
+          }
+        });
+      });
+    } else {
+      setCarCoverImage(undefined);
+    }
+  }, [viewReport]);
 
   const fetchReports = () => {
     setIsLoading(true);
@@ -95,6 +113,7 @@ export default function InspectionReportsList() {
         ) : (
           <InspectionReportPDFView 
             report={viewReport} 
+            carCoverImage={carCoverImage}
             onClose={() => { setView("list"); setViewReport(null); }} 
           />
         )}

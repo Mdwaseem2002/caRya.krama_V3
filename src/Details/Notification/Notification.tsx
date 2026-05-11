@@ -127,7 +127,12 @@ export default function Notification() {
   const pageP = mobile ? '16px 12px' : '32px 16px';
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: pageP, minHeight: '85vh' }}>
+    <div style={{ 
+      maxWidth: isAdmin ? '100%' : '900px', 
+      margin: isAdmin ? '0' : '0 auto', 
+      padding: isAdmin ? '0' : pageP, 
+      minHeight: '85vh' 
+    }}>
       
       {/* ═══ BACK (mobile) ═══ */}
       {mobile && (
