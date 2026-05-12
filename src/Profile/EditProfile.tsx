@@ -10,6 +10,18 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
+const PwField = ({ label: l, value, onChange, show, toggle, placeholder, error, lbl, inp }: any) => (
+  <div>
+    <label style={lbl}>{l}</label>
+    <div style={{ position: 'relative' }}>
+      <input style={{ ...inp, borderColor: error ? '#EF4444' : '#e5e7eb' }} type={show ? "text" : "password"} value={value} onChange={onChange} placeholder={placeholder} />
+      <button type="button" onClick={toggle} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: '4px' }}>
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
+  </div>
+);
+
 export default function EditProfile() {
   const { user, updateProfile } = useAuth();
   const router = useRouter();
@@ -69,17 +81,7 @@ export default function EditProfile() {
   };
   const pwStrength = getPasswordStrength(newPassword);
 
-  const PwField = ({ label: l, value, onChange, show, toggle, placeholder, error }: any) => (
-    <div>
-      <label style={lbl}>{l}</label>
-      <div style={{ position: 'relative' }}>
-        <input style={{ ...inp, borderColor: error ? '#EF4444' : '#e5e7eb' }} type={show ? "text" : "password"} value={value} onChange={onChange} placeholder={placeholder} />
-        <button type="button" onClick={toggle} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: '4px' }}>
-          {show ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      </div>
-    </div>
-  );
+
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: mobile ? '16px 12px' : '32px 16px', minHeight: '85vh' }}>
@@ -187,9 +189,9 @@ export default function EditProfile() {
         <h3 style={{ ...title, display: 'flex', alignItems: 'center', gap: '8px' }}><Shield size={18} style={{ color: '#0059A3' }} /> Security</h3>
         <p style={sub}>Change your password to keep your account safe</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: mobile ? '100%' : '500px' }}>
-          <PwField label="Current Password" value={currentPassword} onChange={(e: any) => setCurrentPassword(e.target.value)} show={showCurrentPw} toggle={() => setShowCurrentPw(!showCurrentPw)} placeholder="Enter current password" />
+          <PwField label="Current Password" value={currentPassword} onChange={(e: any) => setCurrentPassword(e.target.value)} show={showCurrentPw} toggle={() => setShowCurrentPw(!showCurrentPw)} placeholder="Enter current password" lbl={lbl} inp={inp} />
           <div>
-            <PwField label="New Password" value={newPassword} onChange={(e: any) => setNewPassword(e.target.value)} show={showNewPw} toggle={() => setShowNewPw(!showNewPw)} placeholder="Enter new password" />
+            <PwField label="New Password" value={newPassword} onChange={(e: any) => setNewPassword(e.target.value)} show={showNewPw} toggle={() => setShowNewPw(!showNewPw)} placeholder="Enter new password" lbl={lbl} inp={inp} />
             {newPassword.length > 0 && (
               <div style={{ marginTop: '8px' }}>
                 <div style={{ width: '100%', height: '4px', backgroundColor: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
@@ -200,7 +202,7 @@ export default function EditProfile() {
             )}
           </div>
           <div>
-            <PwField label="Confirm New Password" value={confirmPassword} onChange={(e: any) => setConfirmPassword(e.target.value)} show={showConfirmPw} toggle={() => setShowConfirmPw(!showConfirmPw)} placeholder="Re-enter new password" error={confirmPassword.length > 0 && confirmPassword !== newPassword} />
+            <PwField label="Confirm New Password" value={confirmPassword} onChange={(e: any) => setConfirmPassword(e.target.value)} show={showConfirmPw} toggle={() => setShowConfirmPw(!showConfirmPw)} placeholder="Re-enter new password" error={confirmPassword.length > 0 && confirmPassword !== newPassword} lbl={lbl} inp={inp} />
             {confirmPassword.length > 0 && confirmPassword !== newPassword && (
               <span style={{ fontSize: '12px', fontWeight: 600, color: '#EF4444', marginTop: '4px', display: 'block' }}>Passwords do not match</span>
             )}

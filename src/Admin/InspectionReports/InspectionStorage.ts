@@ -105,7 +105,21 @@ export async function saveInspectionReport(
   }
 
   const data = await res.json();
-  return data.report as InspectionReportData;
+  const savedReport = data.report as InspectionReportData;
+
+  // Trigger Admin Notification
+  if (typeof window !== "undefined") {
+    import("@/Details/Notification/AdminNotify").then(async ({ addAdminNotification }) => {
+      await addAdminNotification({
+        title: "Report Generated 📄",
+        message: `Inspection report for ${savedReport.carName} created successfully.`,
+        type: "report",
+        cta: { label: "View Reports", href: "/admin/inspection-reports" }
+      });
+    });
+  }
+
+  return savedReport;
 }
 
 /** Update an existing inspection report */

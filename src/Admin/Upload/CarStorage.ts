@@ -93,12 +93,12 @@ export async function saveCarToStorage(
 
   // Trigger Admin Notification
   if (typeof window !== "undefined") {
-    import("@/Details/Notification/AdminNotify").then(({ addAdminNotification }) => {
-      addAdminNotification({
-        title: "Car Uploaded Successfully ✅",
-        message: `You uploaded ${savedCar.title}.`,
+    import("@/Details/Notification/AdminNotify").then(async ({ addAdminNotification }) => {
+      await addAdminNotification({
+        title: "New Car Uploaded 🚗",
+        message: `${savedCar.title} is now live.`,
         type: "upload",
-        cta: { label: "View Inventory", href: "/admin/inventory" }
+        cta: { label: "View Car", href: `/BuyCar/${savedCar.id}` }
       });
     });
   }

@@ -30,7 +30,7 @@ const CheckboxRow = ({ checked, onChange, label }: { checked: boolean; onChange:
 );
 
 const DEFAULT_FORM = {
-  name: "", email: "", phone: "", profilePhoto: "",
+  name: "", email: "admin@pentacloud.com", phone: "", profilePhoto: "",
   username: "", twoFactor: false,
   role: "Super Admin",
   permissions: { uploadCars: true, editCars: true, deleteCars: false, manageReports: true, viewPayments: true },
@@ -38,10 +38,26 @@ const DEFAULT_FORM = {
   notifyUploads: true, notifyPayments: true, notifyReports: false, notifySignups: true,
 };
 
+const SectionCard = ({ icon: Icon, title, desc, children }: any) => (
+  <div className="bg-white rounded-2xl md:rounded-[24px] shadow-sm border border-gray-100 p-6 md:p-8 mb-6 overflow-hidden">
+    <div className="flex items-start gap-4 mb-6 pb-6 border-b border-gray-50">
+      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+        <Icon className="w-6 h-6 text-[#0059A3]" />
+      </div>
+      <div>
+        <h2 className="text-xl font-extrabold text-gray-900">{title}</h2>
+        <p className="text-sm font-medium text-gray-500 mt-1">{desc}</p>
+      </div>
+    </div>
+    <div>{children}</div>
+  </div>
+);
+
 export default function EditAdminProfile() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
   const [originalData, setOriginalData] = useState({ ...DEFAULT_FORM });
@@ -65,7 +81,7 @@ export default function EditAdminProfile() {
         if (res.ok) {
           const { profile: p } = await res.json();
           const loaded = {
-            name: p.name || "", email: p.email || "", phone: p.phone || "", profilePhoto: p.profilePhoto || "",
+            name: p.name || "", email: p.email || DEFAULT_FORM.email, phone: p.phone || "", profilePhoto: p.profilePhoto || "",
             username: p.username || "", twoFactor: p.twoFactor ?? false, role: p.adminRole || "Super Admin",
             permissions: { uploadCars: p.permissions?.uploadCars ?? true, editCars: p.permissions?.editCars ?? true, deleteCars: p.permissions?.deleteCars ?? false, manageReports: p.permissions?.manageReports ?? true, viewPayments: p.permissions?.viewPayments ?? true },
             companyName: p.companyName || "", companyLogo: p.companyLogo || "", supportEmail: p.supportEmail || "", contactNumber: p.contactNumber || "", address: p.address || "",
@@ -85,6 +101,15 @@ export default function EditAdminProfile() {
     if (file.size > 2 * 1024 * 1024) { setSaveStatus('error'); setSaveMessage('Image must be under 2MB'); setTimeout(() => setSaveStatus('idle'), 3000); return; }
     const reader = new FileReader();
     reader.onloadend = () => setFormData(prev => ({ ...prev, profilePhoto: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { setSaveStatus('error'); setSaveMessage('Logo must be under 2MB'); setTimeout(() => setSaveStatus('idle'), 3000); return; }
+    const reader = new FileReader();
+    reader.onloadend = () => setFormData(prev => ({ ...prev, companyLogo: reader.result as string }));
     reader.readAsDataURL(file);
   };
 
@@ -108,20 +133,7 @@ export default function EditAdminProfile() {
     finally { setIsSaving(false); setTimeout(() => setSaveStatus('idle'), 4000); }
   };
 
-  const SectionCard = ({ icon: Icon, title, desc, children }: any) => (
-    <div className="bg-white rounded-2xl md:rounded-[24px] shadow-sm border border-gray-100 p-6 md:p-8 mb-6 overflow-hidden">
-      <div className="flex items-start gap-4 mb-6 pb-6 border-b border-gray-50">
-        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-          <Icon className="w-6 h-6 text-[#0059A3]" />
-        </div>
-        <div>
-          <h2 className="text-xl font-extrabold text-gray-900">{title}</h2>
-          <p className="text-sm font-medium text-gray-500 mt-1">{desc}</p>
-        </div>
-      </div>
-      <div>{children}</div>
-    </div>
-  );
+
 
   if (isLoading) {
     return (
@@ -355,12 +367,26 @@ export default function EditAdminProfile() {
         <SectionCard icon={Building2} title="Business Info" desc="Company details used in reports and footers.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="md:col-span-2 flex items-center gap-5 bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-2">
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 group">
-                <img src={formData.companyLogo} alt="Logo" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 group flex items-center justify-center">
+                {formData.companyLogo ? (
+                  <img src={formData.companyLogo} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 className="w-8 h-8 text-gray-300" />
+                )}
+                <div 
+                  onClick={() => logoInputRef.current?.click()}
+                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
                   <Camera className="w-5 h-5 text-white" />
                 </div>
               </div>
+              <input 
+                type="file" 
+                ref={logoInputRef} 
+                onChange={handleLogoChange} 
+                accept="image/*" 
+                className="hidden" 
+              />
               <div className="flex-grow">
                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Company Name</label>
                  <input 

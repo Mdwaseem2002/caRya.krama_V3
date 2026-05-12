@@ -68,7 +68,21 @@ export async function saveSellRequest(
   }
 
   const data = await res.json();
-  return data.request as SellRequest;
+  const savedRequest = data.request as SellRequest;
+
+  // Trigger Admin Notification
+  if (typeof window !== "undefined") {
+    import("@/Details/Notification/AdminNotify").then(async ({ addAdminNotification }) => {
+      await addAdminNotification({
+        title: "New Sell Request 📝",
+        message: `${savedRequest.owner.name} wants to sell their ${savedRequest.car.brand} ${savedRequest.car.model}.`,
+        type: "sell_request",
+        cta: { label: "View Request", href: "/admin/sell-requests" }
+      });
+    });
+  }
+
+  return savedRequest;
 }
 
 /** Update status of a request */

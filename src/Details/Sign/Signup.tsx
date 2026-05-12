@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { User, Mail, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
-import { motion } from "framer-motion";
+import React, { useState, useMemo } from "react";
+import { User, Mail, Lock, CheckCircle, Eye, EyeOff, Check, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useRouter } from "next/navigation";
@@ -20,12 +20,32 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Password strength rules
+  const pwRules = useMemo(() => [
+    { label: 'At least 8 characters', met: password.length >= 8 },
+    { label: 'One uppercase letter (A-Z)', met: /[A-Z]/.test(password) },
+    { label: 'One lowercase letter (a-z)', met: /[a-z]/.test(password) },
+    { label: 'One number (0-9)', met: /[0-9]/.test(password) },
+    { label: 'One special character (!@#$...)', met: /[^A-Za-z0-9]/.test(password) },
+  ], [password]);
+
+  const allRulesMet = pwRules.every(r => r.met);
+  const metCount = pwRules.filter(r => r.met).length;
+  const strengthPct = `${(metCount / pwRules.length) * 100}%`;
+  const strengthColor = metCount <= 1 ? '#EF4444' : metCount <= 3 ? '#F59E0B' : metCount <= 4 ? '#3B82F6' : '#22C55E';
+  const strengthLabel = metCount <= 1 ? 'Weak' : metCount <= 3 ? 'Fair' : metCount <= 4 ? 'Good' : 'Strong';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!agreed) {
       setError("Please agree to the Terms & Conditions to continue.");
+      return;
+    }
+
+    if (!allRulesMet) {
+      setError("Please create a stronger password that meets all requirements.");
       return;
     }
 
@@ -105,6 +125,59 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
           </button>
         </motion.div>
 
+        {/* Password Strength Indicator */}
+        <AnimatePresence>
+          {password.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{ overflow: 'hidden', marginBottom: mobile ? '10px' : '16px' }}
+            >
+              {/* Strength Bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <div style={{ flex: 1, height: '5px', backgroundColor: '#f3f4f6', borderRadius: '50px', overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: '0%' }}
+                    animate={{ width: strengthPct }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    style={{ height: '100%', backgroundColor: strengthColor, borderRadius: '50px' }}
+                  />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: strengthColor, minWidth: '40px', textAlign: 'right' }}>{strengthLabel}</span>
+              </div>
+
+              {/* Rules Checklist */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', padding: '0 4px' }}>
+                {pwRules.map((rule) => (
+                  <motion.div
+                    key={rule.label}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <div style={{
+                      width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      backgroundColor: rule.met ? '#DCFCE7' : '#FEF2F2',
+                      transition: 'background-color 0.3s',
+                    }}>
+                      {rule.met
+                        ? <Check size={10} style={{ color: '#16A34A' }} strokeWidth={3} />
+                        : <X size={10} style={{ color: '#EF4444' }} strokeWidth={3} />
+                      }
+                    </div>
+                    <span style={{
+                      fontSize: mobile ? '11px' : '12px', fontWeight: 600,
+                      color: rule.met ? '#16A34A' : '#9CA3AF',
+                      transition: 'color 0.3s',
+                    }}>{rule.label}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <motion.div variants={itemVariants} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: mobile ? '12px' : '13px', color: '#6b7280', padding: '4px 0 12px' }}>
           <input 
             type="checkbox" 
@@ -130,18 +203,18 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
 
         <motion.button 
           type="submit" 
-          disabled={isLoading}
+          disabled={isLoading || (password.length > 0 && !allRulesMet)}
           variants={itemVariants} 
-          whileHover={isLoading ? {} : { scale: 1.02 }} 
-          whileTap={isLoading ? {} : { scale: 0.98 }}
+          whileHover={(isLoading || !allRulesMet) ? {} : { scale: 1.02 }} 
+          whileTap={(isLoading || !allRulesMet) ? {} : { scale: 0.98 }}
           style={{ 
             width: '100%', padding: mobile ? '12px' : '14px', 
-            backgroundColor: isLoading ? '#9ca3af' : '#0059A3', 
+            backgroundColor: (isLoading || (password.length > 0 && !allRulesMet)) ? '#9ca3af' : '#0059A3', 
             color: '#ffffff', fontWeight: 700, borderRadius: mobile ? '14px' : '16px', 
-            border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', 
+            border: 'none', cursor: (isLoading || (password.length > 0 && !allRulesMet)) ? 'not-allowed' : 'pointer', 
             fontSize: mobile ? '14px' : '15px', display: 'flex', alignItems: 'center', 
             justifyContent: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(0,89,163,0.3)',
-            opacity: isLoading ? 0.8 : 1
+            opacity: (isLoading || (password.length > 0 && !allRulesMet)) ? 0.8 : 1
           }}
         >
           {isLoading ? 'Creating Account...' : 'Sign Up Now'} 

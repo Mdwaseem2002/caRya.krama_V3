@@ -23,12 +23,14 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [adminNotifications, setAdminNotifications] = useState<AdminNotificationData[]>([]);
 
-  const refreshData = useCallback(() => {
+  const refreshData = useCallback(async () => {
     if (user) {
       if (user.role === 'customer') {
-        setNotifications(getNotifications(user.id));
+        const data = await getNotifications(user.id);
+        setNotifications(data);
       } else if (user.role === 'admin') {
-        setAdminNotifications(getAdminNotifications());
+        const data = await getAdminNotifications();
+        setAdminNotifications(data);
       }
     } else {
         setNotifications([]);

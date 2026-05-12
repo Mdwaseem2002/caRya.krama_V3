@@ -196,14 +196,14 @@ export default function Notification() {
                     const Icon = cfg.icon;
                     return (
                       <motion.div
-                        key={notif.id}
+                        key={notif._id}
                         layout
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -50 }}
                         transition={{ duration: 0.2 }}
                         onClick={() => {
-                          handleMarkOneRead(notif.id);
+                          handleMarkOneRead(notif._id);
                           if (notif.cta) router.push(notif.cta.href);
                         }}
                         style={{
@@ -245,7 +245,7 @@ export default function Notification() {
                               )}
                               {!isAdmin && (
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); handleDelete(notif.id); }}
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(notif._id); }}
                                     style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#d1d5db', display: 'flex' }}
                                 >
                                     <Trash2 size={14} />

@@ -68,7 +68,6 @@ export default function AdminPages({ children }: AdminPagesProps) {
 
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
-    { id: "notifications", label: "Notifications", icon: Bell, href: "/details" },
     { id: "cars", label: "Car Management", icon: Car, href: "/admin/carmanagement" },
     { id: "reports", label: "Report Management", icon: FileText, href: "/admin/reports" },
     { id: "payments", label: "Payment Tracking", icon: IndianRupee, href: "/admin/payments" },
