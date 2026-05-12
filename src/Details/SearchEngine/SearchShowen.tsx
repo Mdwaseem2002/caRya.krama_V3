@@ -106,20 +106,20 @@ export default function SearchShowen({ filteredCars, query }: SearchShowenProps)
                   ))}
                </div>
 
-               {/* Price & CTA */}
-               <div className="mt-auto pt-8 border-t border-slate-200/50 flex items-center justify-between">
-                  <div className="flex flex-col">
+                {/* Price & CTA */}
+                <div className="mt-auto pt-6 border-t border-slate-200/50 flex items-center justify-between gap-4">
+                  <div className="flex flex-col min-w-0">
                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Selling Price</span>
-                     <span className="text-3xl font-black text-[#0f172a] tracking-tighter">{car.pricing.sellingPrice}</span>
+                     <span className="text-2xl md:text-3xl font-black text-[#0f172a] tracking-tighter truncate">{car.pricing.sellingPrice}</span>
                   </div>
                   <Link 
                     href={`/car/${car.id}`}
-                    className="flex items-center gap-3 bg-[#EFFFFA] text-[#00D094] px-8 py-4 rounded-[1.5rem] font-extrabold uppercase text-[11px] tracking-widest hover:bg-[#00D094] hover:text-white transition-all border border-[#00D094]/10 shadow-sm group/btn"
+                    className="flex items-center gap-2 bg-[#EFFFFA] text-[#00D094] px-4 md:px-8 py-3 md:py-4 rounded-[1.2rem] md:rounded-[1.5rem] font-extrabold uppercase text-[10px] md:text-[11px] tracking-widest hover:bg-[#00D094] hover:text-white transition-all border border-[#00D094]/10 shadow-sm group/btn whitespace-nowrap shrink-0"
                   >
                     View Car
-                    <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                    <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                   </Link>
-               </div>
+                </div>
             </div>
           </motion.div>
         ))}

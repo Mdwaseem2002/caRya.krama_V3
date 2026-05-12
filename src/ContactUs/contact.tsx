@@ -105,10 +105,10 @@ export default function Contact() {
                 { icon: Clock, label: "Response Window", value: "Sun–Sat : 9 AM – 12 AM", link: null },
                 { icon: Globe, label: "Global Outreach", value: "farhan@caryakrama.com", link: "mailto:farhan@caryakrama.com" }
               ].map((item, i) => (
-                <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-6 py-8 gap-4 sm:gap-0 group">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-slate-100">
-                      <item.icon size={18} className="text-blue-500" />
+                <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 md:px-6 py-6 md:py-8 gap-4 sm:gap-0 group">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-50 flex items-center justify-center border border-slate-100">
+                      <item.icon size={16} className="text-blue-500" />
                     </div>
                     <div>
                       <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{item.label}</div>

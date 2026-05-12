@@ -361,16 +361,10 @@ export default function Navbar() {
               className="w-full max-w-md relative"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => setAuthMode(null)}
-                className="absolute -top-12 right-0 text-white/60 hover:text-white transition-colors flex items-center gap-2 text-sm font-semibold"
-              >
-                Close <X size={18} />
-              </button>
               {authMode === 'login' ? (
-                <Login onSwitch={() => setAuthMode('signup')} onSuccess={() => setAuthMode(null)} />
+                <Login onSwitch={() => setAuthMode('signup')} onSuccess={() => setAuthMode(null)} onClose={() => setAuthMode(null)} />
               ) : (
-                <Signup onSwitch={() => setAuthMode('login')} onSuccess={() => setAuthMode(null)} />
+                <Signup onSwitch={() => setAuthMode('login')} onSuccess={() => setAuthMode(null)} onClose={() => setAuthMode(null)} />
               )}
             </motion.div>
           </motion.div>

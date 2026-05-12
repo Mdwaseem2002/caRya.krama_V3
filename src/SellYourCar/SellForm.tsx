@@ -40,8 +40,8 @@ const FormInput = memo(({ label, value, onChange, placeholder, icon: Icon, type 
       <div className="relative group min-h-[64px]">
         {Icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-focus-within:border-royal group-focus-within:bg-blue-50/50 transition-all">
-              <Icon className="w-5 h-5 text-[#94a3b8] group-focus-within:text-royal transition-colors" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-focus-within:border-royal group-focus-within:bg-blue-50/50 transition-all">
+              <Icon className="w-4 h-4 md:w-5 md:h-5 text-[#94a3b8] group-focus-within:text-royal transition-colors" />
             </div>
           </div>
         )}
@@ -50,8 +50,8 @@ const FormInput = memo(({ label, value, onChange, placeholder, icon: Icon, type 
           value={value}
           onChange={handleInputChange}
           placeholder={placeholder}
-          style={{ paddingLeft: Icon ? '84px' : '24px' }}
-          className="w-full bg-white border border-slate-100 py-3.5 pr-5 rounded-[1.25rem] outline-none focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all text-sm font-bold text-gray-900"
+          style={{ paddingLeft: Icon ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '60px' : '74px') : '24px' }}
+          className={`w-full bg-white border border-slate-100 py-3.5 pr-5 rounded-[1.25rem] outline-none focus:border-royal focus:ring-4 focus:ring-royal/5 transition-all text-sm font-bold text-gray-900 ${Icon ? 'pl-[60px] md:pl-[74px]' : 'pl-6'}`}
         />
       </div>
     </div>

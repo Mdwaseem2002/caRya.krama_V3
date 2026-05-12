@@ -5,6 +5,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Cpu } from "lucide-react";
 import { InspectionReportData, getInspectionReport } from "./InspectionStorage";
+import { addAdminNotification } from "@/Details/Notification/AdminNotify";
 
 interface Props {
   reportId?: string;
@@ -67,6 +68,18 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     }
     
     pdf.save(`Inspection_Report_${report?.id || 'Download'}.pdf`);
+
+    // Trigger Admin Notification
+    try {
+      await addAdminNotification({
+        title: "Report Downloaded 📄",
+        message: `Official report for ${report?.vehicleDetails?.carName || 'a vehicle'} was downloaded.`,
+        type: "report",
+        cta: { label: "View Logs", href: "/admin/inspection-reports" }
+      });
+    } catch (e) {
+      console.error("Failed to send admin notification", e);
+    }
   };
 
   useImperativeHandle(ref, () => ({

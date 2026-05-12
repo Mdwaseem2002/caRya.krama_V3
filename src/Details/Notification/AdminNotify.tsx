@@ -3,7 +3,7 @@
  * Logic for Admin Notifications using MongoDB API.
  */
 
-export type AdminNotifType = "sell_request" | "upload" | "system" | "report";
+export type AdminNotifType = "sell_request" | "upload" | "system" | "report" | "payment" | "signup";
 
 export interface AdminNotificationData {
   _id: string; // MongoDB ID

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { 
   getNotifications, 
@@ -16,12 +16,41 @@ import {
 /**
  * Customerfetch.tsx
  * Custom hook to fetch and synchronize notifications for the active user.
+ * Now supports preference-based filtering for admins.
  */
+
+interface AdminPreferences {
+  notifyUploads: boolean;
+  notifyPayments: boolean;
+  notifyReports: boolean;
+  notifySignups: boolean;
+}
 
 export function useNotifications() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const [adminNotifications, setAdminNotifications] = useState<AdminNotificationData[]>([]);
+  const [rawAdminNotifications, setRawAdminNotifications] = useState<AdminNotificationData[]>([]);
+  const [adminPrefs, setAdminPrefs] = useState<AdminPreferences | null>(null);
+
+  // Fetch admin preferences once if user is admin
+  useEffect(() => {
+    if (user?.role === 'admin' && !adminPrefs) {
+      fetch(`/api/admin/profile?email=${user.email}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.profile) {
+            const p = data.profile;
+            setAdminPrefs({
+              notifyUploads: p.notifications?.notifyUploads ?? true,
+              notifyPayments: p.notifications?.notifyPayments ?? true,
+              notifyReports: p.notifications?.notifyReports ?? false,
+              notifySignups: p.notifications?.notifySignups ?? true,
+            });
+          }
+        })
+        .catch(err => console.error("Error fetching admin preferences for notifications", err));
+    }
+  }, [user, adminPrefs]);
 
   const refreshData = useCallback(async () => {
     if (user) {
@@ -30,13 +59,31 @@ export function useNotifications() {
         setNotifications(data);
       } else if (user.role === 'admin') {
         const data = await getAdminNotifications();
-        setAdminNotifications(data);
+        setRawAdminNotifications(data);
       }
     } else {
         setNotifications([]);
-        setAdminNotifications([]);
+        setRawAdminNotifications([]);
     }
   }, [user]);
+
+  // Apply filtering based on preferences
+  const adminNotifications = useMemo(() => {
+    if (!adminPrefs) return rawAdminNotifications;
+
+    return rawAdminNotifications.filter(notif => {
+      // Core notifications always show
+      if (notif.type === 'sell_request' || notif.type === 'system') return true;
+
+      // Filtered based on preferences
+      if (notif.type === 'upload' && !adminPrefs.notifyUploads) return false;
+      if (notif.type === 'payment' && !adminPrefs.notifyPayments) return false;
+      if (notif.type === 'report' && !adminPrefs.notifyReports) return false;
+      if (notif.type === 'signup' && !adminPrefs.notifySignups) return false;
+
+      return true;
+    });
+  }, [rawAdminNotifications, adminPrefs]);
 
   useEffect(() => {
     refreshData();

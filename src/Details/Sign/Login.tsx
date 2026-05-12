@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { LogIn, ShieldCheck, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { LogIn, ShieldCheck, Mail, Lock, ArrowRight, Eye, EyeOff, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -12,7 +12,7 @@ interface LoginProps {
   role?: 'admin' | 'customer';
 }
 
-const Login = ({ onSwitch, onSuccess, role = 'customer' }: LoginProps) => {
+const Login = ({ onSwitch, onSuccess, role = 'customer', onClose }: LoginProps & { onClose?: () => void }) => {
   const { login } = useAuth();
   const mobile = useIsMobile();
   const [email, setEmail] = useState('');
@@ -27,17 +27,17 @@ const Login = ({ onSwitch, onSuccess, role = 'customer' }: LoginProps) => {
     setError('');
     
     if (email && password) {
-      const success = await login(email, role, password);
-      if (success) {
+      const result = await login(email, role, password);
+      if (result.success) {
         if (onSuccess) onSuccess();
       } else {
-        if (role === 'customer') {
+        if (role === 'customer' && result.error?.includes('User not found')) {
           setError('User not found. Redirecting to sign up...');
           setTimeout(() => {
             if (onSwitch) onSwitch();
           }, 2000);
         } else {
-          setError('Invalid admin credentials.');
+          setError(result.error || 'Invalid credentials.');
         }
       }
     }
@@ -61,7 +61,33 @@ const Login = ({ onSwitch, onSuccess, role = 'customer' }: LoginProps) => {
       backgroundColor: '#ffffff', borderRadius: mobile ? '20px' : '24px',
       boxShadow: '0 25px 50px rgba(0,0,0,0.15)', width: '100%',
       maxWidth: mobile ? '100%' : '420px', margin: '0 auto', overflow: 'hidden',
+      position: 'relative',
     }}>
+      {onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: mobile ? '12px' : '16px',
+            right: mobile ? '12px' : '16px',
+            padding: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#f3f4f6',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            color: '#6b7280',
+            transition: 'all 0.2s',
+          }}
+          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.color = '#111827'; }}
+          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.color = '#6b7280'; }}
+        >
+          <X size={mobile ? 18 : 20} />
+        </button>
+      )}
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}

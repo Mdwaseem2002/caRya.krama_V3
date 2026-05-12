@@ -67,19 +67,18 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
       
       {/* ── SECTION: INSPECTION REPORT (Floating Type) ── */}
       <div className="p-6 md:p-10 rounded-[2.5rem] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center transition-all bg-white" style={{ backgroundColor: "var(--card-bg)" }}>
-        
-        {/* Left: Featured Card */}
-        <div className="lg:col-span-12 xl:col-span-5 relative aspect-square md:aspect-auto md:h-[400px] rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#166534] via-[#15803d] to-[#14532d] p-8 flex flex-col justify-between group shadow-xl">
+          {/* Left: Featured Card */}
+        <div className="lg:col-span-12 xl:col-span-5 relative aspect-auto min-h-[320px] md:h-[400px] rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#166534] via-[#15803d] to-[#14532d] p-6 md:p-8 flex flex-col justify-between group shadow-xl">
           {/* Subtle patterns/glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-110"></div>
           
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white relative z-10 leading-tight tracking-tighter">
+          <h2 className="text-2xl md:text-5xl font-extrabold text-white relative z-10 leading-tight tracking-tighter">
             Inspection <br /> Report
           </h2>
-
-          <div className="relative z-10 w-full mt-auto">
+ 
+          <div className="relative z-10 w-full mt-6 md:mt-auto">
              {/* Checklist/Report Graphic background */}
-             <div className="absolute bottom-10 left-4 w-32 h-40 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 -rotate-6 transform translate-y-4">
+             <div className="absolute bottom-10 left-4 w-32 h-40 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 -rotate-6 transform translate-y-4 hidden md:block">
                 <div className="p-4 space-y-3">
                    <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full border-2 border-white/40"></div>
@@ -91,8 +90,8 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
                    </div>
                 </div>
              </div>
-
-             <div className="relative transform hover:scale-105 transition-transform duration-500 rounded-[2rem] overflow-hidden shadow-2xl">
+ 
+             <div className="relative transform hover:scale-105 transition-transform duration-500 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl">
                 <Image 
                   src="/About%20car.png" 
                   alt="Inspection Car" 

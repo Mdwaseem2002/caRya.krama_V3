@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import PasswordChange from "@/Details/Popup/PasswordChange";
 
 // Toggles for forms
 const Toggle = ({ enabled, onChange, label }: { enabled: boolean; onChange: () => void; label: string }) => (
@@ -67,21 +68,9 @@ export default function EditAdminProfile() {
   const [saveMessage, setSaveMessage] = useState("");
 
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
-  const [passForm, setPassForm] = useState({ current: "", new: "", confirm: "" });
-  const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
-  const [passStatus, setPassStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
-  const [passMessage, setPassMessage] = useState("");
   const [lastUpdated, setLastUpdated] = useState<string>("Today, 10:42 AM"); // Default placeholder
 
-  const validatePassword = (pass: string) => {
-    return {
-      length: pass.length >= 8,
-      upper: /[A-Z]/.test(pass),
-      lower: /[a-z]/.test(pass),
-      number: /[0-9]/.test(pass),
-      special: /[^A-Za-z0-9]/.test(pass),
-    };
-  };
+  // Password validation moved to PasswordChange component
 
   // ── Fetch profile from MongoDB on mount ──
   useEffect(() => {
@@ -603,113 +592,17 @@ export default function EditAdminProfile() {
       </div>
 
 
-      {/* Password Modal */}
-      {isPasswordModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 glass-dark">
-           <div className="bg-white rounded-[24px] w-full max-w-md shadow-2xl p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200 flex flex-col">
-             <div className="flex items-center justify-between mb-6">
-                <div>
-                   <h3 className="text-xl font-black text-gray-900">Change Password</h3>
-                   <p className="text-xs font-semibold text-gray-500 mt-1">Ensure your new password is secure.</p>
-                </div>
-                <button onClick={() => setPasswordModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-                   <X className="w-5 h-5 text-gray-500" />
-                </button>
-             </div>
-             <div className="space-y-4">
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Current Password</label>
-                  <div className="relative">
-                    <input type={showPass.current ? "text" : "password"} placeholder="••••••••" value={passForm.current} onChange={e=>setPassForm({...passForm, current: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
-                    <button type="button" onClick={() => setShowPass({...showPass, current: !showPass.current})} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                      {showPass.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">New Password</label>
-                  <div className="relative">
-                    <input type={showPass.new ? "text" : "password"} placeholder="••••••••" value={passForm.new} onChange={e=>setPassForm({...passForm, new: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
-                    <button type="button" onClick={() => setShowPass({...showPass, new: !showPass.new})} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                      {showPass.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Confirm New Password</label>
-                  <div className="relative">
-                    <input type={showPass.confirm ? "text" : "password"} placeholder="••••••••" value={passForm.confirm} onChange={e=>setPassForm({...passForm, confirm: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
-                    <button type="button" onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                      {showPass.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                {/* Password Requirements Checklist */}
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mt-4">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-3 tracking-widest">Security Requirements</p>
-                  <div className="grid grid-cols-2 gap-y-2">
-                    {[
-                      { key: 'length', label: '8+ Characters' },
-                      { key: 'upper', label: 'Uppercase' },
-                      { key: 'lower', label: 'Lowercase' },
-                      { key: 'number', label: 'Number' },
-                      { key: 'special', label: 'Special Char' },
-                    ].map(({ key, label }) => {
-                      const isValid = validatePassword(passForm.new)[key as keyof ReturnType<typeof validatePassword>];
-                      return (
-                        <div key={key} className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${isValid ? 'bg-green-500 text-white' : 'bg-gray-200 text-transparent'}`}>
-                            <Check className="w-2.5 h-2.5" />
-                          </div>
-                          <span className={`text-[11px] font-bold transition-colors ${isValid ? 'text-green-600' : 'text-gray-400'}`}>{label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-             </div>
-             {passStatus === 'error' && <p className="text-sm font-bold text-red-500 mt-2">{passMessage}</p>}
-             {passStatus === 'success' && <p className="text-sm font-bold text-green-600 mt-2">{passMessage}</p>}
-             <button 
-               onClick={async () => {
-                 if (!user?.email) return;
-                 const validation = validatePassword(passForm.new);
-                 const isAllValid = Object.values(validation).every(v => v);
-                 
-                 if (!isAllValid) { setPassStatus('error'); setPassMessage('Requirements not met'); return; }
-                 if (passForm.new !== passForm.confirm) { setPassStatus('error'); setPassMessage('Passwords do not match'); return; }
-                 
-                 setPassStatus('saving');
-                 try {
-                   const res = await fetch('/api/admin/password', { 
-                     method: 'PATCH', 
-                     headers: { 'Content-Type': 'application/json' }, 
-                     body: JSON.stringify({ email: user.email, currentPassword: passForm.current, newPassword: passForm.new }) 
-                   });
-                   const data = await res.json();
-                   if (res.ok) { 
-                     setPassStatus('success'); 
-                     setPassMessage('Password updated!'); 
-                     setLastUpdated(new Date().toLocaleString('en-US', { 
-                       month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
-                     }));
-                     setTimeout(() => { 
-                       setPasswordModalOpen(false); 
-                       setPassForm({ current: '', new: '', confirm: '' }); 
-                       setPassStatus('idle'); 
-                     }, 2000); 
-                   }
-                   else { setPassStatus('error'); setPassMessage(data.error || 'Failed'); }
-                 } catch { setPassStatus('error'); setPassMessage('Network error'); }
-               }}
-               disabled={passStatus === 'saving' || !Object.values(validatePassword(passForm.new)).every(v => v)}
-               className="w-full mt-8 py-4 bg-[#0059A3] hover:bg-[#004a87] text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-[#0059A3]/20 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
-             >
-                {passStatus === 'saving' ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating...</> : 'Update Password'}
-             </button>
-           </div>
-        </div>
-      )}
+      {/* Password Management Modal */}
+      <PasswordChange 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setPasswordModalOpen(false)} 
+        email={user?.email}
+        onSuccess={() => {
+          setLastUpdated(new Date().toLocaleString('en-US', { 
+            month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
+          }));
+        }}
+      />
 
     </div>
   );

@@ -98,7 +98,7 @@ export async function saveCarToStorage(
         title: "New Car Uploaded 🚗",
         message: `${savedCar.title} is now live.`,
         type: "upload",
-        cta: { label: "View Car", href: `/BuyCar/${savedCar.id}` }
+        cta: { label: "View Car", href: `/car/${savedCar.id}` }
       });
     });
   }

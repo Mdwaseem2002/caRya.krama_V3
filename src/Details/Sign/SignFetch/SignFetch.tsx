@@ -18,7 +18,7 @@ export interface User {
   email: string;
   phone?: string;
   location?: string;
-  joinDate: string;
+  joinedDate: string;
   stats: UserStats;
   role: 'admin' | 'customer';
   status: 'active' | 'inactive';
@@ -42,7 +42,7 @@ export const getAllUsers = (): User[] => {
  * @param userData The user information to save.
  * @returns The saved User object.
  */
-export const saveUser = (userData: Omit<User, 'id' | 'joinDate' | 'stats' | 'status'>): User => {
+export const saveUser = (userData: Omit<User, 'id' | 'joinedDate' | 'stats' | 'status'>): User => {
   const users = getAllUsers();
   
   // Check if user already exists (by email and role)
@@ -63,7 +63,7 @@ export const saveUser = (userData: Omit<User, 'id' | 'joinDate' | 'stats' | 'sta
     userToSave = {
       ...userData,
       id: `user_${Date.now()}`,
-      joinDate: new Date().toISOString(),
+      joinedDate: new Date().toISOString(),
       lastActivity: new Date().toISOString(),
       status: 'active',
       stats: {

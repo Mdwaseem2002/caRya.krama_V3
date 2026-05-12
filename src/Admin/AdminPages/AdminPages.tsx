@@ -111,15 +111,29 @@ export default function AdminPages({ children }: AdminPagesProps) {
               </p>
             </div>
           </div>
-          <Link href="/admin/edit" style={{ textDecoration: 'none' }}>
-            <button style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px', padding: mobile ? '8px 16px' : '10px 20px',
-              backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '50px', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)', fontSize: mobile ? '12px' : '14px'
-            }}>
-              <Settings size={14} /> System Config
-            </button>
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
+            <Link href="/admin/edit" style={{ textDecoration: 'none' }}>
+              <button style={{ 
+                display: 'flex', alignItems: 'center', gap: '8px', padding: mobile ? '8px 12px' : '10px 20px',
+                backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '50px', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)', fontSize: mobile ? '11px' : '14px'
+              }}>
+                <Settings size={14} /> {mobile ? 'Config' : 'System Config'}
+              </button>
+            </Link>
+            {mobile && (
+              <button 
+                onClick={() => { logout(); router.push('/'); }}
+                style={{ 
+                  display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ffffff', border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '50px', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)', fontSize: '11px'
+                }}
+              >
+                <LogOut size={14} /> Out
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Quick Stats */}

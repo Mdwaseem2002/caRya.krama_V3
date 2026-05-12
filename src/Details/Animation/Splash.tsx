@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { Car, Activity, AlertTriangle, CheckCircle2, ChevronRight, Gauge } from "lucide-react";
 
 interface SplashProps {
@@ -19,6 +20,7 @@ const fadeUp = {
 
 export default function ValuePropSplash({ onComplete }: SplashProps) {
   const [step, setStep] = useState(1);
+  const mobile = useIsMobile();
 
   useEffect(() => {
     const timeline = [
@@ -67,15 +69,15 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
 
         {/* PHASE 2: REJECTION (The Persisting Problem) */}
         {step === 2 && (
-          <motion.div key="p2" {...fadeUp} className="text-center max-w-sm px-6">
-            <AlertTriangle className="w-16 h-16 text-red-600 mx-auto mb-6" />
-            <h2 className="text-4xl font-black text-white uppercase leading-tight italic">
+          <motion.div key="p2" {...fadeUp} className="text-center max-w-xs md:max-w-sm px-6">
+            <AlertTriangle className="w-12 h-12 md:w-16 md:h-16 text-red-600 mx-auto mb-6" />
+            <h2 className="text-3xl md:text-4xl font-black text-white uppercase leading-tight italic">
               REJECTED.
             </h2>
-            <p className="text-red-500/80 font-medium mt-4 tracking-wide leading-relaxed">
+            <p className="text-red-500/80 text-sm md:text-base font-medium mt-4 tracking-wide leading-relaxed">
               Many cars got rejected and the issue still remains.
             </p>
-            <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-3">
+            <p className="text-white/40 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] mt-3">
               Solution not provided.
             </p>
             <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-transparent via-red-900 to-transparent" />
@@ -84,27 +86,27 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
 
         {/* PHASE 3: caRya.krama (The Solution) */}
         {step === 3 && (
-          <motion.div key="p3" {...fadeUp} className="flex flex-col items-center">
+          <motion.div key="p3" {...fadeUp} className="flex flex-col items-center px-6 text-center">
              
              <div className="relative mb-8">
                 <Image 
-                  src="/logo/carYakrama.png" 
-                  alt="caRya.krama" 
-                  width={340} 
-                  height={110} 
-                  className="brightness-150"
-                  priority 
+                   src="/logo/carYakrama.png" 
+                   alt="caRya.krama" 
+                   width={mobile ? 240 : 340} 
+                   height={mobile ? 80 : 110} 
+                   className="brightness-150"
+                   priority 
                 />
                 <motion.div 
-                  initial={{ width: 0 }} 
-                  animate={{ width: "100%" }} 
-                  transition={{ delay: 0.5, duration: 1 }}
-                  className="absolute -bottom-2 left-0 h-[2px] bg-blue-600"
+                   initial={{ width: 0 }} 
+                   animate={{ width: "100%" }} 
+                   transition={{ delay: 0.5, duration: 1 }}
+                   className="absolute -bottom-2 left-0 h-[2px] bg-blue-600"
                 />
              </div>
              <div className="flex items-center gap-3 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.15)]">
                 <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 text-[11px] font-black uppercase tracking-[0.15em]">And now, caRya.krama is the solution.</span>
+                <span className="text-blue-400 text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em]">And now, caRya.krama is the solution.</span>
              </div>
           </motion.div>
         )}
@@ -114,7 +116,7 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
           <motion.div key="p4" {...fadeUp} className="text-center z-10 px-4">
             <div className="relative inline-block">
                <motion.h1 
-                  className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-[0.9]"
+                  className="text-4xl md:text-8xl font-black text-white tracking-tighter leading-[0.9]"
                   initial={{ letterSpacing: "-0.05em", opacity: 0 }}
                   animate={{ letterSpacing: "0.02em", opacity: 1 }}
                   transition={{ duration: 1.2, ease: "easeOut" }}
@@ -148,7 +150,7 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.5 }}
-              className="mt-12 text-blue-500/40 text-[10px] font-bold tracking-[0.6em]"
+              className="mt-12 text-blue-500/40 text-[9px] md:text-[10px] font-bold tracking-[0.6em]"
             >
               caRya.krama
             </motion.div>
@@ -161,7 +163,7 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1, duration: 0.8 }}
-        className="fixed right-8 md:right-12 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-[100000]"
+        className="fixed right-6 bottom-12 md:right-12 md:top-1/2 md:-translate-y-1/2 flex flex-col items-center gap-4 z-[100000]"
       >
         <div className="flex flex-col items-center gap-1 group">
           <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 group-hover:text-blue-500 transition-colors duration-500">Wait</span>

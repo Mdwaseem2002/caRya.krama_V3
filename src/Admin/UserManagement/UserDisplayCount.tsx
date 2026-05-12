@@ -196,7 +196,7 @@ export default function UserDisplayCount() {
                     </td>
                     <td style={cellStyle}>
                       <div style={{ color: '#6b7280', fontSize: '13px', fontWeight: 500 }}>
-                        {new Date(user.joinDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(user.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     </td>
                     <td style={cellStyle}>

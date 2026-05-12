@@ -318,14 +318,14 @@ export default function UsedcarModels() {
                      </div>
                   </div>
 
-                  <div className="mt-auto pt-5 border-t border-[#f1f5f9] flex items-center justify-between gap-2">
+                  <div className="mt-auto pt-5 border-t border-[#f1f5f9] flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <span className="block text-[8px] font-black text-[#94a3b8] uppercase tracking-widest mb-1">Selling Price</span>
-                      <p className="text-lg sm:text-xl font-black text-[#0f172a] tracking-tighter leading-none whitespace-nowrap">{car.pricing?.sellingPrice || "Price TBD"}</p>
+                      <p className="text-base sm:text-xl font-black text-[#0f172a] tracking-tighter leading-none truncate">{car.pricing?.sellingPrice || "Price TBD"}</p>
                     </div>
                     <button 
                       onClick={() => window.location.href = `/car/${car.id}`}
-                      className="flex items-center gap-2 bg-royal/10 text-royal px-4 py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-royal hover:text-white transition-all shadow-sm active:scale-95 shrink-0 backdrop-blur-md border border-royal/10"
+                      className="flex items-center gap-2 bg-royal/10 text-royal px-4 py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-royal hover:text-white transition-all shadow-sm active:scale-95 shrink-0 backdrop-blur-md border border-royal/10 whitespace-nowrap"
                     >
                       View Car
                       <ChevronRight size={12} />

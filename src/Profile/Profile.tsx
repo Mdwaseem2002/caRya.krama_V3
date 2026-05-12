@@ -74,7 +74,7 @@ export default function Profile() {
             <div>
               <h1 style={{ fontSize: mobile ? '20px' : '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>{user.name}</h1>
               <p style={{ fontSize: mobile ? '12px' : '14px', color: 'rgba(255,255,255,0.8)', margin: '4px 0 0 0', fontWeight: 500 }}>
-                {user.email} &nbsp;•&nbsp; Joined {new Date(user.joinDate).getFullYear()}
+                {user.email} &nbsp;•&nbsp; Joined {new Date(user.joinedDate).getFullYear()}
               </p>
             </div>
           </div>

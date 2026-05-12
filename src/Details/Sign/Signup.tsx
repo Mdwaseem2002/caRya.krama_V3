@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useRouter } from "next/navigation";
 
-const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: () => void }) => {
+const Signup = ({ onSwitch, onSuccess, onClose }: { onSwitch?: () => void, onSuccess?: () => void, onClose?: () => void }) => {
   const { signup } = useAuth();
   const mobile = useIsMobile();
   const [name, setName] = useState('');
@@ -52,12 +52,12 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
     if (name && email && password) {
       setIsLoading(true);
       try {
-        const success = await signup(name, email, role, password);
-        if (success) {
+        const result = await signup(name, email, role, password);
+        if (result.success) {
           if (onSuccess) onSuccess();
           router.push('/Profile');
         } else {
-          setError("Failed to create account. Please check your details or try again later.");
+          setError(result.error || "Failed to create account. Please try again.");
         }
       } catch (err: any) {
         setError(err?.message || "An unexpected error occurred during signup.");
@@ -85,7 +85,33 @@ const Signup = ({ onSwitch, onSuccess }: { onSwitch?: () => void, onSuccess?: ()
       backgroundColor: '#ffffff', borderRadius: mobile ? '20px' : '24px',
       boxShadow: '0 25px 50px rgba(0,0,0,0.15)', width: '100%',
       maxWidth: mobile ? '100%' : '420px', margin: '0 auto', overflow: 'hidden',
+      position: 'relative', // Ensure relative for absolute close button
     }}>
+      {onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: mobile ? '12px' : '16px',
+            right: mobile ? '12px' : '16px',
+            padding: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#f3f4f6',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            color: '#6b7280',
+            transition: 'all 0.2s',
+          }}
+          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.color = '#111827'; }}
+          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.color = '#6b7280'; }}
+        >
+          <X size={mobile ? 18 : 20} />
+        </button>
+      )}
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}

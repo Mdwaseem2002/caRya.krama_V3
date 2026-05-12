@@ -106,7 +106,7 @@ export default function Hero() {
         {/* ── BACKGROUND LAYER (Right Side Image) ── */}
         <div className="relative md:absolute md:inset-0 z-0 flex justify-end pointer-events-none">
           {/* Image Container */}
-          <div className="relative w-full aspect-[4/3] sm:aspect-video md:h-full md:aspect-auto md:w-[70%] lg:w-[75%]">
+          <div className="relative w-full aspect-[3/2] sm:aspect-video md:h-full md:aspect-auto md:w-[70%] lg:w-[75%]">
             <Image
               src="/car Brand.png"
               alt="caRyakrama Verified Used Cars"
@@ -123,13 +123,13 @@ export default function Hero() {
               }}
             />
             {/* Mobile Bottom Shade for smoother transition if needed, but keeping image visible as requested */}
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black to-transparent md:hidden" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black to-transparent md:hidden" />
           </div>
         </div>
 
         {/* ── MAIN CONTENT (Left Side Text) ── */}
         <div
-          className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 py-6 sm:py-12 lg:pt-20 lg:pb-8"
+          className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 py-4 sm:py-12 lg:pt-20 lg:pb-8"
           style={{ zIndex: 10 }}
         >
           {/* Top Group: Headline + Subheadline */}
@@ -190,8 +190,8 @@ export default function Hero() {
           </div>
  
           {/* Middle Group: CTA */}
-          <div className="flex flex-col items-center lg:items-start w-full mt-6 sm:mt-12 lg:mt-6">
-            <div className="w-full flex justify-center lg:justify-start">
+          <div className="flex flex-col items-center lg:items-start w-full mt-4 sm:mt-12 lg:mt-6">
+            <div className="w-full flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Link
                 href="/BuyCar"
                 className="hero-cta-btn inline-flex items-center gap-2 px-8 py-3.5 sm:px-6 sm:py-3 rounded-full text-sm font-bold transition-all group hover:-translate-y-1 bg-royal/90 text-white w-full sm:w-auto text-center justify-center backdrop-blur-md border border-white/10"
@@ -202,11 +202,22 @@ export default function Hero() {
                 Explore Used Cars
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
+
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'signup' } }))}
+                className="hero-cta-btn inline-flex items-center gap-2 px-8 py-3.5 sm:px-6 sm:py-3 rounded-full text-sm font-bold transition-all group hover:-translate-y-1 bg-white/10 text-white w-full sm:w-auto text-center justify-center backdrop-blur-md border border-white/20"
+                style={{
+                  boxShadow: "0 4px 15px rgba(255,255,255,0.05)",
+                }}
+              >
+                Sign Up
+                <User className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              </button>
             </div>
           </div>
  
           {/* Bottom Group: Trust Badges */}
-          <div ref={group3Ref} className="flex flex-col items-center lg:items-start gap-4 sm:gap-5 w-full mt-6 md:mt-auto lg:mt-6 mb-2">
+          <div ref={group3Ref} className="flex flex-col items-center lg:items-start gap-4 sm:gap-5 w-full mt-4 md:mt-auto lg:mt-6 mb-2">
             <div className="grid grid-cols-2 sm:flex sm:flex-row flex-wrap justify-between lg:justify-start gap-2 sm:gap-2.5 w-full max-w-4xl">
               {trustBadges.map(({ icon: Icon, label }) => (
                 <div

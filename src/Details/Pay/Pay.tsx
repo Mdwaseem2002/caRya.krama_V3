@@ -10,6 +10,7 @@ import { getReportByCarId } from "@/Admin/data/reports";
 import { cars } from "@/data/inventory";
 import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
 import { useAuth } from "@/context/AuthContext";
+import { addAdminNotification } from "@/Details/Notification/AdminNotify";
 
 export default function Pay() {
   const router = useRouter();
@@ -42,16 +43,17 @@ export default function Pay() {
       addPurchase(carId);
     }
     
-    // Trigger notification
-    if (user) {
-        import("@/Details/Notification/CustomerNotify").then(({ addNotification }) => {
-          addNotification(user.id, {
-            title: "Payment Successful 💳",
-            message: `Your payment of ₹${price} is confirmed.`,
-            type: "payment",
-            cta: { label: "View Report", href: `/details/report?id=${carId}` }
-          });
-        });
+    
+    // Trigger Admin Notification
+    try {
+      addAdminNotification({
+        title: "New Payment Received 💳",
+        message: `A payment of ₹${price} was received for ${carDisplayName}.`,
+        type: "payment" as any, // Using payment type
+        cta: { label: "View Payments", href: "/admin/payments" }
+      });
+    } catch (e) {
+      console.error("Failed to send admin notification", e);
     }
 
     setIsSuccess(true);
