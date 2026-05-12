@@ -325,23 +325,14 @@ export default function AdminProfile() {
                                         btn.style.opacity = '0.5';
                                         try {
                                           const { getStoredCarById } = await import("../Upload/CarStorage");
-                                          // Force a full fetch to get images array
-                                          let fullCar = await getStoredCarById(item.id);
-                                          
-                                          // Verification: If cache gave us something without images, fetch fresh
-                                          if (!fullCar || !fullCar.media?.images?.length) {
-                                             const res = await fetch(`/api/cars/${item.id}`);
-                                             const data = await res.json();
-                                             if (data.success && data.car) fullCar = data.car;
-                                          }
+                                          // The improved getStoredCarById automatically handles fetching fresh data if images are missing in cache
+                                          const fullCar = await getStoredCarById(item.id);
 
                                           if (fullCar) {
                                             setEditingCar(fullCar);
                                             setShowUpload(true);
                                           } else {
-                                            alert("Failed to load car details (images might be missing in DB).");
-                                            setEditingCar(item);
-                                            setShowUpload(true);
+                                            alert("Failed to load car details. Please try again.");
                                           }
                                         } catch (err) {
                                           console.error("Edit fetch failed:", err);

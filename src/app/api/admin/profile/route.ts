@@ -2,6 +2,7 @@
 // src/app/api/admin/profile/route.ts
 // GET  /api/admin/profile?email=... → Fetch admin profile
 // PATCH /api/admin/profile         → Update admin profile fields
+// POST  /api/admin/profile         → Seed / Upsert admin user
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { NextRequest, NextResponse } from "next/server";
@@ -26,16 +27,25 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = await User.findOne({
-      email: email.trim().toLowerCase(),
-      role: "admin",
-    }).lean();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Find by email only (don't filter by role — the user may exist as "customer")
+    let user = await User.findOne({ email: normalizedEmail }).lean();
 
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Admin user not found" },
         { status: 404 }
       );
+    }
+
+    // If user exists but isn't admin, promote them
+    if ((user as any).role !== "admin") {
+      await User.updateOne(
+        { email: normalizedEmail },
+        { $set: { role: "admin", lastActive: new Date().toISOString() } }
+      );
+      user = await User.findOne({ email: normalizedEmail }).lean();
     }
 
     // Remove password from response
@@ -66,18 +76,20 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Strip immutable fields
     delete updateData._id;
     delete updateData.id;
     delete updateData.email;
     delete updateData.password;
-    delete updateData.role;
     delete updateData.createdAt;
 
+    // Find by email only, and ensure role is set to admin
     const updated = await User.findOneAndUpdate(
-      { email: email.trim().toLowerCase(), role: "admin" },
-      { $set: { ...updateData, lastActive: new Date().toISOString() } },
-      { new: true, runValidators: true }
+      { email: normalizedEmail },
+      { $set: { ...updateData, role: "admin", lastActive: new Date().toISOString() } },
+      { new: true, runValidators: true, returnDocument: 'after' }
     ).lean();
 
     if (!updated) {
@@ -124,16 +136,17 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if admin already exists
-    const existing = await User.findOne({ email: normalizedEmail, role: "admin" }).lean();
+    // Check if user already exists (any role)
+    const existing = await User.findOne({ email: normalizedEmail }).lean();
 
     if (existing) {
-      // Just update lastActive
+      // Update to admin role and refresh lastActive
       await User.updateOne(
-        { email: normalizedEmail, role: "admin" },
-        { $set: { lastActive: new Date().toISOString() } }
+        { email: normalizedEmail },
+        { $set: { role: "admin", lastActive: new Date().toISOString() } }
       );
       const { password, ...profile } = existing as any;
+      profile.role = "admin"; // reflect the update in response
       return NextResponse.json({ success: true, profile, isNew: false }, { status: 200 });
     }
 
@@ -183,10 +196,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, profile: adminObj, isNew: true }, { status: 201 });
   } catch (error: any) {
     if (error?.code === 11000) {
-      // Race condition: user was created between check and create
-      const existing = await User.findOne({ email: error.keyValue?.email, role: "admin" }).lean();
+      // Race condition: user was created between check and create — just find and return
+      const normalizedEmail = (error.keyValue?.email || "").trim().toLowerCase();
+      const existing = await User.findOne({ email: normalizedEmail }).lean();
       if (existing) {
+        await User.updateOne(
+          { email: normalizedEmail },
+          { $set: { role: "admin", lastActive: new Date().toISOString() } }
+        );
         const { password, ...profile } = existing as any;
+        profile.role = "admin";
         return NextResponse.json({ success: true, profile, isNew: false }, { status: 200 });
       }
     }

@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const adminUser: User = {
           id: 'admin_1',
           name: 'Admin',
-          email: 'admin@Pentacloud.com',
+          email: normalizedEmail,
           joinDate: new Date().toISOString(),
           lastActivity: new Date().toISOString(),
           status: 'active',

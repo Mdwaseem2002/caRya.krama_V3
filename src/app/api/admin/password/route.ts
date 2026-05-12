@@ -22,9 +22,9 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       return NextResponse.json(
-        { success: false, error: "New password must be at least 6 characters" },
+        { success: false, error: "New password must be at least 8 characters" },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase();
 
     // Find admin user with password
-    const user = await User.findOne({ email: normalizedEmail, role: "admin" });
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       return NextResponse.json(
@@ -62,8 +62,8 @@ export async function PATCH(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     await User.updateOne(
-      { email: normalizedEmail, role: "admin" },
-      { $set: { password: hashedPassword, lastActive: new Date().toISOString() } }
+      { email: normalizedEmail },
+      { $set: { password: hashedPassword, role: "admin", lastActive: new Date().toISOString() } }
     );
 
     return NextResponse.json(

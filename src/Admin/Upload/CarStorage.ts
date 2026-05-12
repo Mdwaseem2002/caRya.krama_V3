@@ -205,33 +205,48 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
 
 /** Get a single car by ID (Super fast for Detail pages) */
 export async function getStoredCarById(id: string): Promise<StoredCar | null> {
-  // 1. Check direct cache
   const now = Date.now();
+  
+  // 1. Check direct cache (singleProps)
+  // If it exists and has images, use it.
   if (cache.singleProps[id] && now - cache.singleProps[id].time < CACHE_TTL) {
-    return cache.singleProps[id].data;
+    const cached = cache.singleProps[id].data;
+    if (cached.media?.images && cached.media.images.length > 0) {
+      return cached;
+    }
   }
 
-  // 2. Check list caches (ONLY if they contain full images)
-  const lists = [cache.publishedCars.data, cache.adminCars.data];
+  // 2. Check list caches (adminCars or publishedCars)
+  // Only use if they contain full images (rare for list caches due to optimization)
+  const lists = [cache.adminCars.data, cache.publishedCars.data];
   for (const list of lists) {
     if (list) {
       const found = list.find(c => c.id === id);
-      // Ensure the cached version has images (isn't the lightweight /list version)
-      if (found && found.media?.images?.length > 0) return found;
+      // We need images for the edit/detail views
+      if (found && found.media?.images && found.media.images.length > 0) {
+        return found;
+      }
     }
   }
 
-  // 3. Fallback: Network fetch for single DB document (Fast!)
+  // 3. Fallback: Network fetch for single DB document
+  // This endpoint (/api/cars/[id]) ALWAYS returns the full document with images.
   try {
-    const res = await fetch(`${getBaseUrl()}/api/cars/${id}`);
+    const res = await fetch(`${getBaseUrl()}/api/cars/${id}`, {
+      cache: "no-store" // Always get fresh data when requested by ID
+    });
     if (!res.ok) return null;
+    
     const data = await res.json();
     if (data.success && data.car) {
-      cache.singleProps[id] = { data: data.car, time: now };
-      return data.car;
+      const fullCar = data.car as StoredCar;
+      // Update the singleProps cache with the full version
+      cache.singleProps[id] = { data: fullCar, time: now };
+      return fullCar;
     }
     return null;
   } catch(e) {
+    console.error(`[CarStorage] Failed to fetch car ${id}:`, e);
     return null;
   }
 }

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Uploadcar from "@/Admin/Upload/Uploadcar";
-import { getAllStoredCars, deleteCarFromStorage, StoredCar } from "@/Admin/Upload/CarStorage";
-import { Plus, Edit3, Trash2 } from "lucide-react";
+import { getAllStoredCars, deleteCarFromStorage, getStoredCarById, StoredCar } from "@/Admin/Upload/CarStorage";
+import { Plus, Edit3, Trash2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -16,6 +16,7 @@ function CarManagementContent() {
   const [editingCar, setEditingCar] = useState<StoredCar | undefined>(undefined);
   const [cars, setCars] = useState<StoredCar[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingEditId, setLoadingEditId] = useState<string | null>(null);
 
   const fetchCars = () => {
     setIsLoading(true);
@@ -39,6 +40,30 @@ function CarManagementContent() {
       } catch (err: any) {
         alert(`Failed to delete car: ${err?.message || 'Unknown error'}`);
       }
+    }
+  };
+
+  // Fetch full car data (including images) before entering edit mode
+  const handleEdit = async (car: StoredCar) => {
+    setLoadingEditId(car.id);
+    try {
+      // The admin list API excludes media.images for performance.
+      // Fetch the complete car document from /api/cars/:id which includes all images.
+      const fullCar = await getStoredCarById(car.id);
+      if (fullCar) {
+        setEditingCar(fullCar);
+      } else {
+        // Fallback: use the list data (images will be empty but other fields populated)
+        setEditingCar(car);
+      }
+      setShowUpload(true);
+    } catch (err) {
+      console.error("Failed to fetch full car data for editing:", err);
+      // Fallback to list data on error
+      setEditingCar(car);
+      setShowUpload(true);
+    } finally {
+      setLoadingEditId(null);
     }
   };
 
@@ -78,7 +103,13 @@ function CarManagementContent() {
                       <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>{item.id} • <span style={{ color: '#0059A3', fontWeight: 600 }}>{item.pricing.sellingPrice}</span></p>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={() => { setEditingCar(item); setShowUpload(true); }} style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#6b7280', cursor: 'pointer' }}><Edit3 size={16} /></button>
+                      <button 
+                        onClick={() => handleEdit(item)} 
+                        disabled={loadingEditId === item.id}
+                        style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#6b7280', cursor: loadingEditId === item.id ? 'wait' : 'pointer', opacity: loadingEditId === item.id ? 0.6 : 1, transition: 'opacity 0.2s' }}
+                      >
+                        {loadingEditId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Edit3 size={16} />}
+                      </button>
                       <button onClick={() => handleDelete(item.id)} style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#EF4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
                     </div>
                   </div>

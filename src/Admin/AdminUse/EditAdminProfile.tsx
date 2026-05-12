@@ -71,24 +71,69 @@ export default function EditAdminProfile() {
   const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
   const [passStatus, setPassStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [passMessage, setPassMessage] = useState("");
+  const [lastUpdated, setLastUpdated] = useState<string>("Today, 10:42 AM"); // Default placeholder
+
+  const validatePassword = (pass: string) => {
+    return {
+      length: pass.length >= 8,
+      upper: /[A-Z]/.test(pass),
+      lower: /[a-z]/.test(pass),
+      number: /[0-9]/.test(pass),
+      special: /[^A-Za-z0-9]/.test(pass),
+    };
+  };
 
   // ── Fetch profile from MongoDB on mount ──
   useEffect(() => {
     if (!user?.email) { setIsLoading(false); return; }
     (async () => {
       try {
-        const res = await fetch(`/api/admin/profile?email=${encodeURIComponent(user.email)}`);
+        let res = await fetch(`/api/admin/profile?email=${encodeURIComponent(user.email)}`);
+        
+        // If not found, try to seed the admin user
+        if (res.status === 404) {
+          res = await fetch('/api/admin/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email, name: user.name || "Admin" }),
+          });
+        }
+
         if (res.ok) {
           const { profile: p } = await res.json();
           const loaded = {
-            name: p.name || "", email: p.email || DEFAULT_FORM.email, phone: p.phone || "", profilePhoto: p.profilePhoto || "",
-            username: p.username || "", twoFactor: p.twoFactor ?? false, role: p.adminRole || "Super Admin",
-            permissions: { uploadCars: p.permissions?.uploadCars ?? true, editCars: p.permissions?.editCars ?? true, deleteCars: p.permissions?.deleteCars ?? false, manageReports: p.permissions?.manageReports ?? true, viewPayments: p.permissions?.viewPayments ?? true },
-            companyName: p.companyName || "", companyLogo: p.companyLogo || "", supportEmail: p.supportEmail || "", contactNumber: p.contactNumber || "", address: p.address || "",
-            notifyUploads: p.notifications?.notifyUploads ?? true, notifyPayments: p.notifications?.notifyPayments ?? true, notifyReports: p.notifications?.notifyReports ?? false, notifySignups: p.notifications?.notifySignups ?? true,
+            name: p.name || "", 
+            email: p.email || user.email, 
+            phone: p.phone || "", 
+            profilePhoto: p.profilePhoto || "",
+            username: p.username || "", 
+            twoFactor: p.twoFactor ?? false, 
+            role: p.adminRole || "Super Admin",
+            permissions: { 
+              uploadCars: p.permissions?.uploadCars ?? true, 
+              editCars: p.permissions?.editCars ?? true, 
+              deleteCars: p.permissions?.deleteCars ?? false, 
+              manageReports: p.permissions?.manageReports ?? true, 
+              viewPayments: p.permissions?.viewPayments ?? true 
+            },
+            companyName: p.companyName || "", 
+            companyLogo: p.companyLogo || "", 
+            supportEmail: p.supportEmail || "", 
+            contactNumber: p.contactNumber || "", 
+            address: p.address || "",
+            notifyUploads: p.notifications?.notifyUploads ?? true, 
+            notifyPayments: p.notifications?.notifyPayments ?? true, 
+            notifyReports: p.notifications?.notifyReports ?? false, 
+            notifySignups: p.notifications?.notifySignups ?? true,
           };
           setFormData(loaded);
           setOriginalData(loaded);
+          if (p.updatedAt) {
+            const date = new Date(p.updatedAt);
+            setLastUpdated(date.toLocaleString('en-US', { 
+              month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
+            }));
+          }
         }
       } catch (err) { console.error("Failed to fetch admin profile:", err); }
       finally { setIsLoading(false); }
@@ -116,18 +161,60 @@ export default function EditAdminProfile() {
   const handleSave = async () => {
     if (!user?.email) return;
     setIsSaving(true); setSaveStatus('idle');
+
+    const buildPayload = () => ({
+      email: user.email,
+      name: formData.name,
+      phone: formData.phone,
+      profilePhoto: formData.profilePhoto,
+      username: formData.username,
+      twoFactor: formData.twoFactor,
+      adminRole: formData.role,
+      permissions: formData.permissions,
+      companyName: formData.companyName,
+      companyLogo: formData.companyLogo,
+      supportEmail: formData.supportEmail,
+      contactNumber: formData.contactNumber,
+      address: formData.address,
+      notifications: {
+        notifyUploads: formData.notifyUploads,
+        notifyPayments: formData.notifyPayments,
+        notifyReports: formData.notifyReports,
+        notifySignups: formData.notifySignups,
+      },
+    });
+
     try {
-      const res = await fetch('/api/admin/profile', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: user.email, name: formData.name, phone: formData.phone, profilePhoto: formData.profilePhoto,
-          username: formData.username, twoFactor: formData.twoFactor, adminRole: formData.role, permissions: formData.permissions,
-          companyName: formData.companyName, companyLogo: formData.companyLogo, supportEmail: formData.supportEmail,
-          contactNumber: formData.contactNumber, address: formData.address,
-          notifications: { notifyUploads: formData.notifyUploads, notifyPayments: formData.notifyPayments, notifyReports: formData.notifyReports, notifySignups: formData.notifySignups },
-        }),
+      let res = await fetch('/api/admin/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload()),
       });
-      if (res.ok) { setSaveStatus('success'); setSaveMessage('Profile saved successfully!'); setOriginalData({ ...formData }); }
+
+      // If admin not found in DB, seed first then retry
+      if (res.status === 404) {
+        console.log('Admin not found in DB, seeding...');
+        await fetch('/api/admin/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, name: formData.name || 'Admin' }),
+        });
+        // Retry the PATCH after seeding
+        res = await fetch('/api/admin/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(buildPayload()),
+        });
+      }
+
+      if (res.ok) { 
+        setSaveStatus('success'); 
+        setSaveMessage('Profile saved successfully!'); 
+        setOriginalData({ ...formData });
+        setLastUpdated(new Date().toLocaleString('en-US', { 
+          month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
+        }));
+      }
       else { const err = await res.json(); setSaveStatus('error'); setSaveMessage(err.error || 'Failed to save'); }
     } catch { setSaveStatus('error'); setSaveMessage('Network error'); }
     finally { setIsSaving(false); setTimeout(() => setSaveStatus('idle'), 4000); }
@@ -455,9 +542,9 @@ export default function EditAdminProfile() {
                        <span className="text-sm font-bold text-gray-900">Today, 10:42 AM</span>
                     </div>
                     <div className="flex items-center justify-between border-t border-gray-50 pt-4">
-                       <div className="flex items-center gap-2 text-gray-500"><Settings className="w-4 h-4" /> <span className="text-sm font-semibold">Last Updated</span></div>
-                       <span className="text-sm font-bold text-gray-900">2 days ago</span>
-                    </div>
+                        <div className="flex items-center gap-2 text-gray-500"><Settings className="w-4 h-4" /> <span className="text-sm font-semibold">Last Updated</span></div>
+                        <span className="text-sm font-bold text-gray-900">{lastUpdated}</span>
+                     </div>
                     <div className="bg-emerald-50/50 p-4 rounded-xl mt-4 border border-emerald-100/50">
                        <p className="text-[10px] font-bold text-emerald-700 uppercase mb-2">Recent Actions</p>
                        <ul className="text-xs font-semibold text-gray-700 space-y-2 list-none">
@@ -557,23 +644,65 @@ export default function EditAdminProfile() {
                     </button>
                   </div>
                 </div>
+                {/* Password Requirements Checklist */}
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mt-4">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-3 tracking-widest">Security Requirements</p>
+                  <div className="grid grid-cols-2 gap-y-2">
+                    {[
+                      { key: 'length', label: '8+ Characters' },
+                      { key: 'upper', label: 'Uppercase' },
+                      { key: 'lower', label: 'Lowercase' },
+                      { key: 'number', label: 'Number' },
+                      { key: 'special', label: 'Special Char' },
+                    ].map(({ key, label }) => {
+                      const isValid = validatePassword(passForm.new)[key as keyof ReturnType<typeof validatePassword>];
+                      return (
+                        <div key={key} className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${isValid ? 'bg-green-500 text-white' : 'bg-gray-200 text-transparent'}`}>
+                            <Check className="w-2.5 h-2.5" />
+                          </div>
+                          <span className={`text-[11px] font-bold transition-colors ${isValid ? 'text-green-600' : 'text-gray-400'}`}>{label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
              </div>
              {passStatus === 'error' && <p className="text-sm font-bold text-red-500 mt-2">{passMessage}</p>}
              {passStatus === 'success' && <p className="text-sm font-bold text-green-600 mt-2">{passMessage}</p>}
              <button 
                onClick={async () => {
                  if (!user?.email) return;
+                 const validation = validatePassword(passForm.new);
+                 const isAllValid = Object.values(validation).every(v => v);
+                 
+                 if (!isAllValid) { setPassStatus('error'); setPassMessage('Requirements not met'); return; }
                  if (passForm.new !== passForm.confirm) { setPassStatus('error'); setPassMessage('Passwords do not match'); return; }
-                 if (passForm.new.length < 6) { setPassStatus('error'); setPassMessage('Min 6 characters'); return; }
+                 
                  setPassStatus('saving');
                  try {
-                   const res = await fetch('/api/admin/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: user.email, currentPassword: passForm.current, newPassword: passForm.new }) });
+                   const res = await fetch('/api/admin/password', { 
+                     method: 'PATCH', 
+                     headers: { 'Content-Type': 'application/json' }, 
+                     body: JSON.stringify({ email: user.email, currentPassword: passForm.current, newPassword: passForm.new }) 
+                   });
                    const data = await res.json();
-                   if (res.ok) { setPassStatus('success'); setPassMessage('Password updated!'); setTimeout(() => { setPasswordModalOpen(false); setPassForm({ current: '', new: '', confirm: '' }); setPassStatus('idle'); }, 2000); }
+                   if (res.ok) { 
+                     setPassStatus('success'); 
+                     setPassMessage('Password updated!'); 
+                     setLastUpdated(new Date().toLocaleString('en-US', { 
+                       month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
+                     }));
+                     setTimeout(() => { 
+                       setPasswordModalOpen(false); 
+                       setPassForm({ current: '', new: '', confirm: '' }); 
+                       setPassStatus('idle'); 
+                     }, 2000); 
+                   }
                    else { setPassStatus('error'); setPassMessage(data.error || 'Failed'); }
                  } catch { setPassStatus('error'); setPassMessage('Network error'); }
                }}
-               disabled={passStatus === 'saving'}
+               disabled={passStatus === 'saving' || !Object.values(validatePassword(passForm.new)).every(v => v)}
                className="w-full mt-8 py-4 bg-[#0059A3] hover:bg-[#004a87] text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-[#0059A3]/20 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
              >
                 {passStatus === 'saving' ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating...</> : 'Update Password'}
