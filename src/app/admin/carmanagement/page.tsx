@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-export default function CarManagementPage() {
+function CarManagementContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const mobile = useIsMobile();
@@ -89,5 +89,13 @@ export default function CarManagementPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function CarManagementPage() {
+  return (
+    <React.Suspense fallback={<div className="p-12 text-center text-gray-400">Loading Car Management...</div>}>
+      <CarManagementContent />
+    </React.Suspense>
   );
 }

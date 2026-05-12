@@ -20,6 +20,7 @@ export type CarType = {
 };
 
 type WishlistContextType = {
+  wishlist: CarType[];
   toggleWishlist: (car: CarType) => void;
   isInWishlist: (id: number | string) => boolean;
 };
@@ -38,21 +39,14 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user?.wishlist) {
       setWishlist(user.wishlist);
-      setIsLoaded(true);
-    } else if (!user) {
-      const saved = localStorage.getItem("caryakrama_wishlist");
-      if (saved) {
-        try {
-          setWishlist(JSON.parse(saved));
-        } catch (e) {
-          console.error("Failed to parse wishlist from local storage");
-        }
-      }
-      setIsLoaded(true);
+    } else {
+      // Not logged in or user has no wishlist → empty
+      setWishlist([]);
     }
+    setIsLoaded(true);
   }, [user]);
 
-  // Sync to database if logged in, else local storage
+  // Sync to database (only when logged in)
   const syncWishlist = async (updatedWishlist: CarType[]) => {
     setWishlist(updatedWishlist);
     
@@ -67,8 +61,6 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       } catch (err) {
         console.error("Failed to sync wishlist to database", err);
       }
-    } else {
-      localStorage.setItem("caryakrama_wishlist", JSON.stringify(updatedWishlist));
     }
   };
 

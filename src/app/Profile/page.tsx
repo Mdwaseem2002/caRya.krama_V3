@@ -22,7 +22,11 @@ export default function ProfilePage() {
         <div className="flex items-center justify-center min-h-screen font-bold text-gray-400 uppercase tracking-widest animate-pulse">
            Redirecting to Admin Dashboard...
         </div>
-      ) : <Profile />}
+      ) : (
+        <React.Suspense fallback={<div className="p-12 text-center text-gray-400">Loading Profile...</div>}>
+          <Profile />
+        </React.Suspense>
+      )}
     </div>
   );
 }

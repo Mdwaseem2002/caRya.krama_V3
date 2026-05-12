@@ -9,6 +9,8 @@ import connectDB from "@/lib/mongodb";
 import Car from "@/models/Car";
 
 // ── GET /api/cars ─────────────────────────────────────────────────────────────
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();

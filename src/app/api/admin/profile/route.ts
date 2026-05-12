@@ -10,6 +10,8 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 // ── GET /api/admin/profile ────────────────────────────────────────────────────
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();

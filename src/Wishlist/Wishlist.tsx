@@ -6,17 +6,17 @@ import {
   Heart, ArrowLeft, Bell, Lock, AlertCircle, ArrowDown, 
   Share2, Trash2, Eye, Sparkles, TrendingUp, Tag, ArrowRight 
 } from "lucide-react";
-import { useWishlist } from "@/context/WishlistContext";
+import { useWishlist, CarType } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { cars as allCars } from "@/data/inventory"; // Using shared inventory data for recommendations
 
 export default function WishlistPage() {
   const { wishlist, toggleWishlist } = useWishlist();
+  const { user } = useAuth();
   
-  // Mock login state for demonstration
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // Mock notification preference state
+  // Notification preference state
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   // Recommendations: Get 3 cars that are NOT in the wishlist
@@ -75,9 +75,9 @@ export default function WishlistPage() {
             {notificationsEnabled ? 'Alerts On' : 'Alerts Off'}
           </button>
           
-          {!isLoggedIn && (
+          {!user && (
             <button 
-              onClick={() => setIsLoggedIn(true)}
+              onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'login' } }))}
               className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-all text-white shadow-lg bg-[#0059A3] hover:shadow-blue-200 hover:-translate-y-1"
             >
               <Lock className="w-4 h-4" />
@@ -108,7 +108,34 @@ export default function WishlistPage() {
       </AnimatePresence>
 
       {/* ── CONTENT AREA ── */}
-      {wishlist.length === 0 ? (
+      {!user ? (
+        /* ── NOT LOGGED IN STATE ── */
+        <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center bg-white rounded-[2rem] sm:rounded-[3rem] border-2 border-dashed border-gray-100 shadow-sm px-6">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-50 flex items-center justify-center mb-6 sm:mb-8 relative">
+             <Lock className="w-10 h-10 sm:w-16 sm:h-16 text-[#0059A3]" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black mb-3 tracking-tight" style={{ color: 'var(--foreground)' }}>Sign in to view your wishlist</h2>
+          <p className="max-w-md mb-8 sm:mb-10 text-base sm:text-lg font-medium" style={{ color: 'var(--muted)' }}>
+            Log in or create an account to save your favorite cars and get instant price drop alerts.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'login' } }))}
+              className="group flex items-center gap-3 text-white px-8 py-4 sm:px-10 sm:py-5 rounded-[2rem] font-black transition-all hover:scale-105 shadow-xl bg-[#0059A3] hover:shadow-blue-200 justify-center"
+            >
+              Log In
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'signup' } }))}
+              className="group flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-[2rem] font-black transition-all hover:scale-105 border-2 border-gray-100 bg-white justify-center text-[#0059A3]"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      ) : wishlist.length === 0 ? (
+        /* ── LOGGED IN BUT EMPTY ── */
         <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center bg-white rounded-[2rem] sm:rounded-[3rem] border-2 border-dashed border-gray-100 shadow-sm px-6">
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-50 flex items-center justify-center mb-6 sm:mb-8 relative">
              <Heart className="w-10 h-10 sm:w-16 sm:h-16 text-[#0059A3] animate-pulse" />
@@ -129,7 +156,7 @@ export default function WishlistPage() {
       ) : (
         <div className="space-y-12 sm:space-y-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
-            {wishlist.map((car, index) => (
+            {wishlist.map((car: CarType, index: number) => (
               <motion.div
                 key={car.id}
                 initial={{ opacity: 0, y: 30 }}

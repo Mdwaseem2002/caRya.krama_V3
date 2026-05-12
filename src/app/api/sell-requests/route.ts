@@ -9,6 +9,8 @@ import connectDB from "@/lib/mongodb";
 import SellRequest from "@/models/SellRequest";
 
 // ── GET /api/sell-requests ────────────────────────────────────────────────────
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
