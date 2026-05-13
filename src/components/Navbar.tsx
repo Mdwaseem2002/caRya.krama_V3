@@ -37,7 +37,6 @@ export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [authMode, setAuthMode] = useState<null | 'login' | 'signup'>(null);
-  const [isMobileAccountOpen, setIsMobileAccountOpen] = useState(false);
   const [isCallUsOpen, setIsCallUsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeToast, setActiveToast] = useState<any>(null);
@@ -100,7 +99,7 @@ export default function Navbar() {
                 alt="caRyakrama"
                 width={200}
                 height={60}
-                className="w-auto object-contain h-10 md:h-[72px]"
+                className="w-auto object-contain h-6 md:h-[48px]"
                 priority
               />
             </Link>
@@ -155,7 +154,7 @@ export default function Navbar() {
                         initial={{ opacity: 0, y: -20, x: '-50%' }}
                         animate={{ opacity: 1, y: 0, x: '-50%' }}
                         exit={{ opacity: 0, y: -20, x: '-50%' }}
-                        className="fixed top-24 left-1/2 z-[1000] min-w-[300px] max-w-md bg-white rounded-2xl shadow-2xl border border-blue-50 p-4 flex items-start gap-4 cursor-pointer"
+                        className="fixed bottom-10 sm:bottom-auto sm:top-24 left-1/2 z-[1000] w-[calc(100%-2rem)] sm:w-auto min-w-[300px] max-w-md bg-white rounded-2xl shadow-2xl border border-blue-50 p-4 flex items-start gap-4 cursor-pointer"
                         onClick={() => { router.push('/details'); setActiveToast(null); }}
                     >
                         <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
@@ -274,7 +273,7 @@ export default function Navbar() {
                   alt="caRyakrama"
                   width={130}
                   height={44}
-                  className="h-9 w-auto object-contain"
+                  className="h-6 w-auto object-contain"
                   priority
                 />
                 <button
@@ -316,7 +315,7 @@ export default function Navbar() {
                     onClick={() => {
                       setIsMobileOpen(false);
                       if (user) router.push('/Profile');
-                      else setIsMobileAccountOpen(!isMobileAccountOpen);
+                      else setAuthMode('signup');
                     }}
                     className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-semibold text-white/80 border border-white/15 hover:bg-white/10 transition-colors"
                   >
@@ -324,18 +323,7 @@ export default function Navbar() {
                     {user ? 'My Profile' : 'Account'}
                   </button>
 
-                  {!user && isMobileAccountOpen && (
-                    <div className="flex flex-col gap-2">
-                      <button
-                        onClick={() => { setIsMobileOpen(false); setIsMobileAccountOpen(false); setAuthMode('signup'); }}
-                        className="py-3 rounded-xl text-sm font-bold text-white bg-royal"
-                      >Sign Up</button>
-                      <button
-                        onClick={() => { setIsMobileOpen(false); setIsMobileAccountOpen(false); setAuthMode('login'); }}
-                        className="py-3 rounded-xl text-sm font-bold text-royal border border-royal/50"
-                      >Log In</button>
-                    </div>
-                  )}
+
                 </div>
               </div>
             </motion.div>

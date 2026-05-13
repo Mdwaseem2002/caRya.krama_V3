@@ -128,7 +128,7 @@ export default function WishlistPage() {
             </button>
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'signup' } }))}
-              className="group flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-[2rem] font-black transition-all hover:scale-105 border-2 border-gray-100 bg-white justify-center text-[#0059A3]"
+              className="group sm:hidden flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-[2rem] font-black transition-all hover:scale-105 border-2 border-gray-100 bg-white justify-center text-[#0059A3]"
             >
               Sign Up
             </button>

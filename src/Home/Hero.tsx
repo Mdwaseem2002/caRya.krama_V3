@@ -20,6 +20,7 @@ import {
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAuth } from "@/context/AuthContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -44,6 +45,7 @@ const secondaryCTAs = [
 ];
 
 export default function Hero() {
+  const { user } = useAuth();
   const containerRef  = useRef<HTMLDivElement>(null);
   const group1Ref     = useRef<HTMLDivElement>(null);  // badge + headline
   const group2Ref     = useRef<HTMLDivElement>(null); // subheadline + badge
@@ -67,8 +69,7 @@ export default function Hero() {
       {/* ── HERO WRAPPER ── */}
       <div
         ref={containerRef}
-        className="relative w-full overflow-hidden flex flex-col text-white bg-black"
-        style={{ minHeight: "100svh" }}
+        className="relative w-full overflow-hidden flex flex-col text-white bg-black min-h-[100svh]"
       >
         {/* ── TOP TICKER BAR ── */}
         <div
@@ -129,11 +130,11 @@ export default function Hero() {
 
         {/* ── MAIN CONTENT (Left Side Text) ── */}
         <div
-          className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 py-4 sm:py-12 lg:pt-20 lg:pb-8"
+          className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 pt-2 pb-10 sm:py-12 lg:pt-20 lg:pb-8"
           style={{ zIndex: 10 }}
         >
           {/* Top Group: Headline + Subheadline */}
-          <div className="flex flex-col items-start gap-4 sm:gap-5 max-w-5xl w-full">
+          <div className="flex flex-col items-start gap-2 sm:gap-5 max-w-5xl w-full">
             {/* ── GROUP 1: Headline ── */}
             <div ref={group1Ref} className="flex flex-col items-start gap-4 sm:gap-5">
               {/* Powered By Badge */}
@@ -169,7 +170,7 @@ export default function Hero() {
             </div>
  
             {/* ── GROUP 2: Subheadline + USP Badge ── */}
-            <div ref={group2Ref} className="flex flex-col items-start gap-5 sm:gap-6 w-full -mt-1 md:mt-0">
+            <div ref={group2Ref} className="flex flex-col items-start gap-3 sm:gap-6 w-full -mt-1 md:mt-0">
               <p className="text-[13px] sm:text-base lg:text-[18px] max-w-[650px] leading-[1.6] text-white/85 font-medium tracking-wide drop-shadow-2xl text-left">
                 We eliminate the noise. Our experts scout hundreds of vehicles, selecting only the <span className="text-sky font-semibold">top 5%</span> that match our uncompromising standards.
               </p>
@@ -190,34 +191,36 @@ export default function Hero() {
           </div>
  
           {/* Middle Group: CTA */}
-          <div className="flex flex-col items-center lg:items-start w-full mt-4 sm:mt-12 lg:mt-6">
-            <div className="w-full flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+          <div className="flex flex-col items-center lg:items-start w-full mt-6 sm:mt-12 lg:mt-6">
+            <div className="w-full flex flex-row sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start">
               <Link
                 href="/BuyCar"
-                className="hero-cta-btn inline-flex items-center gap-2 px-8 py-3.5 sm:px-6 sm:py-3 rounded-full text-sm font-bold transition-all group hover:-translate-y-1 bg-royal/90 text-white w-full sm:w-auto text-center justify-center backdrop-blur-md border border-white/10"
+                className={`hero-cta-btn inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold transition-all group hover:-translate-y-1 bg-royal/90 text-white ${!user ? 'flex-1 sm:flex-none' : 'w-full sm:w-auto'} text-center justify-center backdrop-blur-md border border-white/10`}
                 style={{
                   boxShadow: "0 10px 30px rgba(27,79,216,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
                 }}
               >
-                Explore Used Cars
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span className="hidden sm:inline">Explore Used Cars</span><span className="sm:hidden">Explore</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
 
-              <button
-                onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'signup' } }))}
-                className="hero-cta-btn inline-flex items-center gap-2 px-8 py-3.5 sm:px-6 sm:py-3 rounded-full text-sm font-bold transition-all group hover:-translate-y-1 bg-white/10 text-white w-full sm:w-auto text-center justify-center backdrop-blur-md border border-white/20"
-                style={{
-                  boxShadow: "0 4px 15px rgba(255,255,255,0.05)",
-                }}
-              >
-                Sign Up
-                <User className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              </button>
+              {!user && (
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'signup' } }))}
+                  className="hero-cta-btn sm:hidden flex-1 inline-flex items-center gap-2 px-4 py-3.5 rounded-full text-xs font-bold transition-all group hover:-translate-y-1 bg-white/10 text-white text-center justify-center backdrop-blur-md border border-white/20"
+                  style={{
+                    boxShadow: "0 4px 15px rgba(255,255,255,0.05)",
+                  }}
+                >
+                  Sign Up
+                  <User className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </button>
+              )}
             </div>
           </div>
  
           {/* Bottom Group: Trust Badges */}
-          <div ref={group3Ref} className="flex flex-col items-center lg:items-start gap-4 sm:gap-5 w-full mt-4 md:mt-auto lg:mt-6 mb-2">
+          <div ref={group3Ref} className="flex flex-col items-center lg:items-start gap-3 sm:gap-5 w-full mt-12 md:mt-auto lg:mt-6 mb-1">
             <div className="grid grid-cols-2 sm:flex sm:flex-row flex-wrap justify-between lg:justify-start gap-2 sm:gap-2.5 w-full max-w-4xl">
               {trustBadges.map(({ icon: Icon, label }) => (
                 <div
@@ -233,7 +236,7 @@ export default function Hero() {
         </div>
 
         {/* Scroll hint */}
-        <div className="relative flex flex-col items-center pb-5 gap-1.5 opacity-50" style={{ zIndex: 10 }}>
+        <div className="relative flex flex-col items-center pb-2 sm:pb-5 gap-1.5 opacity-50" style={{ zIndex: 10 }}>
           <span className="text-[10px] uppercase tracking-widest text-white font-bold">Scroll</span>
           <div className="w-px h-7 overflow-hidden rounded-full bg-white/30">
             <div className="w-full h-1/3 bg-white rounded-full" style={{ animation: "scroll-indicator 1.6s ease-in-out infinite" }} />

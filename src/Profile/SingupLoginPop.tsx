@@ -36,7 +36,7 @@ const SignupLoginPop: React.FC<SignupLoginPopProps> = ({ onLogin, onSignup }) =>
         className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
       >
         <UserPlus size={20} className="text-[#0059A3]" />
-        <span className="text-[#111827] text-sm font-semibold opacity-100">Sign Up</span>
+        <span className="text-[#111827] text-sm font-semibold">Sign Up</span>
       </button>
     </motion.div>
   );

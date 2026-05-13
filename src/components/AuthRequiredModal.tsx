@@ -74,7 +74,7 @@ export default function AuthRequiredModal({
               <div className="w-full flex flex-col gap-3">
                 <button
                   onClick={onSignup}
-                  className="w-full py-4 bg-[#0059A3] hover:bg-[#004a87] text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full sm:hidden py-4 bg-[#0059A3] hover:bg-[#004a87] text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <UserPlus size={18} />
                   Create Free Account

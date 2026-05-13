@@ -92,8 +92,8 @@ export const NotificationContainer = () => {
   const { notifications } = useNotification();
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
-      <div className="pointer-events-auto flex flex-col items-center gap-3 w-full max-w-[500px] px-4 sm:px-6">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center pointer-events-none pb-8 sm:pb-0">
+      <div className="pointer-events-auto flex flex-col items-center gap-3 w-full max-w-[500px] px-4 sm:px-6 mb-8 sm:mb-0">
         <AnimatePresence mode="popLayout">
           {notifications.map((n) => (
             <Notification key={n.id} {...n} />

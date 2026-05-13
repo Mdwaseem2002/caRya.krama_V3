@@ -40,8 +40,8 @@ const DEFAULT_FORM = {
 };
 
 const SectionCard = ({ icon: Icon, title, desc, children }: any) => (
-  <div className="bg-white rounded-2xl md:rounded-[24px] shadow-sm border border-gray-100 p-6 md:p-8 mb-6 overflow-hidden">
-    <div className="flex items-start gap-4 mb-6 pb-6 border-b border-gray-50">
+  <div className="bg-white rounded-2xl md:rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 md:p-8 mb-6 overflow-hidden">
+    <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-50">
       <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
         <Icon className="w-6 h-6 text-[#0059A3]" />
       </div>
@@ -261,16 +261,16 @@ export default function EditAdminProfile() {
 
       
       {/* Top Bar */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-[40] px-4 md:px-8 py-4 shadow-sm">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-[40] px-3 md:px-8 py-3 sm:py-4 shadow-sm">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
           <button 
             onClick={() => router.back()} 
-            className="flex items-center gap-2 text-sm font-bold text-[#0059A3] hover:bg-blue-50 px-3 py-2 rounded-xl transition-colors"
+            className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0059A3] hover:bg-blue-50 px-2 sm:px-3 py-2 rounded-xl transition-colors shrink-0"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Back to Dashboard</span><span className="sm:hidden">Back</span>
           </button>
-          <div className="text-sm font-bold bg-green-50 text-green-600 px-3 py-1.5 rounded-full flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> System Synced
+          <div className="text-[10px] sm:text-sm font-bold bg-green-50 text-green-600 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">System Synced</span><span className="xs:hidden">Synced</span>
           </div>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function EditAdminProfile() {
             {/* Right: Fields */}
             <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+                <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -324,7 +324,7 @@ export default function EditAdminProfile() {
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
+                <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -338,7 +338,7 @@ export default function EditAdminProfile() {
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Phone Number</label>
+                <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Phone Number</label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -358,7 +358,7 @@ export default function EditAdminProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-5">
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Username</label>
+                <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Username</label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -370,13 +370,16 @@ export default function EditAdminProfile() {
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Password</label>
+                <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Password</label>
                 <button 
                   onClick={() => setPasswordModalOpen(true)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors font-medium text-left flex items-center justify-between group"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors font-medium text-left flex items-center justify-between group overflow-hidden"
                 >
-                  <span className="flex items-center gap-2 text-gray-700"><Lock className="w-4 h-4 text-gray-400" /> ••••••••••••</span>
-                  <span className="text-xs font-bold text-[#0059A3] group-hover:underline">Change Password</span>
+                  <span className="flex items-center gap-2 text-gray-700 truncate min-w-0 mr-2">
+                    <Lock className="w-4 h-4 text-gray-400 shrink-0" /> 
+                    <span className="truncate">••••••••••••</span>
+                  </span>
+                  <span className="text-[10px] sm:text-xs font-bold text-[#0059A3] group-hover:underline shrink-0 whitespace-nowrap">Change Password</span>
                 </button>
               </div>
             </div>
@@ -402,7 +405,7 @@ export default function EditAdminProfile() {
         <SectionCard icon={ListChecks} title="Role & Permissions" desc="Determine your access level across the platform.">
           <div className="flex flex-col md:flex-row gap-8">
             <div className="w-full md:w-1/3 space-y-2">
-               <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Designated Role</label>
+               <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Designated Role</label>
                <div className="relative">
                  <select 
                    value={formData.role} 
@@ -427,7 +430,7 @@ export default function EditAdminProfile() {
             </div>
 
             <div className="w-full md:w-2/3">
-               <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">Module Permissions</label>
+               <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">Module Permissions</label>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
                   <CheckboxRow label="Upload Cars" checked={formData.permissions.uploadCars} onChange={() => setFormData({...formData, permissions: {...formData.permissions, uploadCars: !formData.permissions.uploadCars}})} />
                   <CheckboxRow label="Edit Cars" checked={formData.permissions.editCars} onChange={() => setFormData({...formData, permissions: {...formData.permissions, editCars: !formData.permissions.editCars}})} />
@@ -442,8 +445,8 @@ export default function EditAdminProfile() {
         {/* STEP 4: BUSINESS INFO */}
         <SectionCard icon={Building2} title="Business Info" desc="Company details used in reports and footers.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="md:col-span-2 flex items-center gap-5 bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-2">
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 group flex items-center justify-center">
+            <div className="md:col-span-2 flex flex-col sm:flex-row items-center gap-5 bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-2">
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 group flex items-center justify-center shadow-sm">
                 {formData.companyLogo ? (
                   <img src={formData.companyLogo} alt="Logo" className="w-full h-full object-cover" />
                 ) : (
@@ -463,33 +466,34 @@ export default function EditAdminProfile() {
                 accept="image/*" 
                 className="hidden" 
               />
-              <div className="flex-grow">
-                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Company Name</label>
+              <div className="w-full">
+                 <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Company Name</label>
                  <input 
                     type="text" 
                     value={formData.companyName} 
                     onChange={e => setFormData({...formData, companyName: e.target.value})}
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none font-bold focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3]"
+                    placeholder="Enter company name"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none font-bold focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] transition-all"
                   />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Support Email</label>
+              <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Support Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type="email" value={formData.supportEmail} onChange={e => setFormData({...formData, supportEmail: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
               </div>
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Contact Number</label>
+              <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Contact Number</label>
               <div className="relative">
                 <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type="tel" value={formData.contactNumber} onChange={e => setFormData({...formData, contactNumber: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
               </div>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Official Address</label>
+              <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Official Address</label>
               <div className="relative">
                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] font-bold" />
