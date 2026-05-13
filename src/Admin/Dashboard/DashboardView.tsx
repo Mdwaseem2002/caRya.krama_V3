@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { 
   Users, FileText, Car, IndianRupee, TrendingUp, Activity, 
-  Plus, FilePlus, CreditCard, CheckCircle2, AlertCircle, ArrowRight
+  Plus, FilePlus, CreditCard, CheckCircle2, AlertCircle, ArrowRight, Sparkles
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getAnalyticsStats, getAllPayments, AnalyticsStats, PaymentRecord } from "../DataSaver/AnalyticsStore";
@@ -13,7 +13,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 export default function DashboardView({ 
   onAction 
 }: { 
-  onAction: (tab: "cars" | "reports" | "payments", action?: string) => void 
+  onAction: (tab: "cars" | "reports" | "payments" | "sell_requests", action?: string) => void 
 }) {
   const [adminStats, setAdminStats] = useState<any>(null);
   const [stats, setStats] = useState<AnalyticsStats>({ totalVisitors: 0, totalReportDownloads: 0 });
@@ -78,17 +78,17 @@ export default function DashboardView({
 
 
   return (
-    <div className="relative min-h-screen space-y-8 pb-12">
+    <div className="relative min-h-screen space-y-6 md:space-y-8 pb-12">
       {/* Background radial gradient for depth */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-indigo-500/5 blur-[100px] rounded-full"></div>
       </div>
 
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-4 md:space-y-8">
       
       {/* 1. TOP STATS CARDS */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {[
           { label: "Visitors", value: stats.totalVisitors, trend: "+12%", color: "text-blue-500", icon: Users },
           { label: "Reports Sold", value: stats.totalReportDownloads, trend: "+8%", color: "text-indigo-500", icon: FileText },
@@ -98,23 +98,23 @@ export default function DashboardView({
           <motion.div 
             key={i}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1, duration: 0.5 }}
-            className="bg-white border border-gray-100 rounded-[2.25rem] p-6 relative overflow-hidden shadow-sm group hover:shadow-md hover:border-blue-100 transition-all duration-500"
+            className="bg-white border border-gray-100 rounded-3xl md:rounded-[2.25rem] p-4 md:p-6 relative overflow-hidden shadow-sm group hover:shadow-md hover:border-blue-100 transition-all duration-500"
           >
             <div className={`absolute -right-4 -top-4 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity ${stat.color}`}>
-               <stat.icon size={80} strokeWidth={1} />
+               <stat.icon size={mobile ? 48 : 80} strokeWidth={1} />
             </div>
             <div className="flex flex-col h-full justify-between relative z-10">
-               <div className="flex items-center justify-between mb-6">
-                  <div className={`w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100 shadow-sm group-hover:scale-110 transition-transform ${stat.color}`}>
-                    <stat.icon size={22} />
+               <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <div className={`w-9 h-9 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100 shadow-sm group-hover:scale-110 transition-transform ${stat.color}`}>
+                    <stat.icon size={mobile ? 18 : 22} />
                   </div>
-                  <div className="flex items-center gap-1 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold border border-green-100">
-                    <TrendingUp size={12} strokeWidth={3} /> {stat.trend}
+                  <div className="flex items-center gap-1 bg-green-50 text-green-600 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-[10px] font-bold border border-green-100">
+                    <TrendingUp size={mobile ? 10 : 12} strokeWidth={3} /> {stat.trend}
                   </div>
                </div>
                <div>
-                  <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">{stat.label}</h3>
-                  <div className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">{stat.value.toLocaleString()}</div>
+                  <h3 className="text-[9px] md:text-[10px] font-bold text-gray-400 md:text-gray-500 uppercase tracking-wider md:tracking-[0.2em] mb-1 md:mb-2">{stat.label}</h3>
+                  <div className="text-xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">{stat.value.toLocaleString()}</div>
                </div>
             </div>
           </motion.div>
@@ -242,9 +242,8 @@ export default function DashboardView({
                  </div>
               </div>
               
-              <div className="mt-auto pt-8 flex items-center justify-between text-white/30">
+              <div className="mt-auto pt-8 flex items-center text-white/30">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">Real-time Data</span>
-                <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
               </div>
             </div>
          </div>
@@ -293,6 +292,19 @@ export default function DashboardView({
                  <div className="text-left">
                    <div className="font-black text-lg tracking-tight">Treasury</div>
                    <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-2">Financial Records</div>
+                 </div>
+               </button>
+
+               <button 
+                 onClick={() => onAction("sell_requests")}
+                 className="flex-1 min-w-[180px] bg-gray-50 border border-gray-100 hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] text-gray-900 p-6 rounded-[2rem] transition-all group flex flex-col justify-between h-[160px] shadow-sm"
+               >
+                 <div className="bg-amber-50 text-amber-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-amber-100">
+                    <Sparkles size={24} />
+                 </div>
+                 <div className="text-left">
+                   <div className="font-black text-lg tracking-tight">Deal Flow</div>
+                   <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-2">Sell Requests</div>
                  </div>
                </button>
             </div>

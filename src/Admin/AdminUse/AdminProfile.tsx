@@ -71,7 +71,7 @@ export default function AdminProfile() {
   };
 
 
-  const handleDashboardAction = (tab: "cars" | "reports" | "payments", action?: string) => {
+  const handleDashboardAction = (tab: "cars" | "reports" | "payments" | "sell_requests", action?: string) => {
     setActiveTab(tab);
     if (tab === "cars" && action === "upload") {
       setShowUpload(true);

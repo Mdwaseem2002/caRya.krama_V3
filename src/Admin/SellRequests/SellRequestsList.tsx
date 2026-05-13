@@ -22,6 +22,16 @@ export default function SellRequestsList() {
   const [requests, setRequests] = useState<SellRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<SellRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const detailRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedRequest && typeof window !== 'undefined' && window.innerWidth < 1024) {
+      // Small delay to ensure the content is rendered
+      setTimeout(() => {
+        detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedRequest]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -180,7 +190,12 @@ export default function SellRequestsList() {
               requests.map((req) => (
                 <button
                   key={req.id}
-                  onClick={() => setSelectedRequest(req)}
+                  onClick={() => {
+                    setSelectedRequest(req);
+                    if (window.innerWidth < 1024) {
+                      setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    }
+                  }}
                   className={`w-full p-5 rounded-[2rem] text-left transition-all duration-300 border group flex items-center justify-between ${
                     selectedRequest?.id === req.id 
                       ? 'bg-blue-600 border-blue-400 shadow-xl shadow-blue-600/20' 
@@ -216,7 +231,7 @@ export default function SellRequestsList() {
         </div>
 
         {/* Detail View */}
-        <div className="relative">
+        <div className="relative" ref={detailRef}>
           <AnimatePresence mode="wait">
             {selectedRequest ? (
               <motion.div
@@ -224,100 +239,102 @@ export default function SellRequestsList() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white border border-gray-200 rounded-[3rem] overflow-hidden sticky top-0 shadow-lg"
+                className="bg-white border border-gray-200 rounded-[2rem] md:rounded-[3rem] overflow-hidden sticky top-0 shadow-lg"
               >
                 {/* Header Image */}
-                <div className="relative h-48 bg-gray-100">
+                <div className="relative h-32 md:h-48 bg-gray-100">
                    {selectedRequest.car.images[0] ? (
                      <img src={selectedRequest.car.images[0]} className="w-full h-full object-cover opacity-60" />
                    ) : (
                      <div className="w-full h-full flex items-center justify-center">
-                        <Car className="w-16 h-16 text-gray-200" />
+                        <Car className="w-12 h-12 md:w-16 md:h-16 text-gray-200" />
                      </div>
                    )}
                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
-                   <div className="absolute bottom-6 left-8">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className={`px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest ${statusColors[selectedRequest.status]}`}>
+                   <div className="absolute bottom-4 left-6 md:bottom-6 md:left-8">
+                      <div className="flex items-center gap-3 mb-1 md:mb-2">
+                        <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full border text-[7px] md:text-[8px] font-black uppercase tracking-widest ${statusColors[selectedRequest.status]}`}>
                           {selectedRequest.status}
                         </span>
-                        <span className="text-[10px] font-black text-white/70 uppercase tracking-widest">
-                          Requested {new Date(selectedRequest.createdAt).toLocaleDateString()}
+                        <span className="text-[9px] md:text-[10px] font-black text-white/70 uppercase tracking-widest">
+                          {new Date(selectedRequest.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <h4 className="text-3xl font-black text-white tracking-tighter">
+                      <h4 className="text-xl md:text-3xl font-black text-white tracking-tighter">
                         {selectedRequest.car.brand} {selectedRequest.car.model}
                       </h4>
                    </div>
                 </div>
 
-                <div className="p-8 space-y-10">
+                <div className="p-5 md:p-8 space-y-6 md:space-y-10">
                    {/* Owner Info SECTION */}
-                   <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                         <h5 className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+                      <div className="space-y-3 md:space-y-4">
+                         <h5 className="text-[9px] md:text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
                            <User size={12} /> Contact Information
                          </h5>
                          <div className="space-y-2">
                             <div className="flex items-center gap-3 text-gray-600">
                                <Phone size={14} className="text-blue-500" />
-                               <span className="text-xs font-bold leading-none">{selectedRequest.owner.phone}</span>
+                               <span className="text-[11px] md:text-xs font-bold leading-none">{selectedRequest.owner.phone}</span>
                             </div>
                             <div className="flex items-center gap-3 text-gray-600">
                                <Mail size={14} className="text-blue-500" />
-                               <span className="text-xs font-bold leading-none truncate max-w-[150px]">{selectedRequest.owner.email}</span>
+                               <span className="text-[11px] md:text-xs font-bold leading-none truncate max-w-[200px]">{selectedRequest.owner.email}</span>
                             </div>
                          </div>
                       </div>
-                      <div className="space-y-4">
-                         <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                      <div className="space-y-3 md:space-y-4">
+                         <h5 className="text-[9px] md:text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
                            <MapPin size={12} /> Inspection Logistics
                          </h5>
                          <div className="space-y-2">
                             <div className="flex items-center gap-3 text-gray-600">
                                <Calendar size={14} className="text-emerald-500" />
-                               <span className="text-xs font-bold leading-none">{selectedRequest.inspection.date} @ {selectedRequest.inspection.time}</span>
+                               <span className="text-[11px] md:text-xs font-bold leading-none">{selectedRequest.inspection.date} @ {selectedRequest.inspection.time}</span>
                             </div>
                             <div className="flex items-center gap-3 text-gray-600">
                                <CheckCircle2 size={14} className="text-emerald-500" />
-                               <span className="text-xs font-bold leading-none capitalize">{selectedRequest.inspection.location} Visit</span>
+                               <span className="text-[11px] md:text-xs font-bold leading-none capitalize">{selectedRequest.inspection.location} Visit</span>
                             </div>
                          </div>
                       </div>
                    </div>
 
                    {/* Address */}
-                   <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-                      <h6 className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-2">Detailed Address</h6>
-                      <p className="text-xs text-gray-700 font-bold leading-relaxed">{selectedRequest.inspection.address}</p>
+                   <div className="bg-gray-50 rounded-xl md:rounded-2xl p-4 border border-gray-200">
+                      <h6 className="text-[7px] md:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-2">Detailed Address</h6>
+                      <p className="text-[11px] md:text-xs text-gray-700 font-bold leading-relaxed">{selectedRequest.inspection.address}</p>
                    </div>
 
                    {/* Quick Actions */}
-                   <div className="flex items-center gap-3">
+                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                       {selectedRequest.status !== "approved" && (
                         <button 
                           onClick={() => handleApprove(selectedRequest)}
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-600/10 flex items-center justify-center gap-2"
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 md:py-4 rounded-xl md:rounded-2xl font-black text-[11px] md:text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-600/10 flex items-center justify-center gap-2"
                         >
                           <Sparkles size={16} /> Approve Listing
                         </button>
                       )}
                       
-                      <button 
-                        onClick={() => handleStatusChange(selectedRequest.id, "rejected")}
-                        className="px-6 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-rose-500 hover:bg-rose-100 transition-all font-black text-xs uppercase tracking-widest"
-                        title="Reject Selection"
-                      >
-                        <XCircle size={18} />
-                      </button>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => handleStatusChange(selectedRequest.id, "rejected")}
+                          className="flex-1 sm:flex-initial px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 text-rose-500 hover:bg-rose-100 transition-all font-black text-[11px] md:text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                          title="Reject Selection"
+                        >
+                          <XCircle size={18} /> <span className="sm:hidden">Reject</span>
+                        </button>
 
-                      <button 
-                        onClick={() => handleDelete(selectedRequest.id)}
-                        className="px-6 py-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-400 hover:bg-gray-100 transition-all font-black"
-                        title="Delete Permanently"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                        <button 
+                          onClick={() => handleDelete(selectedRequest.id)}
+                          className="flex-1 sm:flex-initial px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-gray-50 border border-gray-200 text-gray-400 hover:bg-gray-100 transition-all font-black flex items-center justify-center gap-2"
+                          title="Delete Permanently"
+                        >
+                          <Trash2 size={18} /> <span className="sm:hidden">Delete</span>
+                        </button>
+                      </div>
                    </div>
                 </div>
               </motion.div>

@@ -81,7 +81,7 @@ export default function CarDetails({ id }: { id: string }) {
     ? [(car as any).media.coverImage, ...(car as any).media.images.filter((img: string) => img !== (car as any).media.coverImage)]
     : [(car as any).image, "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop", "/car banner.png"];
 
-  const isSaved = isInWishlist(Number(car.id));
+  const isSaved = isInWishlist(car.id);
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % carImages.length);
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + carImages.length) % carImages.length);
@@ -201,7 +201,7 @@ export default function CarDetails({ id }: { id: string }) {
                 style={{ borderColor: "var(--border)", background: "var(--background)" }}
                 aria-label="Toggle wishlist"
               >
-                <Heart className={`w-5 h-5 transition-colors ${isSaved ? "fill-[#0059A3] text-[#0059A3]" : "text-gray-400"}`} />
+                <Heart className={`w-5 h-5 transition-colors ${isSaved ? "fill-[#EF4444] text-[#EF4444]" : "text-gray-400"}`} />
               </button>
             </div>
 
