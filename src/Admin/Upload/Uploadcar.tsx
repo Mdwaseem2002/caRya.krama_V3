@@ -5,6 +5,7 @@ import { saveCarToStorage, updateCarInStorage, StoredCar } from "./CarStorage";
 import { convertToWebP } from "@/Details/ImageConvert/ImageConvert";
 import InspectionReportForm from "../InspectionReports/InspectionReportForm";
 import InspectionReportUpload from "../InspectionReports/InspectionReportUpload";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 
 // Custom Select Component for Sleek UI
@@ -81,6 +82,7 @@ interface UploadcarProps {
 }
 
 export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps) {
+  const mobile = useIsMobile();
   const { showNotification } = useNotification();
   const [title, setTitle] = useState(editCar?.title || "");
   const [brand, setBrand] = useState(editCar?.brand || "");
@@ -269,7 +271,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-8">
+    <div className={`bg-white rounded-2xl border border-gray-200 ${mobile ? 'p-4' : 'p-8'}`}>
       <button onClick={onBack} className="flex items-center gap-2 bg-none border-none text-[#0059A3] font-bold cursor-pointer mb-6 p-0 hover:underline">
         <ArrowLeft size={16} /> Back to Inventory
       </button>
@@ -282,19 +284,19 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Car Title</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Infiniti QX60 Autograph" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Infiniti QX60 Autograph" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Brand</label>
-            <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="Infiniti" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="Infiniti" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Model</label>
-            <input value={model} onChange={e => setModel(e.target.value)} placeholder="QX60" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={model} onChange={e => setModel(e.target.value)} placeholder="QX60" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Year</label>
-            <input value={year} onChange={e => setYear(e.target.value)} placeholder="2022" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={year} onChange={e => setYear(e.target.value)} placeholder="2022" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
         </div>
       </section>
@@ -362,11 +364,11 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Actual Price</label>
-            <input value={actualPrice} onChange={e => setActualPrice(e.target.value)} placeholder="₹46.50 Lakh" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={actualPrice} onChange={e => setActualPrice(e.target.value)} placeholder="₹46.50 Lakh" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Selling Price</label>
-            <input value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} placeholder="₹45.99 Lakh" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} placeholder="₹45.99 Lakh" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
         </div>
         {calculateSavings() && (
@@ -380,7 +382,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Mileage (KM)</label>
-            <input value={mileage} onChange={e => setMileage(e.target.value)} placeholder="e.g. 15,000 km" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={mileage} onChange={e => setMileage(e.target.value)} placeholder="e.g. 15,000 km" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Fuel Type</label>
@@ -420,7 +422,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Color</label>
-            <input value={color} onChange={e => setColor(e.target.value)} placeholder="Mojave Desert" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={color} onChange={e => setColor(e.target.value)} placeholder="Mojave Desert" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <input type="checkbox" checked={warranty} onChange={e => setWarranty(e.target.checked)} id="warrantyCheck" style={{ width: '18px', height: '18px' }} />
@@ -436,9 +438,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         
         <div style={{ marginBottom: '24px' }}>
            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Service History Log</label>
-           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-              <input value={historyInput} onChange={e => setHistoryInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddHistory(); }} placeholder="e.g. Major service at 45k km - Authorized Center" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
-              <button onClick={handleAddHistory} style={{ padding: '0 24px', backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Add log</button>
+           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '8px', marginBottom: '12px' }}>
+              <input value={historyInput} onChange={e => setHistoryInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddHistory(); }} placeholder={mobile ? "e.g. Major service at 45k km" : "e.g. Major service at 45k km - Authorized Center"} style={{ flex: 1, padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
+              <button onClick={handleAddHistory} style={{ padding: mobile ? '12px' : '0 24px', height: mobile ? 'auto' : '46px', backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: mobile ? '13px' : '14px' }}>Add log</button>
            </div>
            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {serviceHistory.map((h, i) => (
@@ -452,9 +454,9 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         
         <div>
            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Add Highlights</label>
-           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-              <input value={highlightInput} onChange={e => setHighlightInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddHighlight(); }} placeholder="Like New" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
-              <button onClick={handleAddHighlight} style={{ padding: '0 24px', backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Add</button>
+           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '8px', marginBottom: '12px' }}>
+              <input value={highlightInput} onChange={e => setHighlightInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddHighlight(); }} placeholder="Like New" style={{ flex: 1, padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
+              <button onClick={handleAddHighlight} style={{ padding: mobile ? '12px' : '0 24px', height: mobile ? 'auto' : '46px', backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: mobile ? '13px' : '14px' }}>Add</button>
            </div>
            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {highlights.map((h, i) => (
@@ -474,18 +476,21 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '8px' }}>Add Inspection Points (e.g. Engine, Brakes)</label>
-           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'flex-end' }}>
+           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '8px', marginBottom: '16px', alignItems: mobile ? 'stretch' : 'flex-end' }}>
               <div style={{ flex: 1 }}>
-                <input value={insTitle} onChange={e => setInsTitle(e.target.value)} placeholder="Point Title (e.g. Engine)" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none' }} />
+                <input value={insTitle} onChange={e => setInsTitle(e.target.value)} placeholder="Point (e.g. Engine)" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: mobile ? '13px' : '14px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <input value={insValue} onChange={e => setInsValue(e.target.value)} placeholder="Value (e.g. Perfect)" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none' }} />
+                <input value={insValue} onChange={e => setInsValue(e.target.value)} placeholder="Value (e.g. Perfect)" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: mobile ? '13px' : '14px' }} />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 8px' }}>
-                <input type="checkbox" checked={insHighlight} onChange={e => setInsHighlight(e.target.checked)} id="insHighlight" />
-                <label htmlFor="insHighlight" style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563' }}>Highlt</label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: mobile ? 'space-between' : 'flex-start', gap: '6px', padding: mobile ? '4px 8px' : '0 8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <input type="checkbox" checked={insHighlight} onChange={e => setInsHighlight(e.target.checked)} id="insHighlight" />
+                  <label htmlFor="insHighlight" style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563' }}>Highlt</label>
+                </div>
+                {mobile && <button onClick={handleAddInspectionPoint} style={{ padding: '8px 20px', backgroundColor: '#0059A3', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Add</button>}
               </div>
-              <button onClick={handleAddInspectionPoint} className="h-[46px] px-5 bg-[#0059A3] text-white border-none rounded-lg font-bold cursor-pointer hover:bg-[#004a87] transition-colors">Add</button>
+              {!mobile && <button onClick={handleAddInspectionPoint} className="h-[46px] px-5 bg-[#0059A3] text-white border-none rounded-lg font-bold cursor-pointer hover:bg-[#004a87] transition-colors">Add</button>}
            </div>
 
            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -516,11 +521,11 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Name</label>
-            <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="caRya.krama" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="caRya.krama" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Contact Number</label>
-            <input value={sellerContactNumber} onChange={e => setSellerContactNumber(e.target.value)} placeholder="+91 9876543210" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={sellerContactNumber} onChange={e => setSellerContactNumber(e.target.value)} placeholder="+91 9876543210" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Type</label>
@@ -533,7 +538,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Member Since</label>
-            <input value={sellerMemberSince} onChange={e => setSellerMemberSince(e.target.value)} placeholder="2024" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={sellerMemberSince} onChange={e => setSellerMemberSince(e.target.value)} placeholder="2024" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
         </div>
       </section>
@@ -544,11 +549,11 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Area</label>
-            <input value={area} onChange={e => setArea(e.target.value)} placeholder="Indiranagar" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={area} onChange={e => setArea(e.target.value)} placeholder="Indiranagar" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>City</label>
-            <input value={city} onChange={e => setCity(e.target.value)} placeholder="Bangalore" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+            <input value={city} onChange={e => setCity(e.target.value)} placeholder="Bangalore" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
         </div>
       </section>
@@ -621,20 +626,20 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
 
       {/* Fixed Bottom Action Bar */}
       <div style={{ 
-        position: 'sticky', bottom: 0, padding: '20px 0', borderTop: '1px solid #e5e7eb', backgroundColor: 'white',
-        display: 'flex', justifyContent: 'flex-start', gap: '16px', zIndex: 10
+        position: 'sticky', bottom: 0, padding: mobile ? '12px 0' : '20px 0', borderTop: '1px solid #e5e7eb', backgroundColor: 'white',
+        display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'flex-start', gap: mobile ? '10px' : '16px', zIndex: 10
       }}>
         <button 
           onClick={() => handleSubmit('draft')}
           disabled={isSaving}
-          style={{ padding: '12px 24px', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '12px', fontWeight: 700, border: '1px solid #d1d5db', cursor: isSaving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isSaving ? 0.7 : 1 }}
+          style={{ width: mobile ? '100%' : 'auto', padding: mobile ? '14px' : '12px 24px', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '12px', fontWeight: 700, border: '1px solid #d1d5db', cursor: isSaving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: isSaving ? 0.7 : 1, fontSize: mobile ? '14px' : '15px' }}
         >
           <Save size={18} /> {isSaving ? 'Saving...' : editCar ? 'Save as Draft' : 'Save Draft'}
         </button>
         <button 
           onClick={() => handleSubmit('published')}
           disabled={isSaving}
-          style={{ padding: '12px 32px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: isSaving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(0, 89, 163, 0.3)', opacity: isSaving ? 0.7 : 1 }}
+          style={{ width: mobile ? '100%' : 'auto', padding: mobile ? '14px' : '12px 32px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: isSaving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(0, 89, 163, 0.3)', opacity: isSaving ? 0.7 : 1, fontSize: mobile ? '14px' : '15px' }}
         >
           <Send size={18} /> {isSaving ? 'Saving...' : editCar ? 'Save Changes' : 'Publish Car'}
         </button>

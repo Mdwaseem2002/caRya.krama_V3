@@ -207,9 +207,9 @@ export default function Hero() {
               {!user && (
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('OPEN_AUTH', { detail: { mode: 'signup' } }))}
-                  className="hero-cta-btn sm:hidden flex-1 inline-flex items-center gap-2 px-4 py-3.5 rounded-full text-xs font-bold transition-all group hover:-translate-y-1 bg-white/10 text-white text-center justify-center backdrop-blur-md border border-white/20"
+                  className="hero-cta-btn sm:hidden flex-1 inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-xs font-bold transition-all group hover:-translate-y-1 bg-royal/90 text-white text-center justify-center backdrop-blur-md border border-white/10"
                   style={{
-                    boxShadow: "0 4px 15px rgba(255,255,255,0.05)",
+                    boxShadow: "0 10px 30px rgba(27,79,216,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
                   }}
                 >
                   Sign Up

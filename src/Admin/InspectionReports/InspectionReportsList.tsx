@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Edit3, Eye, FileText, Upload, ClipboardCheck, Download } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { getAllInspectionReports, deleteInspectionReport, InspectionReportData } from "./InspectionStorage";
 import InspectionReportForm from "./InspectionReportForm";
 import InspectionReportUpload from "./InspectionReportUpload";
@@ -9,6 +10,7 @@ import InspectionReportPDFView from "./InspectionReportPDFView";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function InspectionReportsList() {
+  const mobile = useIsMobile();
   const [reports, setReports] = useState<InspectionReportData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState<"list" | "create" | "upload" | "view">("list");
@@ -86,16 +88,16 @@ export default function InspectionReportsList() {
 
   if (view === "view" && viewReport) {
     return (
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '32px' }}>
-        <button onClick={() => { setView("list"); setViewReport(null); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#0059A3', fontWeight: 700, cursor: 'pointer', marginBottom: '24px', padding: 0 }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: mobile ? '16px' : '32px' }}>
+        <button onClick={() => { setView("list"); setViewReport(null); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#0059A3', fontWeight: 700, cursor: 'pointer', marginBottom: mobile ? '16px' : '24px', padding: 0, fontSize: mobile ? '13px' : '14px' }}>
           ← Back
         </button>
 
-        <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', marginBottom: '4px' }}>
+        <h2 style={{ fontSize: mobile ? '18px' : '22px', fontWeight: 800, color: '#111827', marginBottom: '4px', lineHeight: 1.3 }}>
           Inspection Report — {viewReport.carName}
         </h2>
-        <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px' }}>
-          ID: {viewReport.id} • Type: {viewReport.reportType === "created" ? "📝 Created" : "📄 Uploaded"} •
+        <p style={{ fontSize: mobile ? '11px' : '13px', color: '#6b7280', marginBottom: mobile ? '16px' : '24px' }}>
+          ID: {viewReport.id.split('-').pop()} • Type: {viewReport.reportType === "created" ? "📝 Created" : "📄 Uploaded"} •
           Date: {new Date(viewReport.createdAt).toLocaleDateString()}
         </p>
 

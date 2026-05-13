@@ -331,7 +331,7 @@ export default function EditAdminProfile() {
                     type="email" 
                     value={formData.email} 
                     onChange={e => setFormData({...formData, email: e.target.value})}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold text-gray-600"
+                    className="w-full pl-10 pr-20 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold text-gray-600"
                     readOnly
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded">VERIFIED</span>
@@ -377,7 +377,7 @@ export default function EditAdminProfile() {
                 >
                   <span className="flex items-center gap-2 text-gray-700 truncate min-w-0 mr-2">
                     <Lock className="w-4 h-4 text-gray-400 shrink-0" /> 
-                    <span className="truncate">••••••••••••</span>
+                    <span>••••••••••••</span>
                   </span>
                   <span className="text-[10px] sm:text-xs font-bold text-[#0059A3] group-hover:underline shrink-0 whitespace-nowrap">Change Password</span>
                 </button>

@@ -32,11 +32,11 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
   return (
     <div style={{ backgroundColor: '#f3f4f6', padding: mobile ? '16px 12px' : '40px 20px', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Interactive Action Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', width: '100%', maxWidth: '794px', backgroundColor: '#ffffff', padding: mobile ? '12px 16px' : '16px 24px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e5e7eb' }}>
-        <button onClick={onClose} style={{ padding: '10px 20px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', fontWeight: 700, border: '1px solid #d1d5db', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s ease' }}>
+      <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', justifyContent: 'space-between', marginBottom: '24px', width: '100%', maxWidth: '794px', backgroundColor: '#ffffff', padding: mobile ? '12px' : '16px 24px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e5e7eb', gap: mobile ? '10px' : '0' }}>
+        <button onClick={onClose} style={{ width: mobile ? '100%' : 'auto', padding: mobile ? '12px' : '10px 20px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', fontWeight: 700, border: '1px solid #d1d5db', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: mobile ? 'center' : 'flex-start', gap: '8px', transition: 'all 0.2s ease', fontSize: mobile ? '13px' : '14px' }}>
           ← Back
         </button>
-        <button onClick={handleDownloadPDF} style={{ padding: '10px 24px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(0, 89, 163, 0.3)', transition: 'all 0.2s ease' }}>
+        <button onClick={handleDownloadPDF} style={{ width: mobile ? '100%' : 'auto', padding: mobile ? '12px' : '10px 24px', backgroundColor: '#0059A3', color: '#ffffff', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: mobile ? 'center' : 'flex-start', gap: '8px', boxShadow: '0 4px 10px rgba(0, 89, 163, 0.3)', transition: 'all 0.2s ease', fontSize: mobile ? '13px' : '14px' }}>
           <Download size={18} /> Download Official PDF
         </button>
       </div>
@@ -113,33 +113,33 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
             )}
 
             {/* Vehicle Details Card */}
-            <div style={{ border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', backgroundColor: '#ffffff' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '20px' }}>
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '16px', padding: mobile ? '16px' : '24px', backgroundColor: '#ffffff' }}>
+               <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '20px', gap: mobile ? '12px' : '0' }}>
                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                    <div style={{ backgroundColor: '#f0f9ff', padding: '8px', borderRadius: '8px' }}><CarIcon size={20} style={{ color: '#0059A3' }} /></div>
-                   <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#111827', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>Vehicle Overview</h3>
+                   <h3 style={{ margin: 0, fontSize: mobile ? '16px' : '18px', fontWeight: 900, color: '#111827', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>Vehicle Overview</h3>
                  </div>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ecfdf5', color: '#059669', padding: '6px 12px', border: '1px solid #a7f3d0', borderRadius: '20px', fontSize: '11px', fontWeight: 700 }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ecfdf5', color: '#059669', padding: '6px 12px', border: '1px solid #a7f3d0', borderRadius: '20px', fontSize: '10px', fontWeight: 700 }}>
                    <ShieldCheck size={14} /> Verified Badge
                  </div>
                </div>
 
-               <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: mobile ? '16px' : '24px', marginBottom: report.sellerDetails ? '20px' : '0' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: mobile ? '20px 12px' : '24px', marginBottom: report.sellerDetails ? '20px' : '0' }}>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Make & Model</p>
-                    <p style={{ margin: 0, fontSize: mobile ? '13px' : '15px', fontWeight: 800, color: '#111827' }}>{report.vehicleDetails.carName}</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Make & Model</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.vehicleDetails.carName}</p>
                   </div>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Year / Model</p>
-                    <p style={{ margin: 0, fontSize: mobile ? '13px' : '15px', fontWeight: 800, color: '#111827' }}>{report.vehicleDetails.year || "-"}</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Year / Model</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.vehicleDetails.year || "-"}</p>
                   </div>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Odometer</p>
-                    <p style={{ margin: 0, fontSize: mobile ? '13px' : '15px', fontWeight: 800, color: '#111827' }}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Odometer</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
                   </div>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection</p>
-                    <p style={{ margin: 0, fontSize: mobile ? '13px' : '16px', fontWeight: 900, color: '#0059A3' }}>STANDARD</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '16px', fontWeight: 900, color: '#0059A3', lineHeight: 1.2 }}>STANDARD</p>
                   </div>
                </div>
                

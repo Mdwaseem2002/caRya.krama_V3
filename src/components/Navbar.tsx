@@ -151,10 +151,10 @@ export default function Navbar() {
             <AnimatePresence>
                 {activeToast && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20, x: '-50%' }}
+                        initial={{ opacity: 0, y: 20, x: '-50%' }}
                         animate={{ opacity: 1, y: 0, x: '-50%' }}
-                        exit={{ opacity: 0, y: -20, x: '-50%' }}
-                        className="fixed bottom-10 sm:bottom-auto sm:top-24 left-1/2 z-[1000] w-[calc(100%-2rem)] sm:w-auto min-w-[300px] max-w-md bg-white rounded-2xl shadow-2xl border border-blue-50 p-4 flex items-start gap-4 cursor-pointer"
+                        exit={{ opacity: 0, y: 20, x: '-50%' }}
+                        className="fixed top-1/2 -translate-y-1/2 sm:top-24 sm:translate-y-0 left-1/2 z-[1000] w-[calc(100%-2rem)] sm:w-auto min-w-[300px] max-w-md bg-white rounded-2xl shadow-2xl border border-blue-50 p-4 flex items-start gap-4 cursor-pointer"
                         onClick={() => { router.push('/details'); setActiveToast(null); }}
                     >
                         <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">

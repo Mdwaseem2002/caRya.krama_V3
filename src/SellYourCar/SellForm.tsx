@@ -211,7 +211,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
         title: "New Sell Request 🚗",
         message: `${formData.firstName} ${formData.lastName} requested to sell a ${formData.brand} ${formData.model}.`,
         type: "sell_request",
-        cta: { label: "Review Request", href: "/admin/requests" }
+        cta: { label: "Review Request", href: "/admin/sell-requests" }
       });
 
       // Trigger Customer Notification (System)

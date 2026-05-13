@@ -155,7 +155,7 @@ export default function InspectionReportForm({
             title: "Report Generated 📄",
             message: `Inspection report for ${vdCarName} created successfully.`,
             type: "report",
-            cta: { label: "View Reports", href: "/admin/reports" }
+            cta: { label: "View Reports", href: "/admin/inspection-reports" }
           });
         });
       }

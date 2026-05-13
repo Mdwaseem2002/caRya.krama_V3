@@ -193,7 +193,7 @@ export default function PasswordChange({ isOpen, onClose, email, onSuccess }: Pa
                         { key: 'upper', label: 'Uppercase' },
                         { key: 'lower', label: 'Lowercase' },
                         { key: 'number', label: 'Number' },
-                        { key: 'special', label: 'Special Char' },
+                        { key: 'special', label: 'Special Character' },
                       ].map(({ key, label }) => {
                         const isValid = validatePassword(passForm.new)[key as keyof ReturnType<typeof validatePassword>];
                         return (

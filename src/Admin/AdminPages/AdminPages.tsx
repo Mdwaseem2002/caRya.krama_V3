@@ -130,7 +130,7 @@ export default function AdminPages({ children }: AdminPagesProps) {
                   borderRadius: '50px', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)', fontSize: '11px'
                 }}
               >
-                <LogOut size={14} /> Out
+                <LogOut size={14} /> Log Out
               </button>
             )}
           </div>
