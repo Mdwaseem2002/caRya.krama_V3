@@ -161,7 +161,6 @@ export default function InspectionReportForm({
       }
 
       onSuccess();
-      showNotification(editReport ? "Inspection report updated!" : "Inspection report saved!", "success");
     } catch (err: any) {
       showNotification(`Failed to save report: ${err?.message || "Unknown error"}`, "error");
     } finally {

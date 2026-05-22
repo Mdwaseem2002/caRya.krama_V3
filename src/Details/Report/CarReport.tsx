@@ -8,11 +8,13 @@ import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
 import InspectionReportPDFView from "@/Admin/InspectionReports/InspectionReportPDFView";
 import { InspectionReportData } from "@/Admin/InspectionReports/InspectionStorage";
 import { ShieldAlert } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 function ReportContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const carId = searchParams.get('id');
+  const { user } = useAuth();
   
   const [report, setReport] = useState<InspectionReportData | null>(null);
   const [carCoverImage, setCarCoverImage] = useState<string>("");
@@ -47,9 +49,22 @@ function ReportContent() {
         const data = await res.json();
         
         if (data.success && data.reports && data.reports.length > 0) {
-          // Report exists — check if purchased (for non-admin/customer flow)
-          const isPaid = hasPurchased(carId);
+          // Check payment: server-side DB check (primary), localStorage fallback
           const isUploadedCar = !!carData;
+          let isPaid = hasPurchased(carId); // localStorage fallback
+
+          // Server-side payment verification (more secure)
+          if (!isPaid && user) {
+            try {
+              const payCheckRes = await fetch(`/api/payment/check?carId=${carId}&userId=${user.id}`);
+              const payCheckData = await payCheckRes.json();
+              if (payCheckData.success && payCheckData.paid) {
+                isPaid = true;
+              }
+            } catch (payCheckErr) {
+              console.warn("Server payment check failed, falling back to localStorage:", payCheckErr);
+            }
+          }
           
           // Allow access if: paid OR it's an admin-uploaded car being previewed
           if (isPaid || isUploadedCar) {
@@ -70,7 +85,7 @@ function ReportContent() {
       }
     };
     init();
-  }, [carId, router]);
+  }, [carId, router, user]);
 
   if (loading) {
     return (

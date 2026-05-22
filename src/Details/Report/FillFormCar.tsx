@@ -192,7 +192,7 @@ const FillFormCar = memo(function FillFormCar({ carId }: FillFormCarProps) {
                       ref={emailRef}
                       onChange={debouncedCheck}
                       onBlur={checkValidation}
-                      placeholder="farhan@caryakrama.com"
+                      placeholder="Caryakrama@gmail.com"
                       className="w-full pl-14 pr-4 py-3.5 bg-slate-50 border border-transparent rounded-[1.25rem] text-sm md:text-base font-bold text-[#0f172a] outline-none focus:bg-white focus:border-royal/20 focus:ring-4 focus:ring-royal/5 transition-all placeholder:text-slate-300 placeholder:font-medium"
                     />
                   </div>

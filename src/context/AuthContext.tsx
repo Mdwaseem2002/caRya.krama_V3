@@ -53,9 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, role: 'admin' | 'customer', password?: string): Promise<{ success: boolean; error?: string }> => {
     if (role === 'admin') {
       const normalizedEmail = email.trim().toLowerCase();
-      const isValidAdminEmail = normalizedEmail === 'admin@pentacloud.com' || normalizedEmail === 'admin@penta.com';
+      const isValidAdminEmail = normalizedEmail === 'caryakrama@gmail.com';
 
-      if (isValidAdminEmail && password === 'Penta@123') {
+      if (isValidAdminEmail && password === 'Lisa@2026') {
         const adminUser: User = {
           id: 'admin_1',
           name: 'Admin',

@@ -301,6 +301,14 @@ export default function EditAdminProfile() {
                   <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
                 </div>
               </div>
+              {formData.profilePhoto && (
+                <button 
+                  onClick={() => setFormData(prev => ({ ...prev, profilePhoto: "" }))}
+                  className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 transition-colors -mt-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Remove
+                </button>
+              )}
               <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -401,63 +409,34 @@ export default function EditAdminProfile() {
           </div>
         </SectionCard>
 
-        {/* STEP 3: ROLE & PERMISSIONS */}
-        <SectionCard icon={ListChecks} title="Role & Permissions" desc="Determine your access level across the platform.">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="w-full md:w-1/3 space-y-2">
-               <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Designated Role</label>
-               <div className="relative">
-                 <select 
-                   value={formData.role} 
-                   onChange={e => setFormData({...formData, role: e.target.value})}
-                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none font-bold text-[#0059A3] outline-none hover:bg-white focus:ring-2 focus:ring-[#0059A3]/20 focus:border-[#0059A3] transition-all cursor-pointer"
-                 >
-                   <option value="Super Admin">Super Admin</option>
-                   <option value="Admin">Admin</option>
-                   <option value="Manager">Manager</option>
-                 </select>
-                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-               </div>
-               
-               <div className="mt-4 bg-amber-50 rounded-xl p-4 border border-amber-100">
-                  <h5 className="flex items-center gap-2 text-sm font-bold text-amber-900 mb-1">
-                    <AlertTriangle className="w-4 h-4" /> Role Notice
-                  </h5>
-                  <p className="text-xs font-semibold text-amber-700 leading-relaxed">
-                    Based on your assigned role, some permissions might be strictly enforced and unchangeable.
-                  </p>
-               </div>
-            </div>
 
-            <div className="w-full md:w-2/3">
-               <label className="block text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">Module Permissions</label>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
-                  <CheckboxRow label="Upload Cars" checked={formData.permissions.uploadCars} onChange={() => setFormData({...formData, permissions: {...formData.permissions, uploadCars: !formData.permissions.uploadCars}})} />
-                  <CheckboxRow label="Edit Cars" checked={formData.permissions.editCars} onChange={() => setFormData({...formData, permissions: {...formData.permissions, editCars: !formData.permissions.editCars}})} />
-                  <CheckboxRow label="Delete Cars" checked={formData.permissions.deleteCars} onChange={() => setFormData({...formData, permissions: {...formData.permissions, deleteCars: !formData.permissions.deleteCars}})} />
-                  <CheckboxRow label="Manage Reports" checked={formData.permissions.manageReports} onChange={() => setFormData({...formData, permissions: {...formData.permissions, manageReports: !formData.permissions.manageReports}})} />
-                  <CheckboxRow label="View Payments" checked={formData.permissions.viewPayments} onChange={() => setFormData({...formData, permissions: {...formData.permissions, viewPayments: !formData.permissions.viewPayments}})} />
-               </div>
-            </div>
-          </div>
-        </SectionCard>
 
         {/* STEP 4: BUSINESS INFO */}
         <SectionCard icon={Building2} title="Business Info" desc="Company details used in reports and footers.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="md:col-span-2 flex flex-col sm:flex-row items-center gap-5 bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-2">
-              <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 group flex items-center justify-center shadow-sm">
-                {formData.companyLogo ? (
-                  <img src={formData.companyLogo} alt="Logo" className="w-full h-full object-cover" />
-                ) : (
-                  <Building2 className="w-8 h-8 text-gray-300" />
-                )}
-                <div 
-                  onClick={() => logoInputRef.current?.click()}
-                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                >
-                  <Camera className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 group flex items-center justify-center shadow-sm">
+                  {formData.companyLogo ? (
+                    <img src={formData.companyLogo} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <Building2 className="w-8 h-8 text-gray-300" />
+                  )}
+                  <div 
+                    onClick={() => logoInputRef.current?.click()}
+                    className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    <Camera className="w-5 h-5 text-white" />
+                  </div>
                 </div>
+                {formData.companyLogo && (
+                  <button 
+                    onClick={() => setFormData(prev => ({ ...prev, companyLogo: "" }))}
+                    className="text-[10px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" /> Remove
+                  </button>
+                )}
               </div>
               <input 
                 type="file" 

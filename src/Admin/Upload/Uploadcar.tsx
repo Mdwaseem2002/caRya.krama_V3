@@ -156,10 +156,26 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   };
 
   const calculateSavings = () => {
-    const a = parseFloat(actualPrice.replace(/[^0-9.]/g, ''));
-    const s = parseFloat(sellingPrice.replace(/[^0-9.]/g, ''));
-    if (!isNaN(a) && !isNaN(s) && a > s) {
-      return `Save ₹${(a - s).toFixed(2)} Lakh`;
+    const parseVal = (str: string) => {
+      const num = parseFloat(str.replace(/[^0-9.]/g, ''));
+      if (isNaN(num)) return 0;
+      const lower = str.toLowerCase();
+      if (lower.includes('cr') || lower.includes('crore')) return num * 10000000;
+      if (lower.includes('lakh') || lower.includes('lac') || lower.includes('l')) return num * 100000;
+      return num < 1000 ? num * 100000 : num; // default to Lakh if small number
+    };
+
+    const formatVal = (val: number) => {
+      if (val >= 10000000) return `₹${(val / 10000000).toFixed(2).replace(/\.00$/, '')} Crore`;
+      if (val >= 100000) return `₹${(val / 100000).toFixed(2).replace(/\.00$/, '')} Lakh`;
+      return `₹${val.toLocaleString('en-IN')}`;
+    };
+
+    const a = parseVal(actualPrice);
+    const s = parseVal(sellingPrice);
+    
+    if (a > 0 && s > 0 && a > s) {
+      return `Save ${formatVal(a - s)}`;
     }
     return null;
   };

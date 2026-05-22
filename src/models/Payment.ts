@@ -35,6 +35,9 @@ const PaymentSchema = new Schema<IPayment>(
       lowercase: true,
     },
     carId: { type: String, required: true, index: true },
+    razorpayOrderId: { type: String, default: "" },
+    razorpayPaymentId: { type: String, default: "" },
+    razorpaySignature: { type: String, default: "" },
     amount: { type: Number, required: true, min: 0 },
     date: { type: String, default: () => new Date().toISOString() },
     status: {

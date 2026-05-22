@@ -110,7 +110,16 @@ export default function SearchShowen({ filteredCars, query }: SearchShowenProps)
                 <div className="mt-auto pt-6 border-t border-slate-200/50 flex items-center justify-between gap-4">
                   <div className="flex flex-col min-w-0">
                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Selling Price</span>
-                     <span className="text-2xl md:text-3xl font-black text-[#0f172a] tracking-tighter truncate">{car.pricing.sellingPrice}</span>
+                     <span className="text-2xl md:text-3xl font-black text-[#0f172a] tracking-tighter truncate">
+                        {car.pricing?.sellingPrice 
+                          ? (car.pricing.sellingPrice.trim().startsWith("₹") 
+                              ? car.pricing.sellingPrice 
+                              : `₹${car.pricing.sellingPrice}`)
+                              .replace(/\bcrore\b/ig, "Crore")
+                              .replace(/\blakh\b/ig, "Lakh")
+                              .replace(/\blac\b/ig, "Lakh") 
+                          : "Price TBD"}
+                     </span>
                   </div>
                   <Link 
                     href={`/car/${car.id}`}

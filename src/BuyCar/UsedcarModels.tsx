@@ -321,7 +321,16 @@ export default function UsedcarModels() {
                   <div className="mt-auto pt-5 border-t border-[#f1f5f9] flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <span className="block text-[8px] font-black text-[#94a3b8] uppercase tracking-widest mb-1">Selling Price</span>
-                      <p className="text-base sm:text-xl font-black text-[#0f172a] tracking-tighter leading-none truncate">{car.pricing?.sellingPrice || "Price TBD"}</p>
+                      <p className="text-base sm:text-xl font-black text-[#0f172a] tracking-tighter leading-none truncate">
+                        {car.pricing?.sellingPrice 
+                          ? (car.pricing.sellingPrice.trim().startsWith("₹") 
+                              ? car.pricing.sellingPrice 
+                              : `₹${car.pricing.sellingPrice}`)
+                              .replace(/\bcrore\b/ig, "Crore")
+                              .replace(/\blakh\b/ig, "Lakh")
+                              .replace(/\blac\b/ig, "Lakh") 
+                          : "Price TBD"}
+                      </p>
                     </div>
                     <button 
                       onClick={() => window.location.href = `/car/${car.id}`}

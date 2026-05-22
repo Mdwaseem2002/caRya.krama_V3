@@ -149,6 +149,11 @@ export async function deleteCarFromStorage(id: string): Promise<void> {
     const err = await res.json().catch(() => ({ error: "Unknown error" }));
     throw new Error(err.error || "Failed to delete car");
   }
+
+  // Invalidate cache
+  cache.adminCars.time = 0;
+  cache.publishedCars.time = 0;
+  if (cache.singleProps[id]) delete cache.singleProps[id];
 }
 
 /** Get ALL cars (admin view — includes drafts) */
