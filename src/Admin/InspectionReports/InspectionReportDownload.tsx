@@ -54,17 +54,17 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     for (let i = 0; i < pages.length; i++) {
        const page = pages[i] as HTMLElement;
        const canvas = await html2canvas(page, {
-         scale: 3,
+         scale: 2,
          useCORS: true,
          logging: false,
          letterRendering: true,
        } as any);
        
-       const imgData = canvas.toDataURL("image/png");
+       const imgData = canvas.toDataURL("image/jpeg", 0.85);
        const imgHeight = (canvas.height * imgWidth) / canvas.width;
        
        if (i > 0) pdf.addPage();
-       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+       pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
     }
     
     pdf.save(`Inspection_Report_${report?.id || 'Download'}.pdf`);
@@ -210,11 +210,6 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
              <SectionCard title="2. ENGINE BAY">
                <BulletList text={report.engineBay || "No observations"} warning={false} />
              </SectionCard>
-             
-             <SectionCard title="3. INTERIORS & CABIN">
-               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
-               <BulletList text={report.interiors.issues} warning={true} />
-             </SectionCard>
           </div>
           <Footer pageNum={2} />
         </div>
@@ -233,6 +228,11 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                    </div>
                 </div>
              </div>
+
+             <SectionCard title="3. INTERIORS & CABIN">
+               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
+               <BulletList text={report.interiors.issues} warning={true} />
+             </SectionCard>
 
              <SectionCard title="4. FLUIDS DEGRADATION & LEAKS">
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
@@ -355,6 +355,24 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                    </div>
                 </div>
              </SectionCard>
+          </div>
+          <Footer pageNum={4} />
+        </div>
+
+        {/* PAGE 5 */}
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                <div style={{ display: 'table-row' }}>
+                   <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                      <span>PRECAUTIONS & SERVICE</span>
+                   </div>
+                   <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                      <span style={refStyle}>REF: {report.id}</span>
+                   </div>
+                </div>
+             </div>
 
              <SectionCard title="9. PRECAUTIONS & RECOMMENDATIONS">
                 <BulletList text={report.precautions || "No generic precautions indicated."} warning={false} forceBullet={true} />
@@ -366,7 +384,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                 )}
              </SectionCard>
           </div>
-          <Footer pageNum={4} />
+          <Footer pageNum={5} />
         </div>
       </div>
     </div>
@@ -381,7 +399,7 @@ const pageStyle: React.CSSProperties = {
   width: '794px',
   height: '1123px',
   backgroundColor: '#ffffff',
-  padding: '50px 60px',
+  padding: '50px 60px 100px 60px',
   boxSizing: 'border-box',
   fontFamily: 'Arial, sans-serif',
   position: 'relative',
@@ -416,7 +434,7 @@ function Footer({ pageNum }: { pageNum: number }) {
   return (
     <div style={{ position: 'absolute', bottom: '50px', left: '60px', right: '60px', display: 'table', width: '674px', borderTop: '2px solid #f3f4f6', paddingTop: '20px', fontSize: '11px', color: '#9ca3af', fontWeight: 700, zIndex: 1 }}>
       <div style={{ display: 'table-row' }}>
-         <div style={{ display: 'table-cell', textAlign: 'left', width: '33.3%' }}>Page {pageNum} / 4</div>
+         <div style={{ display: 'table-cell', textAlign: 'left', width: '33.3%' }}>Page {pageNum} / 5</div>
          <div style={{ display: 'table-cell', textAlign: 'center', width: '33.3%', color: '#0059A3', fontWeight: 900, letterSpacing: '0.05em' }}>caRya.krama Vehicle Inspection</div>
          <div style={{ display: 'table-cell', textAlign: 'right', width: '33.3%' }}>Confidential</div>
       </div>

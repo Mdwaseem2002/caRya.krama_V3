@@ -54,7 +54,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
        <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? '20px' : '40px', width: '100%', maxWidth: '794px' }}>
         
         {/* PAGE 1 */}
-        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', height: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px' : '50px 60px' }}>
+        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
           <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
           <div style={{ position: 'relative', zIndex: 1 }}>
             {/* Top Header */}
@@ -162,7 +162,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
         </div>
 
         {/* PAGE 2 */}
-        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', height: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px' : '50px 60px' }}>
+        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
           <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
           <div style={{ position: 'relative', zIndex: 1 }}>
              <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
@@ -182,7 +182,19 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              <SectionCard icon={<Settings size={22} />} title="2. ENGINE BAY">
                <BulletList text={report.engineBay || "No observations"} warning={false} />
              </SectionCard>
-             
+          </div>
+          <Footer pageNum={2} mobile={mobile} />
+        </div>
+
+        {/* PAGE 3 */}
+        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
+          <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
+                <span style={{ letterSpacing: '-0.02em' }}>TECHNICAL DETAILS</span>
+                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
+             </h2>
+
              {/* 3. INTERIORS */}
              {report.interiors && (
              <SectionCard icon={<CarIcon size={22} />} title="3. INTERIORS & CABIN">
@@ -190,18 +202,6 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                <BulletList text={report.interiors.issues} warning={true} />
              </SectionCard>
              )}
-          </div>
-          <Footer pageNum={2} mobile={mobile} />
-        </div>
-
-        {/* PAGE 3 */}
-        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', height: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px' : '50px 60px' }}>
-          <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-             <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
-                <span style={{ letterSpacing: '-0.02em' }}>TECHNICAL DETAILS</span>
-                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
-             </h2>
 
              {/* 4. FLUIDS TABLE */}
              <SectionCard icon={<Droplets size={22} />} title="4. FLUIDS DEGRADATION \u0026 LEAKS" mobile={mobile}>
@@ -264,7 +264,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
         </div>
 
         {/* PAGE 4 */}
-        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', height: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px' : '50px 60px' }}>
+        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
           <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
           <div style={{ position: 'relative', zIndex: 1 }}>
              <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
@@ -317,6 +317,18 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                    </div>
                 </div>
              </SectionCard>
+          </div>
+          <Footer pageNum={4} mobile={mobile} />
+        </div>
+
+        {/* PAGE 5 */}
+        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
+          <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
+                <span style={{ letterSpacing: '-0.02em' }}>PRECAUTIONS & SERVICE</span>
+                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
+             </h2>
 
              {/* 9. PRECAUTIONS & RECOMMENDATIONS */}
              <SectionCard icon={<AlertTriangle size={22} />} title="9. PRECAUTIONS & RECOMMENDATIONS">
@@ -329,7 +341,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                 )}
              </SectionCard>
           </div>
-          <Footer pageNum={4} mobile={mobile} />
+          <Footer pageNum={5} mobile={mobile} />
         </div>
 
       </div>
@@ -341,15 +353,15 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
 
 const pageStyle: React.CSSProperties = {
   width: '794px',
-  height: '1123px', // Fixed exactly for A4 proportion at 96 DPI
+  minHeight: '1123px', // A4 proportion at 96 DPI
   backgroundColor: '#ffffff',
-  padding: '50px 60px',
+  padding: '50px 60px 100px 60px',
   boxSizing: 'border-box',
   fontFamily: '"Inter", sans-serif',
   position: 'relative',
   pageBreakAfter: 'always',
   boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
-  overflow: 'hidden'
+  overflow: 'visible'
 };
 
 const watermarkStyle: React.CSSProperties = {
@@ -368,7 +380,7 @@ const watermarkStyle: React.CSSProperties = {
 function Footer({ pageNum, mobile }: { pageNum: number, mobile?: boolean }) {
   return (
     <div style={{ position: 'absolute', bottom: mobile ? '16px' : '50px', left: mobile ? '16px' : '60px', right: mobile ? '16px' : '60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #f3f4f6', paddingTop: mobile ? '12px' : '20px', fontSize: mobile ? '8px' : '11px', color: '#9ca3af', fontWeight: 700, zIndex: 1 }}>
-      <div>Page {pageNum} / 4</div>
+      <div>Page {pageNum} / 5</div>
       <div style={{ color: '#0059A3', fontWeight: 900, letterSpacing: '0.05em' }}>caRya.krama</div>
       {!mobile && <div>{new Date().toLocaleDateString('en-GB')}</div>}
     </div>
