@@ -120,8 +120,8 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                    <p style={valueStyle}>{report.id}</p>
                 </div>
                 <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', width: '33.33%' }}>
-                   <p style={labelStyle}>Inspector</p>
-                   <p style={valueStyle}>Master Tech Z.K.</p>
+                   <p style={labelStyle}>Inspector Name</p>
+                   <p style={valueStyle}>Master Tech {(report as any).inspectorName || "Z.K."}</p>
                 </div>
               </div>
             </div>
@@ -145,41 +145,36 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                 </div>
               }
             >
-               <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px 0', margin: '0 -12px' }}>
+               <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px 24px', margin: '-12px -12px' }}>
                   <div style={{ display: 'table-row' }}>
-                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                    <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
                       <p style={labelStyle}>Make & Model</p>
                       <p style={valueStyle}>{report.vehicleDetails.carName}</p>
                     </div>
-                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                    <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
                       <p style={labelStyle}>Year / Model</p>
                       <p style={valueStyle}>{report.vehicleDetails.year || "-"}</p>
                     </div>
-                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
+                    <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
                       <p style={labelStyle}>Odometer</p>
                       <p style={valueStyle}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
                     </div>
-                    <div style={{ display: 'table-cell', padding: '12px', width: '25%' }}>
-                      <p style={{ ...labelStyle, color: '#0059A3' }}>Inspection Goal</p>
-                      <p style={{ ...valueStyle, color: '#0059A3', fontSize: '16px' }}>STANDARD AUDIT</p>
+                  </div>
+                  <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
+                      <p style={labelStyle}>Seller Name</p>
+                      <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails?.name || "caRya.krama"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
+                      <p style={labelStyle}>Contact Number</p>
+                      <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails?.contactNumber || "N/A"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
+                      <p style={labelStyle}>Location</p>
+                      <p style={{ ...valueStyle, color: '#374151' }}>{(report.sellerDetails as any)?.location || "Bangalore, IN"}</p>
                     </div>
                   </div>
                </div>
-               
-               {report.sellerDetails && (
-                 <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '32px 0', marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed #e5e7eb', marginLeft: '-32px' }}>
-                    <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', paddingLeft: '32px' }}>
-                        <p style={labelStyle}>Seller Name</p>
-                        <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails.name || "-"}</p>
-                      </div>
-                      <div style={{ display: 'table-cell' }}>
-                        <p style={labelStyle}>Contact Number</p>
-                        <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails.contactNumber || "-"}</p>
-                      </div>
-                    </div>
-                 </div>
-               )}
             </SectionCard>
           </div>
           <Footer pageNum={1} />

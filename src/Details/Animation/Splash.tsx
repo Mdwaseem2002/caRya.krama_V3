@@ -75,7 +75,7 @@ export default function ValuePropSplash({ onComplete }: SplashProps) {
               REJECTED.
             </h2>
             <p className="text-red-500/80 text-sm md:text-base font-medium mt-4 tracking-wide leading-relaxed">
-              Many cars got rejected and the issue still remains.
+              Many cars Get rejected and the issue still remains.
             </p>
             <p className="text-white/40 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] mt-3">
               Solution not provided.

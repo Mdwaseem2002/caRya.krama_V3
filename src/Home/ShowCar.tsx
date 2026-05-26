@@ -21,15 +21,15 @@ const cars = [
   },
   {
     id: 2,
-    name: "TATA CURVV",
-    variant: "EV / AUTOMATIC",
+    name: "TATA NEXON",
+    variant: "PETROL",
     year: "2024",
     price: "₹22.50 Lakh",
-    image: "/CarImages/Tata SUV.png",
-    tag: "ELECTRIC SUV",
+    image: "/CarImages/Tata Nexon.png",
+    tag: "COMPACT SUV",
     mileage: "12,000 KMS",
     ownership: "1ST OWNER",
-    energy: "ELECTRIC ",
+    energy: "PETROL",
     drive: "AUTOMATIC",
     location: "Bangalore",
   },
@@ -37,13 +37,13 @@ const cars = [
     id: 3,
     name: "AUDI Q3",
     variant: "PLUS",
-    year: "2021",
+    year: "2017",
     price: "₹32.50 Lakh",
     image: "/CarImages/Audi Q3.png",
     tag: "LUXURY SUV",
     mileage: "38,000 KMS",
     ownership: "1ST OWNER",
-    energy: "PETROL",
+    energy: "DIESEL",
     drive: "AUTOMATIC",
     location: "Bangalore",
   },
@@ -169,10 +169,6 @@ export default function ShowCar() {
 
                 <div className="flex flex-col gap-5 border-t border-gray-100 pt-6">
                   <div className="flex justify-between items-center">
-                    <div className="flex flex-col gap-1.5">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Market Value</p>
-                      <p className="text-lg font-black text-navy leading-none tracking-tight">{car.price}</p>
-                    </div>
                     <div className="flex items-center gap-1.5 text-gray-400">
                       <MapPin size={12} />
                       <span className="text-[10px] font-black uppercase tracking-widest">{car.location}</span>

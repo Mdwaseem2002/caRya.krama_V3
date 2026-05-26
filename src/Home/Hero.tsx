@@ -49,6 +49,7 @@ export default function Hero() {
   const containerRef  = useRef<HTMLDivElement>(null);
   const group1Ref     = useRef<HTMLDivElement>(null);  // badge + headline
   const group2Ref     = useRef<HTMLDivElement>(null); // subheadline + badge
+  const promoRef      = useRef<HTMLDivElement>(null); // promo banner
   const group3Ref     = useRef<HTMLDivElement>(null);  // badges + CTAs
 
   useGSAP(() => {
@@ -60,6 +61,9 @@ export default function Hero() {
       .from(group2Ref.current, { y: 20, opacity: 0, duration: 0.8 }, "+= 0.2")
     // Stage 3 – trust badges + CTAs
       .from(group3Ref.current, { y: 30, opacity: 0, duration: 0.8 }, "+= 0.2");
+      
+    // Promo Badge (Right side)
+    tl.from(promoRef.current, { x: 100, opacity: 0, duration: 1, ease: "back.out(1.5)" }, 1);
 
     // MatchMedia removed as it was only used for USP animation
   }, { scope: containerRef });
@@ -128,6 +132,39 @@ export default function Hero() {
           </div>
         </div>
 
+        {/* ── FLOATING PROMO BADGE (Responsive: Relative on Mobile, Absolute on Desktop) ── */}
+        <div ref={promoRef} className="relative md:absolute z-20 self-end md:self-auto -mt-8 sm:-mt-12 md:mt-0 mr-4 sm:mr-8 md:mr-0 md:bottom-28 right-0 md:right-8 lg:right-12 pointer-events-auto">
+          <Link href="/BuyCar" className="group flex flex-col items-end">
+            {/* Glassmorphism Badge */}
+            <div className="relative overflow-hidden bg-black/60 md:bg-black/40 backdrop-blur-xl border border-white/20 md:border-white/30 p-3 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-all duration-500 hover:bg-black/70 md:hover:bg-black/60 hover:-translate-y-1 md:hover:-translate-x-3 hover:scale-[1.02] group-hover:border-sky/60 group-hover:shadow-[0_0_30px_rgba(27,79,216,0.3)]" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)" }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+              
+              <div className="relative flex items-center gap-3 sm:gap-6">
+                {/* Text Content */}
+                <div className="flex flex-col text-right">
+                  <span className="text-white font-black uppercase tracking-[0.15em] text-[9px] sm:text-[12px] md:text-[13px] mb-1 md:mb-1.5 opacity-90 group-hover:text-sky transition-colors duration-300 drop-shadow-md">
+                    Pick Your Dream Car
+                  </span>
+                  <span className="text-white text-[11px] sm:text-[15px] md:text-[16px] font-semibold leading-snug max-w-[150px] sm:max-w-[240px]">
+                    Trusted Inspection Report <br/>
+                    <span className="text-[#10b981] font-black mt-1 md:mt-1.5 inline-block text-[13px] sm:text-[18px] drop-shadow-[0_0_10px_rgba(16,185,129,0.6)]">
+                      Only ₹499 <span className="text-[9px] sm:text-[13px] font-bold text-[#10b981]/80">+ GST</span>
+                    </span>
+                  </span>
+                </div>
+                
+                {/* Icon Circle */}
+                <div className="relative flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-royal/90 to-sky/90 shadow-[0_0_20px_rgba(56,189,248,0.5)] shrink-0 border border-white/30 group-hover:scale-110 transition-transform duration-500">
+                  <ClipboardList className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+                  {/* Ping Dot */}
+                  <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-green-500 rounded-full animate-ping" />
+                  <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-green-500 rounded-full border border-black/50" />
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {/* ── MAIN CONTENT (Left Side Text) ── */}
         <div
           className="relative flex flex-col flex-grow w-full md:w-[60%] lg:w-[50%] xl:w-[45%] px-5 sm:px-12 lg:px-20 pt-2 pb-10 sm:py-12 lg:pt-20 lg:pb-8"
@@ -191,7 +228,7 @@ export default function Hero() {
           </div>
  
           {/* Middle Group: CTA */}
-          <div className="flex flex-col items-center lg:items-start w-full mt-6 sm:mt-12 lg:mt-6">
+          <div className="flex flex-col items-center lg:items-start w-full mt-6 sm:mt-10 lg:mt-8">
             <div className="w-full flex flex-row sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start">
               <Link
                 href="/BuyCar"
@@ -253,6 +290,9 @@ export default function Hero() {
         @keyframes scroll-indicator {
           0%   { transform: translateY(-100%); }
           100% { transform: translateY(300%); }
+        }
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
         }
       `}</style>
 

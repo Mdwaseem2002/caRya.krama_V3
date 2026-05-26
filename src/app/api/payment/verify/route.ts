@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
-      amount: amount || 299,
+      amount: amount || 600,
       date: now,
       status: "completed",
     });

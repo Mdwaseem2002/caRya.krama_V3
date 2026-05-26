@@ -9,7 +9,7 @@ export const cars = [
     odometer: "62,000 kms",
     condition: "Excellent",
     inspectionScore: "9.8/10",
-    reportPrice: "₹299",
+    reportPrice: "₹600",
     inspectionSummary: [
       "Engine health: Perfect",
       "Transmission: Smooth",
@@ -27,7 +27,7 @@ export const cars = [
     odometer: "14,000 kms",
     condition: "Like New",
     inspectionScore: "9.9/10",
-    reportPrice: "₹299",
+    reportPrice: "₹600",
     inspectionSummary: [
       "4x4 System tested: 100%",
       "Suspension: Perfect",
@@ -100,7 +100,7 @@ export const cars = [
     odometer: "5,000 kms",
     condition: "Brand New",
     inspectionScore: "10/10",
-    reportPrice: "₹299",
+    reportPrice: "₹600",
     inspectionSummary: [
       "Factory fresh condition",
       "Still under OEM warranty",

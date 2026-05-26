@@ -32,8 +32,9 @@ export default function Pay() {
 
   // Find car in static inventory OR uploaded MongoDB cars
   const staticCar = cars.find(c => c.id.toString() === carId?.toString());
-  const report = carId ? getReportByCarId(carId) : null;
-  const price = report?.price || 299;
+  const basePrice = 499;
+  const taxAndFees = 101;
+  const price = basePrice + taxAndFees;
 
   useEffect(() => {
     if (!staticCar && carId) {
@@ -224,11 +225,14 @@ export default function Pay() {
             <div className="space-y-4">
               <div className="flex justify-between text-gray-600 font-medium">
                 <span>Subtotal</span>
-                <span>₹{price}.00</span>
+                <span>₹{basePrice}.00</span>
               </div>
-              <div className="flex justify-between text-gray-600 font-medium">
-                <span>Tax</span>
-                <span>₹0.00</span>
+              <div className="flex justify-between text-gray-600 font-medium items-end">
+                <div className="flex flex-col">
+                  <span>Tax & Platform Fee</span>
+                  <span className="text-[10px] text-gray-400 font-normal mt-0.5">(Includes 18% GST & 2% Platform Fee)</span>
+                </div>
+                <span>₹{taxAndFees}.00</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-gray-900 pt-4 border-t border-gray-100">
                 <span>Total</span>

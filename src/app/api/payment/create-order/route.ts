@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const shortCarId = String(carId).slice(-8);
     const receipt = `insp_${shortCarId}_${String(timestamp).slice(-10)}`.slice(0, 40);
     const order = await razorpay.orders.create({
-      amount: 29900, // ₹299 in paise
+      amount: 60000, // ₹600 in paise
       currency: "INR",
       receipt,
       notes: {

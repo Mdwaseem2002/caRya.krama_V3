@@ -13,7 +13,7 @@ export default function ReportForm({ car, existingReport, onSave }: ReportFormPr
   const [formData, setFormData] = useState<CarReportData>(existingReport || {
     carId: car.id,
     overallScore: 9.0,
-    price: 299,
+    price: 600,
     isApproved: false,
     sections: [
       { label: 'Engine', score: 9.0 },

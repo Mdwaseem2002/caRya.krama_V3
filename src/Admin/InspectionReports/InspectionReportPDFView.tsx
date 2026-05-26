@@ -96,8 +96,8 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                  <p style={{ margin: 0, fontSize: mobile ? '11px' : '14px', fontWeight: 800, color: '#111827' }}>{report.id.split('-').pop()}</p>
               </div>
               <div style={{ flex: 1, textAlign: 'center' }}>
-                 <p style={{ margin: '0 0 6px 0', fontSize: mobile ? '8px' : '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspector</p>
-                 <p style={{ margin: 0, fontSize: mobile ? '11px' : '14px', fontWeight: 800, color: '#111827' }}>Z.K.</p>
+                 <p style={{ margin: '0 0 2px 0', fontSize: mobile ? '8px' : '10px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspector</p>
+                 <p style={{ margin: 0, fontSize: mobile ? '11px' : '14px', fontWeight: 800, color: '#111827' }}>{(report as any).inspectorName || "Z.K."}</p>
               </div>
             </div>
 
@@ -124,7 +124,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                  </div>
                </div>
 
-               <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: mobile ? '20px 12px' : '24px', marginBottom: report.sellerDetails ? '20px' : '0' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: mobile ? '20px 12px' : '24px' }}>
                   <div>
                     <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Make & Model</p>
                     <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.vehicleDetails.carName}</p>
@@ -138,23 +138,18 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                     <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
                   </div>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection</p>
-                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '16px', fontWeight: 900, color: '#0059A3', lineHeight: 1.2 }}>STANDARD</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Seller Name</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.sellerDetails?.name || "caRya.krama"}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contact Number</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{report.sellerDetails?.contactNumber || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '8px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location</p>
+                    <p style={{ margin: 0, fontSize: mobile ? '12px' : '15px', fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{(report.sellerDetails as any)?.location || "Bangalore, IN"}</p>
                   </div>
                </div>
-               
-               {report.sellerDetails && (
-                 <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? '16px' : '60px', paddingTop: '16px', borderTop: '1px dashed #e5e7eb' }}>
-                    <div>
-                      <p style={{ margin: '0 0 6px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Seller Name</p>
-                      <p style={{ margin: 0, fontSize: mobile ? '13px' : '14px', fontWeight: 800, color: '#374151' }}>{report.sellerDetails.name || "-"}</p>
-                    </div>
-                    <div>
-                      <p style={{ margin: '0 0 6px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contact Number</p>
-                      <p style={{ margin: 0, fontSize: mobile ? '13px' : '14px', fontWeight: 800, color: '#374151' }}>{report.sellerDetails.contactNumber || "-"}</p>
-                    </div>
-                 </div>
-               )}
             </div>
           </div>
           

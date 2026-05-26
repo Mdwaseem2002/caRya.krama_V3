@@ -79,6 +79,7 @@ export default function InspectionReportForm({
   // Seller Details
   const [sellerName, setSellerName] = useState(editReport?.sellerDetails?.name || "");
   const [sellerContact, setSellerContact] = useState(editReport?.sellerDetails?.contactNumber || "");
+  const [inspectorName, setInspectorName] = useState((editReport as any)?.inspectorName || "Z.K.");
 
   // ── Styles ──────────────────────────────────────────────────────────────────
   const sectionStyle: React.CSSProperties = { marginBottom: '24px' };
@@ -138,6 +139,7 @@ export default function InspectionReportForm({
           name: sellerName,
           contactNumber: sellerContact
         },
+        inspectorName,
         uploadedFile: "",
         uploadedFileName: "",
       };
@@ -226,12 +228,12 @@ export default function InspectionReportForm({
         </div>
       </section>
 
-      {/* ── 1.5 Seller Details ─────────────────────────────────────────────── */}
+      {/* ── 1.5 Seller & Inspector Details ─────────────────────────────────────────────── */}
       <section style={sectionStyle}>
         <h3 style={sectionHeaderStyle}>
-          <ShieldAlert size={18} style={{ color: '#0059A3' }} /> Seller Details
+          <ShieldAlert size={18} style={{ color: '#0059A3' }} /> Seller & Inspector Details
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label style={labelStyle}>Seller Name</label>
             <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="e.g. John Doe / Dealership Name" style={inputStyle} />
@@ -239,6 +241,10 @@ export default function InspectionReportForm({
           <div>
             <label style={labelStyle}>Seller Contact Number</label>
             <input value={sellerContact} onChange={e => setSellerContact(e.target.value)} placeholder="e.g. +91 9876543210" style={inputStyle} />
+          </div>
+          <div>
+            <label style={labelStyle}>Inspector Name</label>
+            <input value={inspectorName} onChange={e => setInspectorName(e.target.value)} placeholder="e.g. Z.K." style={inputStyle} />
           </div>
         </div>
       </section>

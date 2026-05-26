@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Heart, Phone, CreditCard, ShieldCheck, CheckCircle2, Calendar, Gauge, Award, Wrench, Car } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Phone, CreditCard, ShieldCheck, CheckCircle2, Calendar, Gauge, Award, Wrench, Car, Users } from "lucide-react";
 import { cars as staticCars } from "@/data/inventory";
 import { useWishlist } from "@/context/WishlistContext";
 import { getStoredCarById } from "@/Admin/Upload/CarStorage";
@@ -146,15 +146,13 @@ export default function CarDetails({ id }: { id: string }) {
           {/* ── CAR OVERVIEW ── */}
           <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden">
             <h2 className="text-xl md:text-2xl font-black mb-6 text-gray-900 tracking-tight">Car Overview</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+            <div className="grid grid-cols-2 gap-3 md:gap-5">
               {[
-                { id: 'year', icon: Calendar,  color: "text-blue-600", bg: "bg-blue-50 border-blue-100", label: "Model Year",   value: year },
-                { id: 'kms', icon: Gauge,     color: "text-teal-600", bg: "bg-teal-50 border-teal-100", label: "Kilometers",   value: odometer },
-                { id: 'warranty', icon: Award,     color: "text-purple-600", bg: "bg-purple-50 border-purple-100", label: "Warranty", value: isUploaded ? "12 Months Comprehensive" : "Valued Warranty", show: isUploaded ? (car as any).specs?.warranty : true },
-                { id: 'service', icon: ShieldCheck, color: "text-green-600", bg: "bg-green-50 border-green-100", label: "Service",    value: isUploaded ? "Contract Available" : "Certified History" },
-                { id: 'specs', icon: Wrench,    color: "text-orange-600", bg: "bg-orange-50 border-orange-100", label: "Specification", value: isUploaded ? (car as any).specs?.transmission : "GCC SPECS" },
-                { id: 'cylinders', icon: Car,       color: "text-rose-600", bg: "bg-rose-50 border-rose-100", label: "Cylinders",    value: isUploaded ? (car as any).specs?.fuelType : "V4 Engine" },
-              ].filter(item => item.show !== false).map(({ icon: Icon, color, bg, label, value }) => (
+                { id: 'year', icon: Calendar,  color: "text-blue-600", bg: "bg-blue-50 border-blue-100", label: "Model",   value: year },
+                { id: 'kms', icon: Gauge,     color: "text-teal-600", bg: "bg-teal-50 border-teal-100", label: "KM",   value: odometer },
+                { id: 'fuel', icon: Car,       color: "text-rose-600", bg: "bg-rose-50 border-rose-100", label: "Fuel",    value: isUploaded ? (car as any).specs?.fuelType : "Diesel" },
+                { id: 'owners', icon: Users, color: "text-purple-600", bg: "bg-purple-50 border-purple-100", label: "No.of Owner", value: isUploaded ? (car as any).specs?.owners || "1st Owner" : "1st Owner" },
+              ].map(({ icon: Icon, color, bg, label, value }) => (
                 <div key={label} className="flex items-center gap-3 p-4 rounded-2xl border border-gray-50 hover:bg-gray-50 hover:shadow-sm hover:border-gray-200 transition-all group duration-300 cursor-default">
                   <div className={`w-12 h-12 rounded-[1rem] flex flex-shrink-0 items-center justify-center border ${bg} ${color} group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
                     <Icon className="w-5 h-5" strokeWidth={2.5} />
@@ -174,72 +172,73 @@ export default function CarDetails({ id }: { id: string }) {
 
         {/* ── RIGHT: PRICING & CTA SIDEBAR ── */}
         <div className="space-y-6 order-first lg:order-last h-full">
-          <div className="p-6 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl sticky top-24 z-10" style={{ backgroundColor: "var(--card-bg)", border: "1px solid var(--border)" }}>
-            
-            {/* Promo Banner */}
-            <div className="w-full h-[100px] relative rounded-xl overflow-hidden mb-6">
-              <Image
-                src="/car banner.png"
-                alt="Car Banner"
-                fill
-                sizes="(max-width: 1024px) 100vw, 33vw"
-                className="object-cover object-center"
-              />
+          <div className="p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] sticky top-24 z-10 relative overflow-hidden bg-white border border-gray-100">
+            {/* Subtle background gradient glow */}
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+
+            {/* Promo Banner / Logo */}
+            <div className="w-full h-[100px] md:h-[120px] bg-gradient-to-br from-gray-900 to-black relative rounded-2xl overflow-hidden mb-8 flex items-center justify-center p-4 shadow-xl border border-gray-800">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+              <div className="relative w-full h-full z-10">
+                <Image
+                  src="/logo/carYakrama.png"
+                  alt="caRya.krama Logo"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="object-contain object-center drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                />
+              </div>
             </div>
 
             {/* Header: Title & Heart */}
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
-                <h1 className="text-xl md:text-3xl font-extrabold line-clamp-2" style={{ color: "var(--foreground)" }}>{name}</h1>
-                <p className="text-[11px] md:text-sm font-semibold opacity-60 mt-1 uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                   Stock no: {id.toString().slice(-7)} • {year} • {odometer}
-                </p>
+                <div className="inline-block px-3 py-1 bg-blue-50 text-royal text-[10px] font-black uppercase tracking-widest rounded-full mb-3 border border-blue-100">
+                  Verified Vehicle
+                </div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-navy mb-2 tracking-tight">{name}</h1>
+                <div className="flex items-center gap-2 text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">
+                   <span>Stock: {id.toString().slice(-7)}</span>
+                   <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                   <span>{year}</span>
+                   <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                   <span>{odometer}</span>
+                </div>
               </div>
               <button 
                 onClick={() => toggleWishlist(car as any)}
-                className="p-2.5 border rounded-full transition-colors hover:scale-110 shrink-0 ml-3 shadow-sm hover:shadow-md" 
-                style={{ borderColor: "var(--border)", background: "var(--background)" }}
+                className="p-3 bg-white border border-gray-100 rounded-full transition-all hover:scale-110 shrink-0 ml-4 shadow-sm hover:shadow-md hover:border-gray-200" 
                 aria-label="Toggle wishlist"
               >
-                <Heart className={`w-5 h-5 transition-colors ${isSaved ? "fill-[#EF4444] text-[#EF4444]" : "text-gray-400"}`} />
+                <Heart className={`w-5 h-5 transition-colors ${isSaved ? "fill-rose-500 text-rose-500" : "text-gray-300"}`} strokeWidth={isSaved ? 0 : 2.5} />
               </button>
             </div>
 
-            {/* Price Area */}
-            <div className="mt-6 mb-5">
-               <div className="text-2xl md:text-4xl font-black mb-1.5" style={{ color: "var(--foreground)" }}>
-                 {price} <span className="text-[9px] md:text-xs font-bold opacity-50 uppercase align-middle ml-1 tracking-wider">(Exclusive of VAT)</span>
-               </div>
-               <div className="text-[#10b981] font-bold text-[13px] bg-[#10b981]/10 w-fit px-2.5 py-1 rounded-md border border-[#10b981]/20">
-                 EMI starts @ ₹45,000/Month
-               </div>
-            </div>
+            <div className="w-full h-px bg-gradient-to-r from-gray-100 via-gray-200 to-transparent my-6"></div>
 
-            {/* Live Viewers Indicator */}
-            <div className="flex items-center gap-3 mb-6 p-3 rounded-xl border border-[#0059A3]/20 bg-[#0059A3]/5">
-               <span className="relative flex h-3 w-3 shrink-0">
-                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0059A3] opacity-75"></span>
-                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#0059A3]"></span>
-               </span>
-               <span className="text-[11px] md:text-xs font-bold text-[#0059A3] uppercase tracking-wide">
-                 <span className="text-sm font-black mr-1">14</span> People are viewing right now
-               </span>
+            {/* Price Area */}
+            <div className="mb-8 relative z-10">
+               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Market Value</p>
+               <div className="flex items-baseline flex-wrap gap-2">
+                 <div className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-navy to-royal tracking-tight">
+                   {price}
+                 </div>
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded-md border border-gray-100 mb-1">
+                   Excl. VAT
+                 </span>
+               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                 <button className="py-3 rounded-xl font-bold transition-all hover:bg-[#0059A3] hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 group border border-[#0059A3]/20" style={{ backgroundColor: "color-mix(in srgb, #0059A3 5%, transparent)", color: "#0059A3" }}>
-                   <Phone className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                   <span className="text-[11px] sm:text-xs md:text-sm">Call Us</span>
-                 </button>
-                 <button 
-                   onClick={() => setIsBuyPopupOpen(true)}
-                   className="py-3 rounded-xl font-bold transition-all hover:bg-[#0059A3] hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 group border border-[#0059A3]/20" style={{ backgroundColor: "color-mix(in srgb, #0059A3 5%, transparent)", color: "#0059A3" }}>
-                   <CreditCard className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                   <span className="text-[11px] sm:text-xs md:text-sm">Access Report</span>
-                 </button>
-              </div>
+            <div className="flex flex-col gap-3 relative z-10">
+               <button 
+                 onClick={() => setIsBuyPopupOpen(true)}
+                 className="w-full py-4 rounded-xl font-black text-sm md:text-base transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group bg-gradient-to-r from-royal to-sky text-white shadow-[0_10px_20px_-10px_rgba(27,79,216,0.5)] hover:shadow-[0_15px_30px_-10px_rgba(27,79,216,0.6)] relative overflow-hidden"
+               >
+                 <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                 <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                 <span>View Full Report</span>
+               </button>
             </div>
 
           </div>
