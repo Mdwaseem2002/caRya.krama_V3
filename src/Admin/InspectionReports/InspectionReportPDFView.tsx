@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Cpu, Wrench } from "lucide-react";
+import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Cpu, Wrench, Mail, Globe, Phone } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { InspectionReportData } from "./InspectionStorage";
 import InspectionReportDownload, { InspectionReportDownloadHandle } from "./InspectionReportDownload";
+import { LOGO_BASE64 } from "./logoBase64";
 
 interface InspectionReportPDFViewProps {
   report: InspectionReportData;
@@ -16,6 +17,7 @@ interface InspectionReportPDFViewProps {
 
 const isWarning = (text: string) => {
   const lText = text?.toLowerCase() || "";
+  if (lText.includes("no fault") || lText.includes("none detected") || lText.includes("no issue") || lText.includes("no observation")) return false;
   return lText.includes("need") || lText.includes("leak") || lText.includes("damage") || lText.includes("fault") || lText.includes("issue") || lText.includes("replace") || lText.includes("bad") || lText.includes("attention");
 };
 
@@ -60,26 +62,87 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
             {/* Top Header */}
             <div style={{ 
               display: 'flex', 
-              flexDirection: 'column',
-              justifyContent: 'center', 
-              alignItems: 'center', 
+              flexDirection: mobile ? 'column' : 'row',
               border: '2px solid #0059A3', 
               borderRadius: '12px',
-              padding: '24px 28px',
+              padding: mobile ? '16px' : '24px',
               marginBottom: '24px',
               backgroundColor: '#ffffff',
               boxSizing: 'border-box',
               width: '100%',
               boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              gap: '8px'
+              gap: mobile ? '16px' : '0'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ backgroundColor: '#0059A3', color: 'white', padding: '6px', borderRadius: '8px' }}>
-                    <ShieldCheck size={22} />
-                  </div>
-                  <h1 style={{ margin: 0, fontSize: mobile ? '20px' : '26px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em', lineHeight: '1' }}>caRya.<span style={{color: '#0059A3'}}>krama</span></h1>
+              {/* Left Section - Logo */}
+              <div style={{ 
+                flex: 1, 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                paddingRight: mobile ? '0' : '24px',
+                borderRight: mobile ? 'none' : '1px solid #e5e7eb',
+                borderBottom: mobile ? '1px solid #e5e7eb' : 'none',
+                paddingBottom: mobile ? '16px' : '0'
+              }}>
+                <div style={{ 
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '240px',
+                  height: '75px',
+                  boxSizing: 'content-box'
+                }}>
+                  <img 
+                    src={LOGO_BASE64} 
+                    alt="caRya.krama Logo" 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      objectFit: 'contain',
+                      display: 'block'
+                    }} 
+                  />
+                </div>
+                <p style={{ margin: 0, fontSize: mobile ? '8px' : '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
               </div>
-              <p style={{ margin: 0, fontSize: mobile ? '8px' : '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
+              
+              {/* Right Section - Contact Info */}
+              <div style={{ 
+                flex: 1, 
+                paddingLeft: mobile ? '0' : '24px',
+                paddingTop: mobile ? '16px' : '0'
+              }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%', border: 'none' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ width: '32px', paddingBottom: '16px', verticalAlign: 'middle' }}>
+                        <Mail size={mobile ? 14 : 16} style={{ color: '#0059A3', display: 'block' }} />
+                      </td>
+                      <td style={{ paddingBottom: '16px', verticalAlign: 'middle', fontSize: mobile ? '12px' : '14px', fontWeight: 600, color: '#374151' }}>
+                        caryakrama@gmail.com
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ width: '32px', paddingBottom: '16px', verticalAlign: 'middle' }}>
+                        <Globe size={mobile ? 14 : 16} style={{ color: '#0059A3', display: 'block' }} />
+                      </td>
+                      <td style={{ paddingBottom: '16px', verticalAlign: 'middle', fontSize: mobile ? '12px' : '14px', fontWeight: 600, color: '#374151' }}>
+                        https://caryakrama.com/
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ width: '32px', verticalAlign: 'middle' }}>
+                        <Phone size={mobile ? 14 : 16} style={{ color: '#0059A3', display: 'block' }} />
+                      </td>
+                      <td style={{ verticalAlign: 'middle', fontSize: mobile ? '12px' : '14px', fontWeight: 600, color: '#374151' }}>
+                        +91 99001 87847
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Header Underline Divider */}
@@ -102,9 +165,9 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
             </div>
 
             {/* Vehicle Image */}
-            {carCoverImage ? (
+            {carCoverImage || (report.inspectionImages && report.inspectionImages.length > 0) ? (
               <div style={{ width: '100%', height: mobile ? '220px' : '360px', borderRadius: '16px', overflow: 'hidden', marginBottom: mobile ? '20px' : '32px', border: '1px solid #e5e7eb' }}>
-                <img src={carCoverImage} alt={report.carName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                <img src={carCoverImage || report.inspectionImages[0]} alt={report.carName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
               </div>
             ) : (
               <div style={{ width: '100%', height: mobile ? '220px' : '360px', borderRadius: '16px', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: mobile ? '20px' : '32px', border: '1px solid #e5e7eb' }}>
@@ -194,7 +257,6 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              {report.interiors && (
              <SectionCard icon={<CarIcon size={22} />} title="3. INTERIORS & CABIN">
                <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
-               <BulletList text={report.interiors.issues} warning={true} />
              </SectionCard>
              )}
 
@@ -291,27 +353,24 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              <SectionCard icon={<ShieldCheck size={22} />} title="8. VERDICT SECTION">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginTop: '4px' }}>
                    <div style={{ borderLeft: '5px solid #10b981', backgroundColor: '#f0fdf4', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #d1fae5', borderLeftWidth: '5px' }}>
-                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mechanically Sound</p>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#064e3b', fontWeight: 600, lineHeight: '1.5' }}>{report.verdict.mechanicalCondition || report.overallSummary?.mechanical || "-"}</p>
+                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tyre Condition</p>
+                      <p style={{ margin: 0, fontSize: '14px', color: '#064e3b', fontWeight: 600, lineHeight: '1.5' }}>{report.verdict.mechanicalCondition || "-"}</p>
                    </div>
-                   {report.overallSummary?.body && (
-                   <div style={{ borderLeft: '5px solid #3b82f6', backgroundColor: '#eff6ff', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #bfdbfe', borderLeftWidth: '5px' }}>
-                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Body Condition Summary</p>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#1e3a8a', fontWeight: 600, lineHeight: '1.5' }}>{report.overallSummary.body}</p>
-                   </div>
-                   )}
-                   {report.verdict.issuesAttention && (
-                   <div style={{ borderLeft: '5px solid #f59e0b', backgroundColor: '#fffbeb', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #fef3c7', borderLeftWidth: '5px' }}>
-                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Issues Requiring Attention</p>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#78350f', fontWeight: 600, lineHeight: '1.5' }}>{report.verdict.issuesAttention}</p>
-                   </div>
-                   )}
                    <div style={{ borderLeft: '5px solid #0059A3', backgroundColor: '#f0f9ff', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #e0f2fe', borderLeftWidth: '5px' }}>
                       <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Purchase Recommendation</p>
                       <p style={{ margin: 0, fontSize: '15px', color: '#0369a1', fontWeight: 800, lineHeight: '1.5' }}>{report.verdict.purchaseRecommendation || "Not Provided"}</p>
                    </div>
                 </div>
              </SectionCard>
+
+             {report.interiors?.issues && (
+             <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                 <AlertTriangle size={22} style={{ color: '#ef4444' }} /> Important Issues
+               </h3>
+               <BulletList text={report.interiors.issues} warning={true} forceBullet={true} />
+             </div>
+             )}
           </div>
           <Footer pageNum={4} mobile={mobile} />
         </div>
@@ -327,14 +386,15 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
 
              {/* 9. PRECAUTIONS & RECOMMENDATIONS */}
              <SectionCard icon={<AlertTriangle size={22} />} title="9. PRECAUTIONS & RECOMMENDATIONS">
-                <BulletList text={report.precautions || "No generic precautions indicated."} warning={false} forceBullet={true} />
-                {(report.fluids?.serviceNotes && report.fluids.serviceNotes !== "-") && (
-                   <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e5e7eb' }}>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Service Recommendations</p>
-                      <BulletList text={report.fluids.serviceNotes} warning={false} forceBullet={true} />
-                   </div>
-                )}
+                <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
              </SectionCard>
+
+             {/* 10. SERVICE RECOMMENDATIONS */}
+             {(report.serviceRecommendations && report.serviceRecommendations !== "-") && (
+             <SectionCard icon={<Settings size={22} />} title="10. SERVICE RECOMMENDATIONS">
+                <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
+             </SectionCard>
+             )}
           </div>
           <Footer pageNum={5} mobile={mobile} />
         </div>
@@ -408,7 +468,7 @@ function BulletList({ text, warning, forceBullet = false, large = false, mobile 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: mobile ? '8px' : '12px', marginTop: '8px' }}>
       {bullets.map((bullet, i) => {
-         const isWarn = warning || isWarning(bullet);
+         const isWarn = warning; // Ignore keyword-based warning
          return (
            <div key={i} style={{ display: 'flex', gap: mobile ? '8px' : '12px', alignItems: 'flex-start' }}>
               <div style={{ marginTop: large ? '2px' : '1px' }}>
@@ -431,8 +491,8 @@ function FluidRow({ label, status, warning, action }: { label: string, status: s
       <td style={{ padding: '14px 12px', fontSize: '14px', fontWeight: 700, color: '#111827', borderBottom: '1px solid #e5e7eb' }}>{label}</td>
       <td style={{ padding: '14px 12px', borderBottom: '1px solid #e5e7eb' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-           {isWarn ? <AlertTriangle size={16} style={{ color: '#d97706' }} /> : <CheckCircle2 size={16} style={{ color: '#10b981' }} />}
-           <span style={{ fontSize: '14px', fontWeight: 800, color: isWarn ? '#d97706' : '#10b981' }}>{status || "Clean"}</span>
+           <CheckCircle2 size={16} style={{ color: '#10b981' }} />
+           <span style={{ fontSize: '14px', fontWeight: 800, color: '#374151' }}>{status || "Clean"}</span>
         </div>
       </td>
       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#6b7280', borderBottom: '1px solid #e5e7eb', fontWeight: 600 }}>{action}</td>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
   ArrowLeft, Save, Search, FileText, Settings, Droplets,
   Battery, Armchair, Cpu, CarFront, CheckCircle, AlertTriangle,
-  ShieldAlert
+  ShieldAlert, Upload, X, Image as ImageIcon
 } from "lucide-react";
 import { useNotification } from "@/context/NotificationContext";
 import { saveInspectionReport, updateInspectionReport, InspectionReportData } from "./InspectionStorage";
@@ -75,11 +75,15 @@ export default function InspectionReportForm({
 
   // Precautions
   const [precautions, setPrecautions] = useState(editReport?.precautions || "");
+  const [serviceRecommendations, setServiceRecommendations] = useState(editReport?.serviceRecommendations || "");
 
   // Seller Details
   const [sellerName, setSellerName] = useState(editReport?.sellerDetails?.name || "");
   const [sellerContact, setSellerContact] = useState(editReport?.sellerDetails?.contactNumber || "");
-  const [inspectorName, setInspectorName] = useState((editReport as any)?.inspectorName || "Z.K.");
+  const [inspectorName, setInspectorName] = useState(editReport?.inspectorName || "Z.K.");
+
+  // Images (standalone reports)
+  const [inspectionImages, setInspectionImages] = useState<string[]>(editReport?.inspectionImages || []);
 
   // ── Styles ──────────────────────────────────────────────────────────────────
   const sectionStyle: React.CSSProperties = { marginBottom: '24px' };
@@ -103,6 +107,57 @@ export default function InspectionReportForm({
   };
   const gridTwoStyle: React.CSSProperties = {
     display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    if (inspectionImages.length + files.length > 10) {
+      showNotification("You can upload a maximum of 10 images.", "warning");
+      return;
+    }
+
+    files.forEach(file => {
+      if (!file.type.startsWith("image/")) {
+        showNotification("Only image files are allowed.", "error");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        showNotification(`${file.name} is too large. Max 2MB per image.`, "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > 1200) {
+            height = Math.round((height * 1200) / width);
+            width = 1200;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+            setInspectionImages(prev => [...prev, dataUrl]);
+          }
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setInspectionImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
@@ -135,11 +190,13 @@ export default function InspectionReportForm({
           purchaseRecommendation: verdictRecommendation
         },
         precautions,
+        serviceRecommendations,
         sellerDetails: {
           name: sellerName,
           contactNumber: sellerContact
         },
         inspectorName,
+        inspectionImages,
         uploadedFile: "",
         uploadedFileName: "",
       };
@@ -360,15 +417,6 @@ export default function InspectionReportForm({
             style={textareaStyle}
           />
         </div>
-        <div>
-          <label style={{ ...labelStyle, color: '#DC2626' }}>⚠ Important Issues</label>
-          <textarea
-            value={interiorsIssues}
-            onChange={e => setInteriorsIssues(e.target.value)}
-            placeholder="e.g. AC COMPRESSOR NOT WORKING AND REAR BOOT SPACE PLASTIC COMPONENTS NEEDS TO BE REFIXED"
-            style={{ ...textareaStyle, borderColor: '#fca5a5', backgroundColor: '#fef2f2' }}
-          />
-        </div>
       </section>
 
       {/* ── 7. OBD Scan ────────────────────────────────────────────────────── */}
@@ -456,19 +504,31 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <AlertTriangle size={18} style={{ color: '#F59E0B' }} /> Verdict
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label style={labelStyle}>Mechanical Condition</label>
+            <label style={labelStyle}>Tyre Condition</label>
             <input value={verdictMechanical} onChange={e => setVerdictMechanical(e.target.value)} placeholder="e.g. Mechanically Good" style={inputStyle} />
-          </div>
-          <div>
-            <label style={labelStyle}>Issues Requiring Attention</label>
-            <input value={verdictIssues} onChange={e => setVerdictIssues(e.target.value)} placeholder="e.g. AC, drive shaft, turbo needs attention" style={inputStyle} />
           </div>
           <div>
             <label style={labelStyle}>Purchase Recommendation</label>
             <input value={verdictRecommendation} onChange={e => setVerdictRecommendation(e.target.value)} placeholder="e.g. Recommended for purchase after negotiations" style={inputStyle} />
           </div>
+        </div>
+      </section>
+
+      {/* ── 10.5 Important Issues ──────────────────────────────────────────── */}
+      <section style={sectionStyle}>
+        <h3 style={sectionHeaderStyle}>
+          <ShieldAlert size={18} style={{ color: '#DC2626' }} /> Important Issues
+        </h3>
+        <div>
+          <label style={{ ...labelStyle, color: '#DC2626' }}>⚠ Important Issues</label>
+          <textarea
+            value={interiorsIssues}
+            onChange={e => setInteriorsIssues(e.target.value)}
+            placeholder="e.g. AC COMPRESSOR NOT WORKING AND REAR BOOT SPACE PLASTIC COMPONENTS NEEDS TO BE REFIXED"
+            style={{ ...textareaStyle, borderColor: '#fca5a5', backgroundColor: '#fef2f2' }}
+          />
         </div>
       </section>
 
@@ -483,10 +543,64 @@ export default function InspectionReportForm({
             value={precautions}
             onChange={e => setPrecautions(e.target.value)}
             placeholder={"Vehicle is aged with over 80k km driven\nCar needs TLC\nEarly service recommended\nRecommended throttle body cleaning\nInlet valve cleaning\nTurbo cleaning\nRadiator/intercooler cleaning\nSpark plugs check and replacement"}
-            style={{ ...textareaStyle, minHeight: '160px' }}
+            style={{ ...textareaStyle, minHeight: '160px', marginBottom: '16px' }}
+          />
+        </div>
+        <div>
+          <label style={labelStyle}>Service Recommendations</label>
+          <textarea
+            value={serviceRecommendations}
+            onChange={e => setServiceRecommendations(e.target.value)}
+            placeholder={"e.g. Needs immediate oil change\nBrake pads replacement required"}
+            style={{ ...textareaStyle, minHeight: '120px' }}
           />
         </div>
       </section>
+
+      {/* ── 12. Images (Standalone Only) ───────────────────────────────────── */}
+      {!carId && (
+        <section style={sectionStyle}>
+          <h3 style={sectionHeaderStyle}>
+            <ImageIcon size={18} style={{ color: '#0059A3' }} /> Inspection Images
+          </h3>
+          <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+            Upload up to 10 photos of the vehicle (Max 2MB each). Only the first image will be shown as the preview in the report.
+          </p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+            {inspectionImages.map((src, idx) => (
+              <div key={idx} style={{ position: 'relative', width: '100%', paddingTop: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+                <img src={src} alt={`Upload ${idx + 1}`} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                >
+                  <X size={14} />
+                </button>
+                {idx === 0 && (
+                  <div style={{ position: 'absolute', bottom: '6px', left: '6px', background: 'rgba(0, 89, 163, 0.9)', color: 'white', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px' }}>
+                    COVER
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {inspectionImages.length < 10 && (
+              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '100%', position: 'relative', border: '2px dashed #d1d5db', borderRadius: '12px', backgroundColor: '#f9fafb', cursor: 'pointer', transition: 'border-color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#0059A3'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#d1d5db'}
+              >
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                  <Upload size={24} style={{ color: '#9ca3af', marginBottom: '8px' }} />
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563' }}>Upload</span>
+                </div>
+                <input type="file" multiple accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+              </label>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── Submit Bar ─────────────────────────────────────────────────────── */}
       <div className="sticky bottom-0 py-4 sm:py-6 border-t border-gray-200 bg-white flex flex-wrap sm:flex-nowrap items-center justify-start gap-3 sm:gap-4 z-10 -mx-4 sm:mx-0 px-4 sm:px-0">

@@ -53,10 +53,13 @@ export interface InspectionReportData {
     purchaseRecommendation: string;
   };
   precautions: string;
+  serviceRecommendations?: string;
   sellerDetails?: {
     name: string;
     contactNumber: string;
   };
+  inspectorName: string;
+  inspectionImages: string[];
   uploadedFile: string;
   uploadedFileName: string;
   createdAt: string;

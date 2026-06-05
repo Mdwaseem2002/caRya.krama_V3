@@ -16,6 +16,7 @@ interface Props {
 
 const isWarning = (text: string) => {
   const lText = text?.toLowerCase() || "";
+  if (lText.includes("no fault") || lText.includes("none detected") || lText.includes("no issue") || lText.includes("no observation")) return false;
   return lText.includes("need") || lText.includes("leak") || lText.includes("damage") || lText.includes("fault") || lText.includes("issue") || lText.includes("replace") || lText.includes("bad") || lText.includes("attention");
 };
 
@@ -226,7 +227,6 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
 
              <SectionCard title="3. INTERIORS & CABIN">
                <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
-               <BulletList text={report.interiors.issues} warning={true} />
              </SectionCard>
 
              <SectionCard title="4. FLUIDS DEGRADATION & LEAKS">
@@ -322,26 +322,10 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                 <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 12px' }}>
                    <div style={{ display: 'table-row' }}>
                       <div style={{ display: 'table-cell', ...verdictBoxStyle('#10b981', '#f0fdf4', '#065f46') }}>
-                        <p style={verdictLabelStyle('#065f46')}>Mechanically Sound</p>
-                        <p style={verdictTextStyle('#064e3b')}>{report.verdict.mechanicalCondition || report.overallSummary?.mechanical || "-"}</p>
+                        <p style={verdictLabelStyle('#065f46')}>Tyre Condition</p>
+                        <p style={verdictTextStyle('#064e3b')}>{report.verdict.mechanicalCondition || "-"}</p>
                       </div>
                    </div>
-                   {report.overallSummary?.body && (
-                   <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#3b82f6', '#eff6ff', '#1e40af') }}>
-                        <p style={verdictLabelStyle('#1e40af')}>Body Condition Summary</p>
-                        <p style={verdictTextStyle('#1e3a8a')}>{report.overallSummary.body}</p>
-                      </div>
-                   </div>
-                   )}
-                   {report.verdict.issuesAttention && (
-                   <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#f59e0b', '#fffbeb', '#92400e') }}>
-                        <p style={verdictLabelStyle('#92400e')}>Issues Requiring Attention</p>
-                        <p style={verdictTextStyle('#78350f')}>{report.verdict.issuesAttention}</p>
-                      </div>
-                   </div>
-                   )}
                    <div style={{ display: 'table-row' }}>
                       <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0059A3') }}>
                         <p style={verdictLabelStyle('#0059A3')}>Purchase Recommendation</p>
@@ -350,6 +334,15 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                    </div>
                 </div>
              </SectionCard>
+
+             {report.interiors?.issues && (
+             <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                 Important Issues
+               </h3>
+               <BulletList text={report.interiors.issues} warning={true} forceBullet={true} />
+             </div>
+             )}
           </div>
           <Footer pageNum={4} />
         </div>
@@ -370,14 +363,14 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
              </div>
 
              <SectionCard title="9. PRECAUTIONS & RECOMMENDATIONS">
-                <BulletList text={report.precautions || "No generic precautions indicated."} warning={false} forceBullet={true} />
-                {(report.fluids?.serviceNotes && report.fluids.serviceNotes !== "-") && (
-                   <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e5e7eb' }}>
-                      <p style={subHeaderStyle}>Service Recommendations</p>
-                      <BulletList text={report.fluids.serviceNotes} warning={false} forceBullet={true} />
-                   </div>
-                )}
+                <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
              </SectionCard>
+
+             {(report.serviceRecommendations && report.serviceRecommendations !== "-") && (
+             <SectionCard title="10. SERVICE RECOMMENDATIONS">
+                <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
+             </SectionCard>
+             )}
           </div>
           <Footer pageNum={5} />
         </div>
@@ -465,7 +458,7 @@ function BulletList({ text, warning, forceBullet = false }: { text: string, warn
   return (
     <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px', marginTop: '4px' }}>
       {bullets.map((bullet, i) => {
-         const isWarn = warning || isWarning(bullet);
+         const isWarn = warning; // Ignore keyword-based warning
          return (
            <div key={i} style={{ display: 'table-row' }}>
               <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
@@ -486,7 +479,7 @@ function FluidRow({ label, status, warning, action }: { label: string, status: s
     <tr>
       <td style={{ padding: '14px 12px', fontSize: '14px', fontWeight: 700, color: '#111827', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>{label}</td>
       <td style={{ padding: '14px 12px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>
-         <span style={{ fontSize: '14px', fontWeight: 800, color: isWarn ? '#d97706' : '#10b981', lineHeight: '1.2', position: 'relative', top: '-1.5px' }}>{status || "Clean"}</span>
+         <span style={{ fontSize: '14px', fontWeight: 800, color: '#374151', lineHeight: '1.2', position: 'relative', top: '-1.5px' }}>{status || "Clean"}</span>
       </td>
       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#6b7280', borderBottom: '1px solid #e5e7eb', fontWeight: 600, verticalAlign: 'middle' }}>{action}</td>
     </tr>

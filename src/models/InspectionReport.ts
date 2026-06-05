@@ -75,6 +75,9 @@ export interface IInspectionReport extends Document {
     contactNumber: string;
   };
 
+  inspectorName: string;
+  inspectionImages: string[];
+
   // For uploaded reports
   uploadedFile: string;
   uploadedFileName: string;
@@ -158,6 +161,10 @@ const InspectionReportSchema = new Schema<IInspectionReport>(
       contactNumber: { type: String, default: "" },
     },
 
+    inspectorName: { type: String, default: "" },
+
+    inspectionImages: [{ type: String }],
+
     uploadedFile: { type: String, default: "" },
     uploadedFileName: { type: String, default: "" },
   },
@@ -178,8 +185,12 @@ InspectionReportSchema.index({ carId: 1, createdAt: -1 });
 
 // ── Model Export ──────────────────────────────────────────────────────────────
 
+// Delete cached model so schema changes (e.g. new fields) take effect on HMR
+if (mongoose.models.InspectionReport) {
+  delete mongoose.models.InspectionReport;
+}
+
 const InspectionReport: Model<IInspectionReport> =
-  mongoose.models.InspectionReport ||
   mongoose.model<IInspectionReport>("InspectionReport", InspectionReportSchema);
 
 export default InspectionReport;
