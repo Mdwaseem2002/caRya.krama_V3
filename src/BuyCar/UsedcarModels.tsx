@@ -212,7 +212,12 @@ export default function UsedcarModels() {
 
                   {/* Top Left Badges - Hide on Hover */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 group-hover:opacity-0 transition-opacity duration-300">
-                    {(car.tags || []).includes("New Arrival") && (
+                    {car.isSold && (
+                      <div className="bg-red-500 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg shadow-lg">
+                        Car Sold
+                      </div>
+                    )}
+                    {!car.isSold && (car.tags || []).includes("New Arrival") && (
                       <div className="bg-[#0059A3] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg shadow-lg">
                         New Arrival
                       </div>
@@ -332,13 +337,19 @@ export default function UsedcarModels() {
                           : "Price TBD"}
                       </p>
                     </div>
-                    <button 
-                      onClick={() => window.location.href = `/car/${car.id}`}
-                      className="flex items-center gap-2 bg-royal/10 text-royal px-4 py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-royal hover:text-white transition-all shadow-sm active:scale-95 shrink-0 backdrop-blur-md border border-royal/10 whitespace-nowrap"
-                    >
-                      View Car
-                      <ChevronRight size={12} />
-                    </button>
+                    {!car.isSold ? (
+                      <button 
+                        onClick={() => window.location.href = `/car/${car.id}`}
+                        className="flex items-center gap-2 bg-royal/10 text-royal px-4 py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-royal hover:text-white transition-all shadow-sm active:scale-95 shrink-0 backdrop-blur-md border border-royal/10 whitespace-nowrap"
+                      >
+                        View Car
+                        <ChevronRight size={12} />
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-sm shrink-0 border border-red-100 whitespace-nowrap">
+                        Car Sold
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>

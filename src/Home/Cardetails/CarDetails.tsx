@@ -73,7 +73,8 @@ export default function CarDetails({ id }: { id: string }) {
   // Normalize fields for rendering
   const isUploaded = !!foundUploaded;
   const name = isUploaded ? (car as any).title : (car as any).name;
-  const price = isUploaded ? (car as any).pricing.sellingPrice : (car as any).price;
+  const sellingPrice = isUploaded ? (car as any).pricing?.sellingPrice : (car as any).price;
+  const actualPrice = isUploaded ? (car as any).pricing?.actualPrice : null;
   const year = car.year;
   const odometer = isUploaded ? (car as any).specs.mileage : (car as any).odometer;
   
@@ -219,11 +220,16 @@ export default function CarDetails({ id }: { id: string }) {
             {/* Price Area */}
             <div className="mb-8 relative z-10">
                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Market Value</p>
-               <div className="flex items-baseline flex-wrap gap-2">
+               <div className="flex items-baseline flex-wrap gap-3">
                  <div className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-navy to-royal tracking-tight">
-                   {price}
+                   {sellingPrice}
                  </div>
-                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded-md border border-gray-100 mb-1">
+                 {actualPrice && (
+                   <div className="text-xl md:text-2xl font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
+                     {actualPrice}
+                   </div>
+                 )}
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded-md border border-gray-100 mb-1 mt-2">
                    Excl. VAT
                  </span>
                </div>

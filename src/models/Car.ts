@@ -52,6 +52,7 @@ export interface ICar extends Omit<Document, "model"> {
     city: string;
   };
   tags: string[];
+  isSold?: boolean;
   updatedAt: Date;
 }
 
@@ -118,6 +119,7 @@ const CarSchema = new Schema<ICar>(
     },
 
     tags: { type: [String], default: ["New Arrival"] },
+    isSold: { type: Boolean, default: false },
   },
   {
     timestamps: true,         // Adds createdAt + updatedAt automatically
@@ -142,6 +144,11 @@ CarSchema.index({ tags: 1 });
 CarSchema.index({ brand: 1, status: 1 });
 
 // ── Model Export (singleton pattern to avoid re-compilation on hot-reload) ────
+
+// Force recompilation in development to ensure schema changes (like isSold) are picked up.
+if (process.env.NODE_ENV !== "production") {
+  delete mongoose.models.Car;
+}
 
 const Car: Model<ICar> =
   mongoose.models.Car || mongoose.model<ICar>("Car", CarSchema);

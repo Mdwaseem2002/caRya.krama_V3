@@ -35,4 +35,8 @@ const NotificationSchema: Schema = new Schema({
 // Index for fast fetching by user/role
 NotificationSchema.index({ userId: 1, role: 1, createdAt: -1 });
 
+if (process.env.NODE_ENV !== "production") {
+  delete mongoose.models.Notification;
+}
+
 export default mongoose.models.Notification || mongoose.model<INotification>("Notification", NotificationSchema);

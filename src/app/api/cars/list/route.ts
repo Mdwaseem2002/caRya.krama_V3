@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
         "year",
         "status",
         "tags",
+        "isSold",
         "pricing",
         "specs",
         "location",
@@ -75,10 +76,9 @@ export async function GET(req: NextRequest) {
       {
         status: 200,
         headers: {
-          // s-maxage=60: CDN / Vercel Edge caches this for 60 seconds.
-          // stale-while-revalidate=120: serve stale instantly, refresh in background.
-          // Result: near-zero latency for the list after first request.
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+          // no-store: always fetch fresh data so sold/available status
+          // is immediately reflected on the Buy page without stale cache.
+          "Cache-Control": "no-store",
         },
       }
     );

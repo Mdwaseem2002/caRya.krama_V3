@@ -15,7 +15,7 @@ import Uploadcar from "../Upload/Uploadcar";
 import ReportManage from "../ReportManagement/ReportManage";
 import PaymentTraker from "../PaymentTraking/PaymentTraker";
 import DashboardView from "../Dashboard/DashboardView";
-import { getAllStoredCars, deleteCarFromStorage, StoredCar } from "../Upload/CarStorage";
+import { getAllStoredCars, deleteCarFromStorage, invalidateCarCache, StoredCar } from "../Upload/CarStorage";
 import UserManage from "../UserManagement/UserManage";
 import SellRequestsList from "../SellRequests/SellRequestsList";
 import InspectionReportsList from "../InspectionReports/InspectionReportsList";
@@ -38,7 +38,7 @@ export default function AdminProfile() {
   React.useEffect(() => {
     if (activeTab === 'cars' && !showUpload) {
       setIsCarsLoading(true);
-      getAllStoredCars()
+      getAllStoredCars(true)
         .then(setCars)
         .catch(console.error)
         .finally(() => setIsCarsLoading(false));
@@ -83,7 +83,7 @@ export default function AdminProfile() {
     if (confirm("Are you sure you want to delete this car?")) {
       try {
         await deleteCarFromStorage(id);
-        const updated = await getAllStoredCars();
+        const updated = await getAllStoredCars(true);
         setCars(updated);
       } catch (err: any) {
         alert(`Failed to delete car: ${err?.message || 'Unknown error'}`);
@@ -324,7 +324,9 @@ export default function AdminProfile() {
                                         btn.disabled = true;
                                         btn.style.opacity = '0.5';
                                         try {
-                                          const { getStoredCarById } = await import("../Upload/CarStorage");
+                                          const { getStoredCarById, invalidateCarCache: invalidateCache } = await import("../Upload/CarStorage");
+                                          // Always invalidate cache to get freshest data (isSold, etc.)
+                                          invalidateCache(item.id);
                                           // The improved getStoredCarById automatically handles fetching fresh data if images are missing in cache
                                           const fullCar = await getStoredCarById(item.id);
 

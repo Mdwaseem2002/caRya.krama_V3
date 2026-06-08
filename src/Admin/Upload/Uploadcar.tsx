@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon, Star, CheckCircle, Save, Send, ArrowLeft, ChevronDown, ClipboardCheck, FileUp, FileText as FileTextIcon } from "lucide-react";
 import { useNotification } from "@/context/NotificationContext";
-import { saveCarToStorage, updateCarInStorage, StoredCar } from "./CarStorage";
+import { saveCarToStorage, updateCarInStorage, StoredCar, invalidateCarCache } from "./CarStorage";
 import { convertToWebP } from "@/Details/ImageConvert/ImageConvert";
 import InspectionReportForm from "../InspectionReports/InspectionReportForm";
 import InspectionReportUpload from "../InspectionReports/InspectionReportUpload";
@@ -125,6 +125,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   const [city, setCity] = useState(editCar?.location.city || "Bangalore");
 
   const [tags, setTags] = useState<string[]>(editCar?.tags || ["New Arrival"]);
+  const [isSold, setIsSold] = useState(editCar?.isSold || false);
 
   // Inspection Report
   const [inspectionMode, setInspectionMode] = useState<"none" | "create" | "upload">("none");
@@ -232,10 +233,37 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
       setArea(editCar.location.area || "");
       setCity(editCar.location.city || "Bangalore");
       setTags(editCar.tags || ["New Arrival"]);
+      setIsSold(editCar.isSold || false);
     }
   }, [editCar]);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isSoldSaving, setIsSoldSaving] = useState(false);
+
+  // Directly saves the sold status to DB immediately on click (no need to press Save Changes)
+  const handleSoldToggle = async () => {
+    if (!editCar) return;
+    const newSoldState = !isSold;
+    setIsSold(newSoldState);
+    setIsSoldSaving(true);
+    try {
+      const res = await fetch(`/api/cars/${editCar.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isSold: newSoldState }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      // Invalidate caches so buy page and admin list reflect the change
+      invalidateCarCache(editCar.id);
+      showNotification(newSoldState ? "Car marked as Sold!" : "Car marked as Available!", "success");
+    } catch (err) {
+      // Revert local state on failure
+      setIsSold(!newSoldState);
+      showNotification("Failed to update sold status", "error");
+    } finally {
+      setIsSoldSaving(false);
+    }
+  };
 
   const handleSubmit = async (status: 'draft' | 'published') => {
     // Validation
@@ -268,6 +296,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         sellerDetails: { name: sellerName, type: sellerType, memberSince: sellerMemberSince, contactNumber: sellerContactNumber },
         location: { area, city },
         tags,
+        isSold,
         status
       };
 
@@ -645,6 +674,15 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         position: 'sticky', bottom: 0, padding: mobile ? '12px 0' : '20px 0', borderTop: '1px solid #e5e7eb', backgroundColor: 'white',
         display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'flex-start', gap: mobile ? '10px' : '16px', zIndex: 10
       }}>
+        {editCar && (
+          <button 
+            onClick={handleSoldToggle}
+            disabled={isSoldSaving || isSaving}
+            style={{ width: mobile ? '100%' : 'auto', padding: mobile ? '14px' : '12px 32px', backgroundColor: isSold ? '#ef4444' : '#f97316', color: '#ffffff', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: (isSoldSaving || isSaving) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: (isSoldSaving || isSaving) ? 0.7 : 1, fontSize: mobile ? '14px' : '15px' }}
+          >
+            {isSoldSaving ? 'Saving...' : isSold ? 'Mark as Available' : 'Mark as Sold'}
+          </button>
+        )}
         <button 
           onClick={() => handleSubmit('draft')}
           disabled={isSaving}

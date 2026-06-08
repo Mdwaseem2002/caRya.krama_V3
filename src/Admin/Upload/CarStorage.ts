@@ -51,6 +51,7 @@ export interface StoredCar {
     city: string;
   };
   tags: string[];
+  isSold?: boolean;
 }
 
 // ── INTERNAL HELPER ───────────────────────────────────────────────────────────
@@ -73,6 +74,18 @@ const cache = {
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes – in-memory cache for SPA navigation
 
 // ── PUBLIC API ────────────────────────────────────────────────────────────────
+
+/** Manually invalidate ALL caches (call after any direct API mutation) */
+export function invalidateCarCache(id?: string) {
+  // Always clear ALL list caches so the Buy page reflects changes immediately
+  cache.adminCars.time = 0;
+  cache.publishedCars.time = 0;
+  cache.adminCars.data = null;
+  cache.publishedCars.data = null;
+  // Also clear single-car cache
+  if (id && cache.singleProps[id]) delete cache.singleProps[id];
+  else cache.singleProps = {};
+}
 
 export async function saveCarToStorage(
   car: Omit<StoredCar, "createdAt"> | any
@@ -103,10 +116,8 @@ export async function saveCarToStorage(
     });
   }
 
-  // Invalidate cache
-  cache.adminCars.time = 0;
-  cache.publishedCars.time = 0;
-  cache.singleProps = {};
+  // Invalidate all caches
+  invalidateCarCache();
 
   return savedCar;
 }
@@ -131,10 +142,8 @@ export async function updateCarInStorage(
 
   const data = await res.json();
   
-  // Invalidate cache
-  cache.adminCars.time = 0;
-  cache.publishedCars.time = 0;
-  if (cache.singleProps[id]) delete cache.singleProps[id];
+  // Invalidate all caches
+  invalidateCarCache(id);
 
   return data.car as StoredCar;
 }
@@ -150,10 +159,8 @@ export async function deleteCarFromStorage(id: string): Promise<void> {
     throw new Error(err.error || "Failed to delete car");
   }
 
-  // Invalidate cache
-  cache.adminCars.time = 0;
-  cache.publishedCars.time = 0;
-  if (cache.singleProps[id]) delete cache.singleProps[id];
+  // Invalidate all caches
+  invalidateCarCache(id);
 }
 
 /** Get ALL cars (admin view — includes drafts) */
@@ -185,11 +192,9 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   }
 
   // /api/cars/list is purpose-built: minimal fields, no gallery images.
-  // next: { revalidate: 30 } lets Next.js cache the fetch response for 30s
-  // AND lets the browser cache it too — avoids a cold MongoDB hit on every load.
   try {
     const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
-      next: { revalidate: 30 },
+      cache: "no-store", // Always fetch fresh data — sold status must update immediately
     });
 
     if (!res.ok) {

@@ -111,6 +111,10 @@ SellRequestSchema.index({ status: 1, createdAt: -1 });
 
 // ── Model Export ──────────────────────────────────────────────────────────────
 
+if (process.env.NODE_ENV !== "production") {
+  delete mongoose.models.SellRequest;
+}
+
 const SellRequest: Model<ISellRequest> =
   mongoose.models.SellRequest ||
   mongoose.model<ISellRequest>("SellRequest", SellRequestSchema);

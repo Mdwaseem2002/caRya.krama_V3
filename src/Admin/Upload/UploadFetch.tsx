@@ -85,9 +85,15 @@ function CarCard({ car, index }: { car: StoredCar; index: number }) {
         {/* Badges - Hiding on hover to clear space for Audit Summary */}
         <div className="absolute top-6 left-6 right-6 flex items-start justify-between pointer-events-none z-50">
           <div className="flex flex-col gap-2 group-hover:opacity-0 transition-opacity duration-300">
-            <span className="bg-emerald-600/90 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-emerald-400/30 shadow-xl">
-              Newly Uploaded
-            </span>
+            {car.isSold ? (
+              <span className="bg-red-500/90 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-red-400/30 shadow-xl">
+                Car Sold
+              </span>
+            ) : (
+              <span className="bg-emerald-600/90 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-emerald-400/30 shadow-xl">
+                Newly Uploaded
+              </span>
+            )}
             <span className="bg-white/80 backdrop-blur-md text-gray-800 text-[9px] font-bold px-3 py-1.5 rounded-full border border-gray-200/60 flex items-center gap-2 shadow-xl pointer-events-auto">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
               <span className="text-gray-400 uppercase tracking-widest text-[8px] font-black">Score</span>
@@ -172,13 +178,19 @@ function CarCard({ car, index }: { car: StoredCar; index: number }) {
             <div className="text-2xl font-black tracking-tighter text-gray-900 leading-none">{car.pricing?.sellingPrice}</div>
           </div>
           
-          <Link
-            href={`/car/${car.id}`}
-            className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-600 hover:text-white border border-emerald-200 px-6 py-3.5 rounded-2xl transition-all group/btn shadow-sm active:scale-95"
-          >
-            <span className="text-[10px] font-black uppercase tracking-widest">View Car</span>
-            <ArrowRight size={14} />
-          </Link>
+          {car.isSold ? (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 px-6 py-3.5 rounded-2xl shadow-sm">
+              <span className="text-[10px] font-black uppercase tracking-widest text-red-500">Car Sold</span>
+            </div>
+          ) : (
+            <Link
+              href={`/car/${car.id}`}
+              className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-600 hover:text-white border border-emerald-200 px-6 py-3.5 rounded-2xl transition-all group/btn shadow-sm active:scale-95"
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest">View Car</span>
+              <ArrowRight size={14} />
+            </Link>
+          )}
         </div>
       </div>
 

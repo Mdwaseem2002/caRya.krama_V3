@@ -14,6 +14,9 @@ export interface IPayment extends Document {
   userName: string;
   userEmail: string;
   carId: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   amount: number;
   date: string;
   status: string;
@@ -59,6 +62,10 @@ const PaymentSchema = new Schema<IPayment>(
 );
 
 // ── Model Export ──────────────────────────────────────────────────────────────
+
+if (process.env.NODE_ENV !== "production") {
+  delete mongoose.models.Payment;
+}
 
 const Payment: Model<IPayment> =
   mongoose.models.Payment || mongoose.model<IPayment>("Payment", PaymentSchema);

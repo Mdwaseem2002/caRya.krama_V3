@@ -34,6 +34,10 @@ const AnalyticsSchema = new Schema<IAnalytics>(
 
 // ── Model Export ──────────────────────────────────────────────────────────────
 
+if (process.env.NODE_ENV !== "production") {
+  delete mongoose.models.Analytics;
+}
+
 const Analytics: Model<IAnalytics> =
   mongoose.models.Analytics ||
   mongoose.model<IAnalytics>("Analytics", AnalyticsSchema);

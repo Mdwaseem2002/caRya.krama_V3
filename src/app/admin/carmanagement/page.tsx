@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Uploadcar from "@/Admin/Upload/Uploadcar";
-import { getAllStoredCars, deleteCarFromStorage, getStoredCarById, StoredCar } from "@/Admin/Upload/CarStorage";
+import { getAllStoredCars, deleteCarFromStorage, getStoredCarById, invalidateCarCache, StoredCar } from "@/Admin/Upload/CarStorage";
 import { Plus, Edit3, Trash2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ function CarManagementContent() {
 
   const fetchCars = () => {
     setIsLoading(true);
-    getAllStoredCars()
+    getAllStoredCars(true)
       .then(setCars)
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -47,6 +47,8 @@ function CarManagementContent() {
   const handleEdit = async (car: StoredCar) => {
     setLoadingEditId(car.id);
     try {
+      // Always invalidate cache before editing to get the freshest data from DB
+      invalidateCarCache(car.id);
       // The admin list API excludes media.images for performance.
       // Fetch the complete car document from /api/cars/:id which includes all images.
       const fullCar = await getStoredCarById(car.id);
