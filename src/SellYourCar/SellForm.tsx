@@ -247,7 +247,7 @@ export default function SellForm({ onSuccess }: { onSuccess: (id: string) => voi
             <FormInput label="First Name" name="firstName" icon={User} value={formData.firstName} onChange={(v:any) => updateField("firstName", v)} placeholder="Ex: John" />
             <FormInput label="Last Name" name="lastName" icon={User} value={formData.lastName} onChange={(v:any) => updateField("lastName", v)} placeholder="Ex: Doe" />
             <FormInput label="Phone Number" name="phone" icon={Phone} value={formData.phone} onChange={(v:any) => updateField("phone", v)} placeholder="+91 00000 00000" />
-            <FormInput label="Email Address" name="email" type="email" icon={Mail} value={formData.email} onChange={(v:any) => updateField("email", v)} placeholder="Caryakrama@gmail.com" />
+            <FormInput label="Email Address" name="email" type="email" icon={Mail} value={formData.email} onChange={(v:any) => updateField("email", v)} placeholder="e.g. john.doe@example.com" />
           </div>
 
           <div className="h-px bg-slate-100 w-full" />

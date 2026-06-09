@@ -462,11 +462,11 @@ export default function InspectionReportForm({
           </div>
         </div>
         <div>
-          <label style={labelStyle}>Clutch / Turbo / Drive Shaft / Suspension Observations</label>
+          <label style={labelStyle}>Electrical / Electronics</label>
           <textarea
             value={driveObservations}
             onChange={e => setDriveObservations(e.target.value)}
-            placeholder="e.g. Clutch is little hard, turbo core sound, drive shaft noisy. Suspension is OK"
+            placeholder="e.g. All electrical systems functional. AC, infotainment, power windows, sensors all working properly"
             style={{ ...textareaStyle, minHeight: '80px' }}
           />
         </div>

@@ -261,7 +261,7 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              )}
 
              {/* 4. FLUIDS TABLE */}
-             <SectionCard icon={<Droplets size={22} />} title="4. FLUIDS DEGRADATION \u0026 LEAKS" mobile={mobile}>
+             <SectionCard icon={<Droplets size={22} />} title="4. FLUIDS DEGRADATION" mobile={mobile}>
                 <div style={{ width: '100%', overflowX: 'auto' }}>
                   <table style={{ width: '100%', minWidth: mobile ? '500px' : 'auto', borderCollapse: 'collapse', marginTop: '12px' }}>
                     <thead>
@@ -352,9 +352,9 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              {/* 8. VERDICT SECTION */}
              <SectionCard icon={<ShieldCheck size={22} />} title="8. VERDICT SECTION">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginTop: '4px' }}>
-                   <div style={{ borderLeft: '5px solid #10b981', backgroundColor: '#f0fdf4', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #d1fae5', borderLeftWidth: '5px' }}>
-                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tyre Condition</p>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#064e3b', fontWeight: 600, lineHeight: '1.5' }}>{report.verdict.mechanicalCondition || "-"}</p>
+                   <div style={{ borderLeft: '5px solid #0059A3', backgroundColor: '#f0f9ff', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #e0f2fe', borderLeftWidth: '5px' }}>
+                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tyre Condition</p>
+                      <p style={{ margin: 0, fontSize: '14px', color: '#0369a1', fontWeight: 600, lineHeight: '1.5' }}>{report.verdict.mechanicalCondition || "-"}</p>
                    </div>
                    <div style={{ borderLeft: '5px solid #0059A3', backgroundColor: '#f0f9ff', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #e0f2fe', borderLeftWidth: '5px' }}>
                       <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Purchase Recommendation</p>

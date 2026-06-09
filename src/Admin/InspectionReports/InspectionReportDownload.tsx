@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Cpu } from "lucide-react";
+import { Download } from "lucide-react";
+import { LOGO_BASE64 } from "./logoBase64";
 import { InspectionReportData, getInspectionReport } from "./InspectionStorage";
 import { addAdminNotification } from "@/Details/Notification/AdminNotify";
 
@@ -59,6 +60,9 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
          useCORS: true,
          logging: false,
          letterRendering: true,
+         height: 1123,
+         windowHeight: 1123,
+         y: 0,
        } as any);
        
        const imgData = canvas.toDataURL("image/jpeg", 0.85);
@@ -91,6 +95,11 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
   if (error) return <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>{error}</div>;
   if (!report) return null;
 
+  const issuesCount = report.interiors?.issues ? report.interiors.issues.split('\n').length : 0;
+  const precCount = report.precautions ? report.precautions.split('\n').length : 0;
+  const needsExtraPage = (issuesCount + precCount) > 10;
+  const totalPages = needsExtraPage ? 6 : 5;
+
   return (
     <div style={{ backgroundColor: '#f3f4f6', padding: '40px 20px', minHeight: '100vh', textAlign: 'center' }}>
 
@@ -98,13 +107,44 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
         {/* PAGE 1 */}
         <div className="pdf-page" style={pageStyle}>
           <div style={watermarkStyle}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* TABLE FORMAT HEADER */}
-            <div style={{ border: '2px solid #0059A3', borderRadius: '12px', padding: '24px', marginBottom: '24px', backgroundColor: '#ffffff', width: '100%', boxSizing: 'border-box' }}>
-               <div style={{ textAlign: 'center' }}>
-                  <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em', lineHeight: '1' }}>caRya.<span style={{color: '#0059A3'}}>krama</span></h1>
-               </div>
-               <p style={{ margin: '10px 0 0 0', fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+            {/* HEADER — Logo + Contact Info (matches web view) */}
+            <div style={{ border: '2px solid #0059A3', borderRadius: '12px', marginBottom: '24px', backgroundColor: '#ffffff', width: '100%', boxSizing: 'border-box', display: 'table', borderCollapse: 'separate' }}>
+              <div style={{ display: 'table-row' }}>
+                {/* Left: Logo */}
+                <div style={{ display: 'table-cell', width: '50%', padding: '24px', verticalAlign: 'middle', borderRight: '1px solid #e5e7eb', textAlign: 'center' }}>
+                  <div style={{ width: '240px', height: '75px', margin: '0 auto 16px auto' }}>
+                    <img
+                      src={LOGO_BASE64}
+                      alt="caRya.krama Logo"
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                    />
+                  </div>
+                  <p style={{ margin: 0, fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
+                </div>
+                {/* Right: Contact Info */}
+                <div style={{ display: 'table-cell', width: '50%', padding: '24px', verticalAlign: 'middle' }}>
+                  <table style={{ borderCollapse: 'collapse', width: '100%', border: 'none' }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ paddingBottom: '16px', verticalAlign: 'middle', fontSize: '14px', fontWeight: 600, color: '#374151' }}>
+                          caryakrama@gmail.com
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ paddingBottom: '16px', verticalAlign: 'middle', fontSize: '14px', fontWeight: 600, color: '#374151' }}>
+                          https://caryakrama.com/
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ verticalAlign: 'middle', fontSize: '14px', fontWeight: 600, color: '#374151' }}>
+                          +91 99001 87847
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
 
             <div style={{ width: '100%', height: '2px', backgroundColor: '#0059A3', marginBottom: '24px' }}></div>
@@ -117,21 +157,21 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                    <p style={valueStyle}>{new Date(report.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
-                   <p style={labelStyle}>Report ID</p>
-                   <p style={valueStyle}>{report.id}</p>
+                   <p style={labelStyle}>ID</p>
+                   <p style={valueStyle}>{report.id.split('-').pop()}</p>
                 </div>
                 <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', width: '33.33%' }}>
-                   <p style={labelStyle}>Inspector Name</p>
-                   <p style={valueStyle}>Master Tech {(report as any).inspectorName || "Z.K."}</p>
+                   <p style={{ ...labelStyle, color: '#0059A3' }}>Inspector</p>
+                   <p style={valueStyle}>{(report as any).inspectorName || "Z.K."}</p>
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'table', width: '100%', height: '360px', borderRadius: '16px', overflow: 'hidden', marginBottom: '32px', border: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+            <div style={{ display: 'table', width: '100%', height: '300px', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', border: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
                <div style={{ display: 'table-row' }}>
                   <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center' }}>
                     {carCoverImage ? (
-                      <img src={carCoverImage} alt="Car" style={{ width: '100%', height: '360px', objectFit: 'cover' }} crossOrigin="anonymous" />
+                      <img src={carCoverImage} alt="Car" style={{ width: '100%', height: '300px', objectFit: 'cover' }} crossOrigin="anonymous" />
                     ) : (
                       <div style={{ color: '#cbd5e1' }}>No Image</div>
                     )}
@@ -139,10 +179,10 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                </div>
             </div>
 
-            <SectionCard title="Vehicle Overview" 
+            <SectionCard title="Vehicle Overview"
               badge={
-                <div style={{ display: 'inline-block', fontSize: '11px', fontWeight: 700, color: '#059669', whiteSpace: 'nowrap', verticalAlign: 'middle', position: 'relative', top: '-1px', textDecoration: 'underline' }}>
-                   Verified Badge
+                <div style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#059669', padding: '3px 12px 7px 12px', border: '1px solid #a7f3d0', borderRadius: '20px', fontSize: '10px', fontWeight: 700, verticalAlign: 'middle' }}>
+                  <span style={{ position: 'relative', top: '-1px' }}>Verified Badge</span>
                 </div>
               }
             >
@@ -178,13 +218,13 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                </div>
             </SectionCard>
           </div>
-          <Footer pageNum={1} />
+          <Footer pageNum={1} totalPages={totalPages} />
         </div>
 
         {/* PAGE 2 */}
         <div className="pdf-page" style={pageStyle}>
           <div style={watermarkStyle}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
              <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
                 <div style={{ display: 'table-row' }}>
                    <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
@@ -206,14 +246,18 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
              <SectionCard title="2. ENGINE BAY">
                <BulletList text={report.engineBay || "No observations"} warning={false} />
              </SectionCard>
+
+             <SectionCard title="3. INTERIORS & CABIN">
+               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
+             </SectionCard>
           </div>
-          <Footer pageNum={2} />
+          <Footer pageNum={2} totalPages={totalPages} />
         </div>
 
         {/* PAGE 3 */}
         <div className="pdf-page" style={pageStyle}>
           <div style={watermarkStyle}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
              <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
                 <div style={{ display: 'table-row' }}>
                    <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
@@ -225,11 +269,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                 </div>
              </div>
 
-             <SectionCard title="3. INTERIORS & CABIN">
-               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
-             </SectionCard>
-
-             <SectionCard title="4. FLUIDS DEGRADATION & LEAKS">
+             <SectionCard title="4. FLUIDS DEGRADATION">
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', textAlign: 'left' }}>
@@ -278,18 +318,18 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                  <BulletList text={`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`} warning={isWarning(report.obdScan.faultCodes)} />
                  <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warning={isWarning(report.obdScan.ecmStatus)} />
              </SectionCard>
-          </div>
-          <Footer pageNum={3} />
-        </div>
+           </div>
+           <Footer pageNum={3} totalPages={totalPages} />
+         </div>
 
         {/* PAGE 4 */}
         <div className="pdf-page" style={pageStyle}>
           <div style={watermarkStyle}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
              <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
                 <div style={{ display: 'table-row' }}>
                    <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
-                      <span>ROAD TEST & FINAL SUMMARY</span>
+                      <span>DIAGNOSTICS & SUMMARY</span>
                    </div>
                    <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
                       <span style={refStyle}>REF: {report.id}</span>
@@ -335,47 +375,74 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                 </div>
              </SectionCard>
 
-             {report.interiors?.issues && (
-             <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
-               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                 Important Issues
-               </h3>
-               <BulletList text={report.interiors.issues} warning={true} forceBullet={true} />
-             </div>
-             )}
-          </div>
-          <Footer pageNum={4} />
-        </div>
+           </div>
+           <Footer pageNum={4} totalPages={totalPages} />
+         </div>
 
-        {/* PAGE 5 */}
-        <div className="pdf-page" style={pageStyle}>
-          <div style={watermarkStyle}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-             <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
-                <div style={{ display: 'table-row' }}>
-                   <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
-                      <span>PRECAUTIONS & SERVICE</span>
-                   </div>
-                   <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
-                      <span style={refStyle}>REF: {report.id}</span>
-                   </div>
-                </div>
-             </div>
+         {/* PAGE 5 */}
+         <div className="pdf-page" style={pageStyle}>
+           <div style={watermarkStyle}>caRya.krama</div>
+           <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+              <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                 <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                       <span>PRECAUTIONS & SERVICE</span>
+                    </div>
+                    <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                       <span style={refStyle}>REF: {report.id}</span>
+                    </div>
+                 </div>
+              </div>
 
-             <SectionCard title="9. PRECAUTIONS & RECOMMENDATIONS">
-                <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
-             </SectionCard>
+              {report.interiors?.issues && (
+               <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '16px', padding: '16px', marginBottom: '16px' }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Important Issues</h3>
+                <BulletList text={report.interiors.issues} warning={true} forceBullet={true} />
+              </div>
+              )}
 
-             {(report.serviceRecommendations && report.serviceRecommendations !== "-") && (
-             <SectionCard title="10. SERVICE RECOMMENDATIONS">
-                <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
-             </SectionCard>
-             )}
-          </div>
-          <Footer pageNum={5} />
-        </div>
-      </div>
-    </div>
+              <SectionCard title="9. PRECAUTIONS & RECOMMENDATIONS">
+                 <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
+              </SectionCard>
+
+              {(!needsExtraPage && report.serviceRecommendations && report.serviceRecommendations !== "-") && (
+              <SectionCard title="10. SERVICE RECOMMENDATIONS">
+                 <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
+              </SectionCard>
+              )}
+
+           </div>
+           <Footer pageNum={5} totalPages={totalPages} />
+         </div>
+
+         {/* OPTIONAL PAGE 6 FOR OVERFLOWING SERVICE RECOMMENDATIONS */}
+         {needsExtraPage && (
+         <div className="pdf-page" style={pageStyle}>
+           <div style={watermarkStyle}>caRya.krama</div>
+           <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+              <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                 <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                       <span>SERVICE RECOMMENDATIONS</span>
+                    </div>
+                    <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                       <span style={refStyle}>REF: {report.id}</span>
+                    </div>
+                 </div>
+              </div>
+
+              {(report.serviceRecommendations && report.serviceRecommendations !== "-") && (
+              <SectionCard title="10. SERVICE RECOMMENDATIONS">
+                 <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
+              </SectionCard>
+              )}
+
+           </div>
+           <Footer pageNum={6} totalPages={totalPages} />
+         </div>
+         )}
+       </div>
+     </div>
   );
 });
 
@@ -387,14 +454,16 @@ const pageStyle: React.CSSProperties = {
   width: '794px',
   height: '1123px',
   backgroundColor: '#ffffff',
-  padding: '50px 60px 100px 60px',
+  padding: '40px 50px 30px 50px',
   boxSizing: 'border-box',
-  fontFamily: 'Arial, sans-serif',
+  fontFamily: '"Inter", Arial, sans-serif',
   position: 'relative',
   pageBreakAfter: 'always',
   overflow: 'hidden',
   marginBottom: '24px',
-  boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
+  boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const watermarkStyle: React.CSSProperties = {
@@ -410,19 +479,30 @@ const watermarkStyle: React.CSSProperties = {
   pointerEvents: 'none'
 };
 
-const labelStyle: React.CSSProperties = { margin: '0 0 6px 0', fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' };
+const labelStyle: React.CSSProperties = { margin: '0 0 4px 0', fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' };
 const valueStyle: React.CSSProperties = { margin: 0, fontSize: '14px', fontWeight: 800, color: '#111827' };
-const pageHeaderStyle: React.CSSProperties = { margin: '0 0 28px 0', fontSize: '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' };
+const pageHeaderStyle: React.CSSProperties = { margin: '0 0 16px 0', fontSize: '20px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' };
 const refStyle: React.CSSProperties = { fontSize: '12px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' };
-const subHeaderStyle: React.CSSProperties = { margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' };
-const batteryStatBoxStyle: React.CSSProperties = { backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb' };
+const subHeaderStyle: React.CSSProperties = { margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' };
+const batteryStatBoxStyle: React.CSSProperties = { backgroundColor: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #e5e7eb' };
 const batteryValueStyle: React.CSSProperties = { margin: 0, fontSize: '17px', fontWeight: 900, color: '#111827' };
 
-function Footer({ pageNum }: { pageNum: number }) {
+function Footer({ pageNum, totalPages }: { pageNum: number, totalPages: number }) {
   return (
-    <div style={{ position: 'absolute', bottom: '50px', left: '60px', right: '60px', display: 'table', width: '674px', borderTop: '2px solid #f3f4f6', paddingTop: '20px', fontSize: '11px', color: '#9ca3af', fontWeight: 700, zIndex: 1 }}>
+    <div style={{
+      zIndex: 1,
+      borderTop: '2px solid #f3f4f6',
+      paddingTop: '12px',
+      marginTop: 'auto',
+      display: 'table',
+      width: '100%',
+      fontSize: '11px',
+      color: '#9ca3af',
+      fontWeight: 700,
+      flexShrink: 0,
+    }}>
       <div style={{ display: 'table-row' }}>
-         <div style={{ display: 'table-cell', textAlign: 'left', width: '33.3%' }}>Page {pageNum} / 5</div>
+         <div style={{ display: 'table-cell', textAlign: 'left', width: '33.3%' }}>Page {pageNum} / {totalPages}</div>
          <div style={{ display: 'table-cell', textAlign: 'center', width: '33.3%', color: '#0059A3', fontWeight: 900, letterSpacing: '0.05em' }}>caRya.krama Vehicle Inspection</div>
          <div style={{ display: 'table-cell', textAlign: 'right', width: '33.3%' }}>Confidential</div>
       </div>
@@ -432,15 +512,17 @@ function Footer({ pageNum }: { pageNum: number }) {
 
 function SectionCard({ title, children, badge }: { title: string, children: React.ReactNode, badge?: React.ReactNode }) {
   return (
-    <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
-      <div style={{ display: 'table', width: '100%', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '20px' }}>
+    <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', marginBottom: '16px' }}>
+      <div style={{ display: 'table', width: '100%', borderBottom: '1px solid #e5e7eb', paddingBottom: '12px', marginBottom: '12px' }}>
          <div style={{ display: 'table-row' }}>
             <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
-               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: '1.2', position: 'relative', top: '-1px' }}>{title}</h3>
+               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: '1.2' }}>{title}</h3>
             </div>
-            <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'right' }}>
-               {badge}
-            </div>
+            {badge && (
+              <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                 {badge}
+              </div>
+            )}
          </div>
       </div>
       <div>{children}</div>
@@ -456,13 +538,13 @@ function BulletList({ text, warning, forceBullet = false }: { text: string, warn
   }
 
   return (
-    <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px', marginTop: '4px' }}>
+    <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 6px', marginTop: '4px' }}>
       {bullets.map((bullet, i) => {
-         const isWarn = warning; // Ignore keyword-based warning
+         const isWarn = warning;
          return (
            <div key={i} style={{ display: 'table-row' }}>
               <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
-                 <p style={{ margin: 0, fontSize: '14px', color: isWarn ? '#991b1b' : '#374151', lineHeight: '1.4', fontWeight: 600, position: 'relative', top: '-1.5px' }}>
+                 <p style={{ margin: 0, fontSize: '14px', color: isWarn ? '#991b1b' : '#374151', lineHeight: '1.6', fontWeight: 600 }}>
                     • {bullet}
                  </p>
               </div>
@@ -479,7 +561,7 @@ function FluidRow({ label, status, warning, action }: { label: string, status: s
     <tr>
       <td style={{ padding: '14px 12px', fontSize: '14px', fontWeight: 700, color: '#111827', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>{label}</td>
       <td style={{ padding: '14px 12px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>
-         <span style={{ fontSize: '14px', fontWeight: 800, color: '#374151', lineHeight: '1.2', position: 'relative', top: '-1.5px' }}>{status || "Clean"}</span>
+         <span style={{ fontSize: '14px', fontWeight: 800, color: '#374151' }}>{status || "Clean"}</span>
       </td>
       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#6b7280', borderBottom: '1px solid #e5e7eb', fontWeight: 600, verticalAlign: 'middle' }}>{action}</td>
     </tr>
@@ -489,7 +571,7 @@ function FluidRow({ label, status, warning, action }: { label: string, status: s
 const verdictBoxStyle = (borderColor: string, bgColor: string, accentColor: string): React.CSSProperties => ({
   borderLeft: `5px solid ${borderColor}`,
   backgroundColor: bgColor,
-  padding: '16px 20px',
+  padding: '12px 16px',
   borderRadius: '0 12px 12px 0',
   border: `1px solid ${borderColor}`,
   borderLeftWidth: '5px'
