@@ -57,6 +57,7 @@ const nextConfig = {
               net: false,
               tls: false,
               crypto: false,
+              canvas: false, // pdfjs-dist optional dep — not needed in browser
             };
           }
 

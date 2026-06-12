@@ -5,7 +5,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Download } from "lucide-react";
 import { LOGO_BASE64 } from "./logoBase64";
-import { InspectionReportData, getInspectionReport } from "./InspectionStorage";
+import { InspectionReportData, getInspectionReport, getAllInspectionReports } from "./InspectionStorage";
 import { addAdminNotification } from "@/Details/Notification/AdminNotify";
 
 interface Props {
@@ -45,33 +45,153 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     }
   }, [reportId, initialReport]);
 
+  // ── Helper: append a base64 data-URL file (PDF or image) as extra jsPDF pages
+  const appendBase64FileToPDF = async (
+    pdf: jsPDF,
+    dataUrl: string
+  ): Promise<void> => {
+    const isPdf   = dataUrl.startsWith('data:application/pdf') || dataUrl.includes(';base64,JVBER');
+    const isImage = dataUrl.startsWith('data:image/');
+
+    if (isPdf) {
+      // Convert base64 → Uint8Array without fetch
+      const base64 = dataUrl.split(',')[1];
+      const binary  = atob(base64);
+      const uint8   = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) uint8[i] = binary.charCodeAt(i);
+
+      // Avoid Next.js Webpack 'Module not found' issues by loading via CDN directly
+      const pdfjsLib = await new Promise<any>((resolve, reject) => {
+        if ((window as any).pdfjsLib) {
+          resolve((window as any).pdfjsLib);
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = () => {
+          const loadedLib = (window as any).pdfjsLib;
+          loadedLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          resolve(loadedLib);
+        };
+        script.onerror = () => reject(new Error('Failed to load pdf.js from CDN'));
+        document.body.appendChild(script);
+      });
+
+      const pdfDoc = await pdfjsLib.getDocument({ data: uint8 }).promise;
+
+      for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+        const pdfPage       = await pdfDoc.getPage(pageNum);
+        const viewport      = pdfPage.getViewport({ scale: 1 });
+        // Fit page into A4 (794 × 1123) at 2× DPI for crispness
+        const scale         = Math.min(794 / viewport.width, 1123 / viewport.height) * 2;
+        const scaledVP      = pdfPage.getViewport({ scale });
+
+        const canvas        = document.createElement('canvas');
+        canvas.width        = scaledVP.width;
+        canvas.height       = scaledVP.height;
+        const ctx           = canvas.getContext('2d')!;
+
+        await pdfPage.render({ canvasContext: ctx, viewport: scaledVP } as any).promise;
+
+        pdf.addPage();
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, 297);
+      }
+
+    } else if (isImage) {
+      // Draw image centered on an A4 page
+      const img = new window.Image();
+      await new Promise<void>((res, rej) => {
+        img.onload  = () => res();
+        img.onerror = () => rej(new Error('Image load failed'));
+        img.src     = dataUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width  = 794;
+      canvas.height = 1123;
+      const ctx     = canvas.getContext('2d')!;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 794, 1123);
+
+      const pad    = 40;
+      const maxW   = 794 - pad * 2;
+      const maxH   = 1123 - pad * 2;
+      const ratio  = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+      const dW     = img.naturalWidth  * ratio;
+      const dH     = img.naturalHeight * ratio;
+      ctx.drawImage(img, (794 - dW) / 2, (1123 - dH) / 2, dW, dH);
+
+      pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, 297);
+    }
+  };
+
   const handleDownloadPDF = async () => {
     if (!printRef.current) return;
     const pages = printRef.current.querySelectorAll('.pdf-page');
     if (pages.length === 0) return;
 
-    const pdf = new jsPDF("p", "mm", "a4");
+    const pdf      = new jsPDF('p', 'mm', 'a4');
     const imgWidth = 210;
 
+    // ── Step 1: Render all 5 inspection report pages ─────────────────────────
     for (let i = 0; i < pages.length; i++) {
-       const page = pages[i] as HTMLElement;
-       const canvas = await html2canvas(page, {
-         scale: 2,
-         useCORS: true,
-         logging: false,
-         letterRendering: true,
-         height: 1123,
-         windowHeight: 1123,
-         y: 0,
-       } as any);
-       
-       const imgData = canvas.toDataURL("image/jpeg", 0.85);
-       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-       
-       if (i > 0) pdf.addPage();
-       pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+      const page   = pages[i] as HTMLElement;
+      const canvas = await html2canvas(page, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        letterRendering: true,
+        height: 1123,
+        windowHeight: 1123,
+        y: 0,
+      } as any);
+
+      const imgData   = canvas.toDataURL('image/jpeg', 0.85);
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
     }
-    
+
+    // ── Step 2: Collect all uploaded files to append ──────────────────────────
+    // 2a. If THIS report itself carries an uploadedFile (base64 data URL)
+    const uploadedFiles: { dataUrl: string; label: string }[] = [];
+
+    if (report?.uploadedFile) {
+      uploadedFiles.push({
+        dataUrl: report.uploadedFile,
+        label:   report.uploadedFileName || 'attachment',
+      });
+    }
+
+    // 2b. Fetch all "uploaded" type reports for the same car and collect their files
+    if (report?.carId && report.carId !== 'unlinked') {
+      try {
+        const allReports = await getAllInspectionReports(report.carId);
+        const uploadedReports = allReports.filter(
+          r => r.reportType === 'uploaded' && r.uploadedFile && r.id !== report.id
+        );
+        for (const ur of uploadedReports) {
+          uploadedFiles.push({
+            dataUrl: ur.uploadedFile,
+            label:   ur.uploadedFileName || 'attachment',
+          });
+        }
+      } catch (fetchErr) {
+        console.error('Could not fetch uploaded reports for car:', fetchErr);
+      }
+    }
+
+    // ── Step 3: Append each collected file as extra PDF pages ─────────────────
+    for (const file of uploadedFiles) {
+      try {
+        await appendBase64FileToPDF(pdf, file.dataUrl);
+      } catch (appendErr) {
+        console.error(`Failed to append "${file.label}" to PDF:`, appendErr);
+        // Gracefully skip — base report is still intact
+      }
+    }
+
     pdf.save(`Inspection_Report_${report?.id || 'Download'}.pdf`);
 
     // Trigger Admin Notification

@@ -130,6 +130,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
   // Inspection Report
   const [inspectionMode, setInspectionMode] = useState<"none" | "create" | "upload">("none");
   const [inspectionSaved, setInspectionSaved] = useState(false);
+  const [savedReportTypes, setSavedReportTypes] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -609,51 +610,65 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
           <ClipboardCheck size={18} className="text-[#0059A3]" /> 10. Vehicle Inspection Report
         </h3>
 
-        {inspectionSaved ? (
-          <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {inspectionSaved && (
+          <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
             <CheckCircle size={20} style={{ color: '#16a34a' }} />
             <div>
               <p style={{ fontWeight: 700, color: '#166534', margin: '0 0 2px', fontSize: '14px' }}>Inspection report saved successfully!</p>
               <p style={{ color: '#6b7280', margin: 0, fontSize: '12px' }}>The report will be linked to this vehicle after publishing.</p>
             </div>
           </div>
-        ) : inspectionMode === "none" ? (
+        )}
+
+        {inspectionMode === "none" ? (
           <div style={{ display: 'flex', gap: '16px' }}>
             <button
-              onClick={() => setInspectionMode("create")}
+              onClick={() => !savedReportTypes.includes("create") && setInspectionMode("create")}
+              disabled={savedReportTypes.includes("create")}
               style={{
                 flex: 1, padding: '24px', borderRadius: '14px', border: '2px dashed #d1d5db',
-                backgroundColor: '#f9fafb', cursor: 'pointer', textAlign: 'center',
+                backgroundColor: savedReportTypes.includes("create") ? '#f3f4f6' : '#f9fafb', 
+                cursor: savedReportTypes.includes("create") ? 'not-allowed' : 'pointer', 
+                opacity: savedReportTypes.includes("create") ? 0.5 : 1,
+                textAlign: 'center',
                 transition: 'all 0.2s', display: 'flex', flexDirection: 'column',
                 alignItems: 'center', gap: '10px'
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#0059A3'; e.currentTarget.style.backgroundColor = '#f0f9ff'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; }}
+              onMouseEnter={e => { if(!savedReportTypes.includes("create")){ e.currentTarget.style.borderColor = '#0059A3'; e.currentTarget.style.backgroundColor = '#f0f9ff'; } }}
+              onMouseLeave={e => { if(!savedReportTypes.includes("create")){ e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; } }}
             >
               <ClipboardCheck size={28} style={{ color: '#0059A3' }} />
-              <span style={{ fontWeight: 700, color: '#111827', fontSize: '14px' }}>Create Report</span>
+              <span style={{ fontWeight: 700, color: '#111827', fontSize: '14px' }}>
+                {savedReportTypes.includes("create") ? "Report Created" : "Create Report"}
+              </span>
               <span style={{ fontSize: '12px', color: '#6b7280' }}>Fill the structured inspection form</span>
             </button>
             <button
-              onClick={() => setInspectionMode("upload")}
+              onClick={() => !savedReportTypes.includes("upload") && setInspectionMode("upload")}
+              disabled={savedReportTypes.includes("upload")}
               style={{
                 flex: 1, padding: '24px', borderRadius: '14px', border: '2px dashed #d1d5db',
-                backgroundColor: '#f9fafb', cursor: 'pointer', textAlign: 'center',
+                backgroundColor: savedReportTypes.includes("upload") ? '#f3f4f6' : '#f9fafb', 
+                cursor: savedReportTypes.includes("upload") ? 'not-allowed' : 'pointer', 
+                opacity: savedReportTypes.includes("upload") ? 0.5 : 1,
+                textAlign: 'center',
                 transition: 'all 0.2s', display: 'flex', flexDirection: 'column',
                 alignItems: 'center', gap: '10px'
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#0059A3'; e.currentTarget.style.backgroundColor = '#f0f9ff'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; }}
+              onMouseEnter={e => { if(!savedReportTypes.includes("upload")){ e.currentTarget.style.borderColor = '#0059A3'; e.currentTarget.style.backgroundColor = '#f0f9ff'; } }}
+              onMouseLeave={e => { if(!savedReportTypes.includes("upload")){ e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; } }}
             >
               <FileUp size={28} style={{ color: '#0059A3' }} />
-              <span style={{ fontWeight: 700, color: '#111827', fontSize: '14px' }}>Upload Report</span>
+              <span style={{ fontWeight: 700, color: '#111827', fontSize: '14px' }}>
+                {savedReportTypes.includes("upload") ? "Report Uploaded" : "Upload Report"}
+              </span>
               <span style={{ fontSize: '12px', color: '#6b7280' }}>PDF, Excel, or Word document</span>
             </button>
           </div>
         ) : inspectionMode === "create" ? (
           <InspectionReportForm
             onBack={() => setInspectionMode("none")}
-            onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); }}
+            onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); setSavedReportTypes(prev => [...prev, "create"]); }}
             carId={generatedCarId}
             carName={title || brand}
             year={year}
@@ -662,7 +677,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         ) : (
           <InspectionReportUpload
             onBack={() => setInspectionMode("none")}
-            onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); }}
+            onSuccess={() => { setInspectionSaved(true); setInspectionMode("none"); setSavedReportTypes(prev => [...prev, "upload"]); }}
             carId={generatedCarId}
             carName={title || brand}
           />
