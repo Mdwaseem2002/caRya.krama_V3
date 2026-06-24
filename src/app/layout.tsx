@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "caRyakrama - Verified Dealership",
-  description: "Browse all verified used cars with our curated collection.",
+  description: "Verified used car's",
   icons: {
     icon: "/logo/Favicon-1.png",
     shortcut: "/logo/Favicon-1.png",
