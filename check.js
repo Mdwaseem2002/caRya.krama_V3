@@ -1,0 +1,1 @@
+const {Client} = require("ssh2"); const conn = new Client(); conn.on("ready", () => { conn.exec("curl -sI https://caryakrama.com | head -5", (err, stream) => { stream.on("data", d => process.stdout.write(d)); stream.on("close", () => conn.end()); }); }).connect({host: "31.97.207.239", port: 22, username: "root", password: "Pentacloud@2026"});

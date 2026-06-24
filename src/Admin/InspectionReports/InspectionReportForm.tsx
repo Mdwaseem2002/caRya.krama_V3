@@ -419,96 +419,34 @@ export default function InspectionReportForm({
         </div>
       </section>
 
-      {/* ── 7. OBD Scan ────────────────────────────────────────────────────── */}
-      <section style={sectionStyle}>
-        <h3 style={sectionHeaderStyle}>
-          <Cpu size={18} style={{ color: '#0059A3' }} /> OBD Scan
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label style={labelStyle}>Fault Codes Notes</label>
-            <textarea
-              value={faultCodes}
-              onChange={e => setFaultCodes(e.target.value)}
-              placeholder="e.g. Minor fault codes were present and healed"
-              style={{ ...textareaStyle, minHeight: '80px' }}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>ECM Status</label>
-            <textarea
-              value={ecmStatus}
-              onChange={e => setEcmStatus(e.target.value)}
-              placeholder="e.g. No faults found in ECM"
-              style={{ ...textareaStyle, minHeight: '80px' }}
-            />
-          </div>
-        </div>
-      </section>
+      {/* ── 7. OBD Scan removed ────────────────────────────────────────────── */}
 
       {/* ── 8. Test Drive Observations ─────────────────────────────────────── */}
       <section style={sectionStyle}>
         <h3 style={sectionHeaderStyle}>
           <CarFront size={18} style={{ color: '#0059A3' }} /> Test Drive Observations
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <div>
             <label style={labelStyle}>Driving Performance</label>
-            <input value={drivePerformance} onChange={e => setDrivePerformance(e.target.value)} placeholder="e.g. Driving performance is OK" style={inputStyle} />
+            <textarea
+              value={drivePerformance}
+              onChange={e => setDrivePerformance(e.target.value)}
+              placeholder="e.g. Driving performance and stability OK"
+              style={{ ...textareaStyle, minHeight: '80px' }}
+            />
           </div>
-          <div>
-            <label style={labelStyle}>Braking & Stability</label>
-            <input value={driveBraking} onChange={e => setDriveBraking(e.target.value)} placeholder="e.g. Braking and stability OK" style={inputStyle} />
-          </div>
-        </div>
-        <div>
-          <label style={labelStyle}>Electrical / Electronics</label>
-          <textarea
-            value={driveObservations}
-            onChange={e => setDriveObservations(e.target.value)}
-            placeholder="e.g. All electrical systems functional. AC, infotainment, power windows, sensors all working properly"
-            style={{ ...textareaStyle, minHeight: '80px' }}
-          />
         </div>
       </section>
 
-      {/* ── 9. Overall Summary ─────────────────────────────────────────────── */}
-      <section style={sectionStyle}>
-        <h3 style={sectionHeaderStyle}>
-          <CheckCircle size={18} style={{ color: '#10B981' }} /> Overall Summary
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label style={labelStyle}>Mechanical Condition</label>
-            <textarea
-              value={summaryMechanical}
-              onChange={e => setSummaryMechanical(e.target.value)}
-              placeholder="e.g. Baleno RS is mechanically sound OK in condition"
-              style={{ ...textareaStyle, minHeight: '80px' }}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>Body Condition Summary</label>
-            <textarea
-              value={summaryBody}
-              onChange={e => setSummaryBody(e.target.value)}
-              placeholder="e.g. Body shows mild paint correction with no accident repair"
-              style={{ ...textareaStyle, minHeight: '80px' }}
-            />
-          </div>
-        </div>
-      </section>
+      {/* ── 9. Overall Summary removed ─────────────────────────────────────── */}
 
       {/* ── 10. Verdict ────────────────────────────────────────────────────── */}
       <section style={sectionStyle}>
         <h3 style={sectionHeaderStyle}>
           <AlertTriangle size={18} style={{ color: '#F59E0B' }} /> Verdict
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label style={labelStyle}>Tyre Condition</label>
-            <input value={verdictMechanical} onChange={e => setVerdictMechanical(e.target.value)} placeholder="e.g. Mechanically Good" style={inputStyle} />
-          </div>
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label style={labelStyle}>Purchase Recommendation</label>
             <input value={verdictRecommendation} onChange={e => setVerdictRecommendation(e.target.value)} placeholder="e.g. Recommended for purchase after negotiations" style={inputStyle} />
@@ -538,7 +476,7 @@ export default function InspectionReportForm({
           <ShieldAlert size={18} style={{ color: '#EF4444' }} /> Precautions / Recommendations
         </h3>
         <div>
-          <label style={labelStyle}>Vehicle Age / Condition Notes & Recommendations</label>
+          <label style={labelStyle}>Condition Notes & Recommendations</label>
           <textarea
             value={precautions}
             onChange={e => setPrecautions(e.target.value)}

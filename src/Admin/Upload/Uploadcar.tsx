@@ -409,17 +409,10 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">3. Pricing</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Actual Price</label>
-            <input value={actualPrice} onChange={e => setActualPrice(e.target.value)} placeholder="₹46.50 Lakh" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
-          </div>
-          <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Selling Price</label>
             <input value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} placeholder="₹45.99 Lakh" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
         </div>
-        {calculateSavings() && (
-          <p style={{ marginTop: '12px', fontSize: '13px', fontWeight: 700, color: '#10B981', display: 'flex', alignItems: 'center', gap: '6px' }}><CheckCircle size={14} /> Auto Calculated: {calculateSavings()}</p>
-        )}
       </section>
 
       {/* 4. Specifications */}
@@ -431,25 +424,7 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
             <input value={mileage} onChange={e => setMileage(e.target.value)} placeholder="e.g. 15,000 km" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Fuel Type</label>
-            <CustomSelect 
-              value={fuelType} 
-              onChange={setFuelType} 
-              options={["Petrol", "Diesel", "Electric", "Hybrid"]} 
-              placeholder="Select..." 
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Transmission</label>
-            <CustomSelect 
-              value={transmission} 
-              onChange={setTransmission} 
-              options={["Automatic", "Manual"]} 
-              placeholder="Select..." 
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '8px' }}>Add 1st owner / 2nd owner / 3rd owner field</label>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '8px' }}>Ownership (1st/2nd/3rd)</label>
             <div style={{ display: 'flex', gap: '8px' }}>
               {["1st Owner", "2nd Owner", "3rd Owner"].map((type) => (
                 <button
@@ -466,10 +441,6 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
               ))}
             </div>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Color</label>
-            <input value={color} onChange={e => setColor(e.target.value)} placeholder="Mojave Desert" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
-          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <input type="checkbox" checked={warranty} onChange={e => setWarranty(e.target.checked)} id="warrantyCheck" style={{ width: '18px', height: '18px' }} />
             <label htmlFor="warrantyCheck" style={{ fontSize: '14px', fontWeight: 700, color: '#374151', cursor: 'pointer' }}>Warranty Included</label>
@@ -477,94 +448,10 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         </div>
       </section>
 
-      {/* 5. Condition & Highlights */}
+      {/* 5. Seller Details */}
       <section className="mb-8">
-        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">5. Condition & Highlights</h3>
-        {/* Condition Score fields removed */}
-        
-        <div style={{ marginBottom: '24px' }}>
-           <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Service History Log</label>
-           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '8px', marginBottom: '12px' }}>
-              <input value={historyInput} onChange={e => setHistoryInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddHistory(); }} placeholder={mobile ? "e.g. Major service at 45k km" : "e.g. Major service at 45k km - Authorized Center"} style={{ flex: 1, padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
-              <button onClick={handleAddHistory} style={{ padding: mobile ? '12px' : '0 24px', height: mobile ? 'auto' : '46px', backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: mobile ? '13px' : '14px' }}>Add log</button>
-           </div>
-           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {serviceHistory.map((h, i) => (
-                <span key={i} style={{ padding: '6px 12px', backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', borderRadius: '12px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {h}
-                  <button onClick={() => setServiceHistory(serviceHistory.filter((_, idx) => idx !== i))} style={{ background: 'none', border: 'none', color: '#047857', cursor: 'pointer', padding: 0 }}><X size={12} /></button>
-                </span>
-              ))}
-           </div>
-        </div>
-        
-        <div>
-           <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Add Highlights</label>
-           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '8px', marginBottom: '12px' }}>
-              <input value={highlightInput} onChange={e => setHighlightInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddHighlight(); }} placeholder="Like New" style={{ flex: 1, padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
-              <button onClick={handleAddHighlight} style={{ padding: mobile ? '12px' : '0 24px', height: mobile ? 'auto' : '46px', backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: mobile ? '13px' : '14px' }}>Add</button>
-           </div>
-           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {highlights.map((h, i) => (
-                <span key={i} style={{ padding: '6px 12px', backgroundColor: '#e0f2fe', color: '#0369a1', borderRadius: '50px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {h}
-                  <button onClick={() => setHighlights(highlights.filter((_, idx) => idx !== i))} style={{ background: 'none', border: 'none', color: '#0369a1', cursor: 'pointer', padding: 0 }}><X size={12} /></button>
-                </span>
-              ))}
-           </div>
-        </div>
-      </section>
-
-      {/* 7. Inspection Summary */}
-      <section className="mb-8">
-        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">7. Inspection Summary</h3>
-        {/* Overall Inspection Score display removed */}
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-           <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '8px' }}>Add Inspection Points (e.g. Engine, Brakes)</label>
-           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '8px', marginBottom: '16px', alignItems: mobile ? 'stretch' : 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <input value={insTitle} onChange={e => setInsTitle(e.target.value)} placeholder="Point (e.g. Engine)" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: mobile ? '13px' : '14px' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <input value={insValue} onChange={e => setInsValue(e.target.value)} placeholder="Value (e.g. Perfect)" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: mobile ? '13px' : '14px' }} />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: mobile ? 'space-between' : 'flex-start', gap: '6px', padding: mobile ? '4px 8px' : '0 8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <input type="checkbox" checked={insHighlight} onChange={e => setInsHighlight(e.target.checked)} id="insHighlight" />
-                  <label htmlFor="insHighlight" style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563' }}>Highlt</label>
-                </div>
-                {mobile && <button onClick={handleAddInspectionPoint} style={{ padding: '8px 20px', backgroundColor: '#0059A3', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Add</button>}
-              </div>
-              {!mobile && <button onClick={handleAddInspectionPoint} className="h-[46px] px-5 bg-[#0059A3] text-white border-none rounded-lg font-bold cursor-pointer hover:bg-[#004a87] transition-colors">Add</button>}
-           </div>
-
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {inspectionPoints.map((point, i) => (
-                <div key={i} style={{ 
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', 
-                  backgroundColor: point.highlight ? '#fff7ed' : '#f9fafb', 
-                  border: point.highlight ? '1px solid #fed7aa' : '1px solid #e5e7eb', 
-                  borderRadius: '10px' 
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <CheckCircle size={14} style={{ color: '#10B981' }} />
-                    <div>
-                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>{point.title}: </span>
-                      <span style={{ fontSize: '14px', fontWeight: 500, color: point.highlight ? '#c2410c' : '#4b5563' }}>{point.value}</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setInspectionPoints(inspectionPoints.filter((_, idx) => idx !== i))} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}><X size={16} /></button>
-                </div>
-              ))}
-           </div>
-        </div>
-      </section>
-
-      {/* 8. Seller Details */}
-      <section className="mb-8">
-        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">8. Seller Details</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">5. Seller Details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Name</label>
             <input value={sellerName} onChange={e => setSellerName(e.target.value)} placeholder="caRya.krama" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
@@ -573,30 +460,13 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Contact Number</label>
             <input value={sellerContactNumber} onChange={e => setSellerContactNumber(e.target.value)} placeholder="+91 9876543210" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Seller Type</label>
-            <CustomSelect 
-              value={sellerType} 
-              onChange={setSellerType} 
-              options={["Professional", "Individual", "Verified Partner"]} 
-              placeholder="Select..." 
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Member Since</label>
-            <input value={sellerMemberSince} onChange={e => setSellerMemberSince(e.target.value)} placeholder="2024" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
-          </div>
         </div>
       </section>
 
-      {/* 9. Location */}
+      {/* 6. Location */}
       <section className="mb-8">
-        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">9. Location</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>Area</label>
-            <input value={area} onChange={e => setArea(e.target.value)} placeholder="Indiranagar" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
-          </div>
+        <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2">6. Location</h3>
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#6b7280', marginBottom: '4px' }}>City</label>
             <input value={city} onChange={e => setCity(e.target.value)} placeholder="Bangalore" style={{ width: '100%', padding: mobile ? '10px' : '12px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', fontSize: mobile ? '13px' : '14px' }} />
@@ -604,10 +474,10 @@ export default function Uploadcar({ onBack, onSuccess, editCar }: UploadcarProps
         </div>
       </section>
 
-      {/* 10. Vehicle Inspection Report */}
+      {/* 7. Vehicle Inspection Report */}
       <section className="mb-8">
         <h3 className="text-sm sm:text-base font-bold text-[#374151] mb-4 border-bottom border-gray-200 pb-2 flex items-center gap-2">
-          <ClipboardCheck size={18} className="text-[#0059A3]" /> 10. Vehicle Inspection Report
+          <ClipboardCheck size={18} className="text-[#0059A3]" /> 7. Vehicle Inspection Report
         </h3>
 
         {inspectionSaved && (

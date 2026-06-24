@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { getPublishedStoredCars, StoredCar } from "@/Admin/Upload/CarStorage";
-import { CheckCircle2, Navigation, Fuel, Calendar, MapPin, Heart, ChevronRight, Lock, ShieldCheck, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { CheckCircle2, Navigation, Fuel, Calendar, MapPin, Heart, ChevronRight, Lock, ShieldCheck, SlidersHorizontal, ChevronDown, Gauge } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 
@@ -296,10 +296,9 @@ export default function UsedcarModels() {
                   
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     {[
-                      { icon: Fuel, label: "ENERGY", value: car.specs?.fuelType },
-                      { icon: Navigation, label: "DRIVE", value: car.specs?.transmission },
+                      { icon: Calendar, label: "MODEL", value: car.year },
                       { icon: CheckCircle2, label: "OWNER", value: car.specs?.ownership },
-                      { icon: Calendar, label: "MILEAGE", value: `${car.specs?.mileage || "0"} KMS` },
+                      { icon: Gauge, label: "MILEAGE", value: `${car.specs?.mileage || "0"} KMS` },
                     ].map((spec, i) => (
                       <div key={i} className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-2xl p-3 flex flex-col gap-1">
                         <div className="flex items-center gap-1.5">

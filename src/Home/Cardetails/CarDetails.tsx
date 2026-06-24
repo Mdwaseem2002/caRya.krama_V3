@@ -151,7 +151,6 @@ export default function CarDetails({ id }: { id: string }) {
               {[
                 { id: 'year', icon: Calendar,  color: "text-blue-600", bg: "bg-blue-50 border-blue-100", label: "Model",   value: year },
                 { id: 'kms', icon: Gauge,     color: "text-teal-600", bg: "bg-teal-50 border-teal-100", label: "KM",   value: odometer },
-                { id: 'fuel', icon: Car,       color: "text-rose-600", bg: "bg-rose-50 border-rose-100", label: "Fuel",    value: isUploaded ? (car as any).specs?.fuelType : "Diesel" },
                 { id: 'owners', icon: Users, color: "text-purple-600", bg: "bg-purple-50 border-purple-100", label: "No.of Owner", value: isUploaded ? (car as any).specs?.owners || "1st Owner" : "1st Owner" },
               ].map(({ icon: Icon, color, bg, label, value }) => (
                 <div key={label} className="flex items-center gap-3 p-4 rounded-2xl border border-gray-50 hover:bg-gray-50 hover:shadow-sm hover:border-gray-200 transition-all group duration-300 cursor-default">
@@ -224,14 +223,6 @@ export default function CarDetails({ id }: { id: string }) {
                  <div className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-navy to-royal tracking-tight">
                    {sellingPrice}
                  </div>
-                 {actualPrice && (
-                   <div className="text-xl md:text-2xl font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
-                     {actualPrice}
-                   </div>
-                 )}
-                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded-md border border-gray-100 mb-1 mt-2">
-                   Excl. VAT
-                 </span>
                </div>
             </div>
 

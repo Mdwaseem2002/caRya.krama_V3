@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, ShieldCheck, Zap, MapPin, Gauge, Fuel } from "lucide-react";
+import { ArrowRight, Star, ShieldCheck, Zap, MapPin, Gauge, Fuel, Calendar } from "lucide-react";
 
 const cars = [
   {
@@ -152,10 +152,9 @@ export default function ShowCar() {
                 {/* CORE SPECS GRID */}
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   {[
-                    { icon: Gauge, label: "MILEAGE", value: car.mileage },
+                    { icon: Calendar, label: "MODEL", value: car.year },
                     { icon: ShieldCheck, label: "OWNER", value: car.ownership },
-                    { icon: Fuel, label: "ENERGY", value: car.energy },
-                    { icon: Zap, label: "DRIVE", value: car.drive },
+                    { icon: Gauge, label: "MILEAGE", value: car.mileage },
                   ].map((spec, i) => (
                     <div key={i} className="bg-slate-50/50 border border-slate-200/50 rounded-2xl p-3 sm:p-4 flex flex-col gap-1.5 transition-all group-hover:bg-white group-hover:border-blue-100 group-hover:shadow-sm">
                       <div className="flex items-center gap-1.5">

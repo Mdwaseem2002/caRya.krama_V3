@@ -13,7 +13,8 @@ import {
   Sparkles,
   ChevronRight,
   Zap,
-  User
+  User,
+  Calendar
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { StoredCar } from "@/Admin/Upload/CarStorage";
@@ -91,8 +92,7 @@ export default function SearchShowen({ filteredCars, query }: SearchShowenProps)
                {/* Specs Grid (2x2) */}
                <div className="grid grid-cols-2 gap-4 mb-10">
                   {[ 
-                    { icon: Fuel, label: "ENERGY", value: car.specs.fuelType, color: "#10b981" },
-                    { icon: Settings2, label: "DRIVE", value: car.specs.transmission, color: "#0ea5e9" },
+                    { icon: Calendar, label: "MODEL", value: car.year, color: "#10b981" },
                     { icon: ShieldCheck, label: "OWNER", value: car.specs.ownership || "1ST OWNER", color: "#6366f1" },
                     { icon: Zap, label: "KMS", value: `${car.specs.mileage} KMS`, color: "#f59e0b" },
                   ].map((s, i) => (

@@ -434,10 +434,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
                       </div>
              </SectionCard>
 
-             <SectionCard title="6. OBD DIAGNOSTICS">
-                 <BulletList text={`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`} warning={isWarning(report.obdScan.faultCodes)} />
-                 <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warning={isWarning(report.obdScan.ecmStatus)} />
-             </SectionCard>
+      {/* OBD Diagnostics removed */}
            </div>
            <Footer pageNum={3} totalPages={totalPages} />
          </div>
@@ -458,34 +455,20 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
              </div>
 
              {report.testDrive && (
-             <SectionCard title="7. TEST DRIVE OBSERVATIONS">
+             <SectionCard title="6. TEST DRIVE OBSERVATIONS">
                  <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '16px 0', marginLeft: '-16px' }}>
                     <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', width: '50%', paddingLeft: '16px' }}>
+                      <div style={{ display: 'table-cell', width: '100%', paddingLeft: '16px' }}>
                         <p style={subHeaderStyle}>Driving Performance</p>
                         <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} />
                       </div>
-                      <div style={{ display: 'table-cell', width: '50%' }}>
-                        <p style={subHeaderStyle}>Braking & Stability</p>
-                        <BulletList text={report.testDrive.braking || "Not evaluated"} warning={isWarning(report.testDrive.braking)} />
-                      </div>
                     </div>
-                 </div>
-                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-                      <p style={subHeaderStyle}>Transmission & Suspension</p>
-                      <BulletList text={report.testDrive.observations || "No specific observations"} warning={false} />
                  </div>
              </SectionCard>
              )}
 
-             <SectionCard title="8. VERDICT SECTION">
+             <SectionCard title="7. VERDICT SECTION">
                 <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 12px' }}>
-                   <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', ...verdictBoxStyle('#10b981', '#f0fdf4', '#065f46') }}>
-                        <p style={verdictLabelStyle('#065f46')}>Tyre Condition</p>
-                        <p style={verdictTextStyle('#064e3b')}>{report.verdict.mechanicalCondition || "-"}</p>
-                      </div>
-                   </div>
                    <div style={{ display: 'table-row' }}>
                       <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0059A3') }}>
                         <p style={verdictLabelStyle('#0059A3')}>Purchase Recommendation</p>
@@ -521,12 +504,12 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
               </div>
               )}
 
-              <SectionCard title="9. PRECAUTIONS & RECOMMENDATIONS">
+              <SectionCard title="8. PRECAUTIONS & RECOMMENDATIONS">
                  <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
               </SectionCard>
 
               {(!needsExtraPage && report.serviceRecommendations && report.serviceRecommendations !== "-") && (
-              <SectionCard title="10. SERVICE RECOMMENDATIONS">
+              <SectionCard title="9. SERVICE RECOMMENDATIONS">
                  <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
               </SectionCard>
               )}
@@ -552,7 +535,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
               </div>
 
               {(report.serviceRecommendations && report.serviceRecommendations !== "-") && (
-              <SectionCard title="10. SERVICE RECOMMENDATIONS">
+              <SectionCard title="9. SERVICE RECOMMENDATIONS">
                  <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
               </SectionCard>
               )}

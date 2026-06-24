@@ -121,7 +121,7 @@ server {
     client_max_body_size 50M;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \\$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -139,12 +139,12 @@ server {
 
     # Cache static assets
     location /_next/static {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3002;
         add_header Cache-Control "public, max-age=31536000, immutable";
     }
 
     location /public {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3002;
         add_header Cache-Control "public, max-age=86400";
     }
 }`;
@@ -155,7 +155,7 @@ server {
 
       // ── 6. Start/Restart the app with PM2 ───────────────────────────────
       console.log("\n━━━ Step 6: Starting application with PM2 ━━━");
-      await sshExec(conn, `cd ${APP_DIR} && pm2 delete caryakrama 2>/dev/null; pm2 start npm --name caryakrama -- start`);
+      await sshExec(conn, `cd ${APP_DIR} && pm2 delete caryakrama 2>/dev/null; pm2 start npm --name caryakrama -- start -- -p 3002`);
       await sshExec(conn, "pm2 save");
 
       // ── 7. SSL Certificate ───────────────────────────────────────────────
@@ -165,7 +165,7 @@ server {
       // ── 8. Verify ────────────────────────────────────────────────────────
       console.log("\n━━━ Step 8: Verifying deployment ━━━");
       await sshExec(conn, "pm2 list");
-      await sshExec(conn, "curl -sI http://localhost:3000 | head -5");
+      await sshExec(conn, "curl -sI http://localhost:3002 | head -5");
 
       console.log("\n");
       console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

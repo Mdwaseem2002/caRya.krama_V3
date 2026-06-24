@@ -69,6 +69,7 @@ export interface IInspectionReport extends Document {
   };
 
   precautions: string;
+  serviceRecommendations?: string;
 
   sellerDetails?: {
     name: string;
@@ -155,6 +156,7 @@ const InspectionReportSchema = new Schema<IInspectionReport>(
     },
 
     precautions: { type: String, default: "" },
+    serviceRecommendations: { type: String, default: "" },
 
     sellerDetails: {
       name: { type: String, default: "" },

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShieldCheck, ArrowRight, CheckCircle2, Fuel, Settings2, MapPin, Zap } from "lucide-react";
+import { Heart, ShieldCheck, ArrowRight, CheckCircle2, Fuel, Settings2, MapPin, Zap, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 // ✅ Same file, same key — guaranteed data match with Uploadcar.tsx
@@ -156,8 +156,7 @@ function CarCard({ car, index }: { car: StoredCar; index: number }) {
         {/* Specs - USER SPECIFIC: Fuel, Transmission, Kilometers, Ownership */}
         <div className="grid grid-cols-2 gap-3 mb-8">
           {[
-            { icon: Fuel,      label: "ENERGY", value: car.specs?.fuelType },
-            { icon: Settings2, label: "DRIVE",  value: car.specs?.transmission },
+            { icon: Calendar, label: "MODEL", value: car.year },
             { icon: CheckCircle2, label: "OWNER", value: car.specs?.ownership },
             { icon: Zap,       label: "KMS",    value: `${car.specs?.mileage} KMS` },
           ].map((spec, i) => (
