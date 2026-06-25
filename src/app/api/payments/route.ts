@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // ─────────────────────────────────────────────────────────────────────────────
 // src/app/api/payments/route.ts
 // GET  /api/payments → Return all payment records (admin view)

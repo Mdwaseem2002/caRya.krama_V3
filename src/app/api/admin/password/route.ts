@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // ─────────────────────────────────────────────────────────────────────────────
 // src/app/api/admin/password/route.ts
 // PATCH /api/admin/password → Change admin password with current pw verification

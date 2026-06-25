@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // ─────────────────────────────────────────────────────────────────────────────
 // src/app/api/payment/verify/route.ts
 // POST /api/payment/verify → Verify Razorpay payment signature & save record

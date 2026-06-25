@@ -3,6 +3,7 @@
 // PATCH  /api/users/:id → Update user fields (role, status, lastActive, etc.)
 // DELETE /api/users/:id → Delete user permanently
 // ─────────────────────────────────────────────────────────────────────────────
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";

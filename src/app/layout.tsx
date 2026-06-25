@@ -9,6 +9,28 @@ export const metadata: Metadata = {
     shortcut: "/logo/Favicon-1.png",
     apple: "/logo/Favicon-1.png",
   },
+  openGraph: {
+    title: "caRyakrama - Verified Dealership",
+    description: "Verified used car's",
+    url: "https://caryakrama.com",
+    siteName: "caRyakrama",
+    images: [
+      {
+        url: "https://caryakrama.com/logo/Favicon-1.png",
+        width: 512,
+        height: 512,
+        alt: "caRyakrama - Verified Dealership",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "caRyakrama - Verified Dealership",
+    description: "Verified used car's",
+    images: ["https://caryakrama.com/logo/Favicon-1.png"],
+  },
 };
 
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";

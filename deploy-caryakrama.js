@@ -160,7 +160,7 @@ ENVEOF
     // Start app with PM2
     await runCommand(conn, `
       cd ${APP_DIR}
-      pm2 start npm --name "caryakrama" -- start -- -p 3000
+      PORT=3002 pm2 start npm --name "caryakrama" -- start -- -p 3002
       pm2 save
       pm2 startup systemd -u root --hp /root 2>/dev/null | tail -1 | bash 2>/dev/null || true
       echo "PM2 process started"
@@ -178,7 +178,7 @@ server {
     client_max_body_size 50M;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

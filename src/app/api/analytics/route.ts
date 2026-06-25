@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // ─────────────────────────────────────────────────────────────────────────────
 // src/app/api/analytics/route.ts
 // GET  /api/analytics        → Return current platform stats

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // ─────────────────────────────────────────────────────────────────────────────
 // src/app/api/admin/stats/route.ts
 // GET /api/admin/stats → Real-time insights from MongoDB

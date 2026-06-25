@@ -3,6 +3,7 @@
 // PATCH  /api/sell-requests/:id → Update status or reschedule inspection
 // DELETE /api/sell-requests/:id → Permanently delete a sell request
 // ─────────────────────────────────────────────────────────────────────────────
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";

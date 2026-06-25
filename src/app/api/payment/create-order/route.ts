@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // ─────────────────────────────────────────────────────────────────────────────
 // src/app/api/payment/create-order/route.ts
 // POST /api/payment/create-order → Create a Razorpay order for inspection report
