@@ -495,8 +495,8 @@ export default function InspectionReportForm({
         </div>
       </section>
 
-      {/* ── 12. Images (Standalone Only) ───────────────────────────────────── */}
-      {!carId && (
+      {/* ── 12. Inspection Images ───────────────────────────────────────────── */}
+      {(
         <section style={sectionStyle}>
           <h3 style={sectionHeaderStyle}>
             <ImageIcon size={18} style={{ color: '#0059A3' }} /> Inspection Images

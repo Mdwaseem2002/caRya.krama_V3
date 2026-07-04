@@ -93,6 +93,8 @@ export default function InspectionReportUpload({
         overallSummary: { mechanical: "", body: "" },
         verdict: { mechanicalCondition: "", issuesAttention: "", purchaseRecommendation: "" },
         precautions: "",
+        inspectorName: "",
+        inspectionImages: [],
         uploadedFile,
         uploadedFileName,
       });
