@@ -164,10 +164,10 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
               </div>
             </div>
 
-            {/* Vehicle Image */}
-            {carCoverImage || (report.inspectionImages && report.inspectionImages.length > 0) ? (
+            {/* Vehicle Image — inspection images take priority over car media cover */}
+            {(report.inspectionImages && report.inspectionImages.length > 0) || carCoverImage ? (
               <div style={{ width: '100%', height: mobile ? '220px' : '360px', borderRadius: '16px', overflow: 'hidden', marginBottom: mobile ? '20px' : '32px', border: '1px solid #e5e7eb' }}>
-                <img src={carCoverImage || report.inspectionImages[0]} alt={report.carName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                <img src={(report.inspectionImages && report.inspectionImages.length > 0) ? report.inspectionImages[0] : carCoverImage} alt={report.carName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
               </div>
             ) : (
               <div style={{ width: '100%', height: mobile ? '220px' : '360px', borderRadius: '16px', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: mobile ? '20px' : '32px', border: '1px solid #e5e7eb' }}>

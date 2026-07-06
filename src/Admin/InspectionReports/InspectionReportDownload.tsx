@@ -306,8 +306,14 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
             <div style={{ display: 'table', width: '100%', height: '300px', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', border: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
                <div style={{ display: 'table-row' }}>
                   <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center' }}>
-                    {carCoverImage ? (
-                      <img src={carCoverImage} alt="Car" style={{ width: '100%', height: '300px', objectFit: 'cover' }} crossOrigin="anonymous" />
+                    {/* Inspection images take priority over car media cover image */}
+                    {(report.inspectionImages && report.inspectionImages.length > 0) || carCoverImage ? (
+                      <img
+                        src={(report.inspectionImages && report.inspectionImages.length > 0) ? report.inspectionImages[0] : carCoverImage}
+                        alt="Car"
+                        style={{ width: '100%', height: '300px', objectFit: 'cover' }}
+                        crossOrigin="anonymous"
+                      />
                     ) : (
                       <div style={{ color: '#cbd5e1' }}>No Image</div>
                     )}
