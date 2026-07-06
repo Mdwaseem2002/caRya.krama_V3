@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
   ArrowLeft, Save, Search, FileText, Settings, Droplets,
   Battery, Armchair, Cpu, CarFront, CheckCircle, AlertTriangle,
-  ShieldAlert, Upload, X, Image as ImageIcon
+  ShieldAlert, Upload, X, Image as ImageIcon, FileUp
 } from "lucide-react";
 import { useNotification } from "@/context/NotificationContext";
 import { saveInspectionReport, updateInspectionReport, InspectionReportData } from "./InspectionStorage";
@@ -85,6 +85,20 @@ export default function InspectionReportForm({
   // Images (standalone reports)
   const [inspectionImages, setInspectionImages] = useState<string[]>(editReport?.inspectionImages || []);
 
+  // Upload Inspected (secondary file — sits between inspection pages and upload report in PDF)
+  const [uploadedInspectedFile, setUploadedInspectedFile] = useState<string>(editReport?.uploadedInspectedFile || "");
+  const [uploadedInspectedFileName, setUploadedInspectedFileName] = useState<string>(editReport?.uploadedInspectedFileName || "");
+  const inspectedFileRef = React.useRef<HTMLInputElement>(null);
+
+  const ACCEPTED_FILE_TYPES = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+  ];
+  const MAX_INSPECTED_SIZE = 10 * 1024 * 1024; // 10MB
+
   // ── Styles ──────────────────────────────────────────────────────────────────
   const sectionStyle: React.CSSProperties = { marginBottom: '24px' };
   const sectionHeaderStyle: React.CSSProperties = {
@@ -160,6 +174,25 @@ export default function InspectionReportForm({
     setInspectionImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleInspectedFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+      showNotification("Unsupported file format. Please upload PDF, Excel, or Word documents.", "warning");
+      return;
+    }
+    if (file.size > MAX_INSPECTED_SIZE) {
+      showNotification("File too large. Maximum allowed size is 10MB.", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedInspectedFile(reader.result as string);
+      setUploadedInspectedFileName(file.name);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async () => {
     if (!vdCarName) {
       showNotification("Please enter the car name in Vehicle Details.", "warning");
@@ -197,6 +230,8 @@ export default function InspectionReportForm({
         },
         inspectorName,
         inspectionImages,
+        uploadedInspectedFile,
+        uploadedInspectedFileName,
         uploadedFile: "",
         uploadedFileName: "",
       };
@@ -539,6 +574,63 @@ export default function InspectionReportForm({
           </div>
         </section>
       )}
+
+      {/* ── 13. Upload Inspected ────────────────────────────────────────────── */}
+      <section style={sectionStyle}>
+        <h3 style={sectionHeaderStyle}>
+          <FileUp size={18} style={{ color: '#0059A3' }} /> Upload Inspected
+        </h3>
+        <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+          Upload an inspected document (PDF, Excel, or Word). This will appear as the second section in the downloaded PDF — between the inspection report and the final upload report.
+        </p>
+        {!uploadedInspectedFile ? (
+          <div
+            onClick={() => inspectedFileRef.current?.click()}
+            style={{
+              width: '100%', padding: '48px 20px', border: '2px dashed #d1d5db',
+              borderRadius: '16px', textAlign: 'center', backgroundColor: '#f9fafb',
+              cursor: 'pointer', transition: 'border-color 0.2s', marginBottom: '8px'
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#0059A3')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#d1d5db')}
+          >
+            <Upload size={36} style={{ color: '#9ca3af', margin: '0 auto 12px' }} />
+            <p style={{ fontWeight: 700, color: '#4b5563', margin: '0 0 6px', fontSize: '15px' }}>
+              Click to upload inspected document
+            </p>
+            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>
+              PDF, Excel (.xlsx, .xls), Word (.docx, .doc) — Max 10MB
+            </p>
+            <input
+              type="file"
+              ref={inspectedFileRef}
+              accept=".pdf,.xlsx,.xls,.docx,.doc"
+              onChange={handleInspectedFileSelect}
+              style={{ display: 'none' }}
+            />
+          </div>
+        ) : (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '16px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0',
+            borderRadius: '12px', marginBottom: '8px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <FileUp size={22} style={{ color: '#059669' }} />
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: '0 0 2px' }}>{uploadedInspectedFileName}</p>
+                <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>Ready — will appear as section 2 in PDF</p>
+              </div>
+            </div>
+            <button
+              onClick={() => { setUploadedInspectedFile(""); setUploadedInspectedFileName(""); }}
+              style={{ padding: '8px', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', color: '#EF4444' }}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+      </section>
 
       {/* ── Submit Bar ─────────────────────────────────────────────────────── */}
       <div className="sticky bottom-0 py-4 sm:py-6 border-t border-gray-200 bg-white flex flex-wrap sm:flex-nowrap items-center justify-start gap-3 sm:gap-4 z-10 -mx-4 sm:mx-0 px-4 sm:px-0">

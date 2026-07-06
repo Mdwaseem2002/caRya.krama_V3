@@ -60,6 +60,8 @@ export interface InspectionReportData {
   };
   inspectorName: string;
   inspectionImages: string[];
+  uploadedInspectedFile: string;
+  uploadedInspectedFileName: string;
   uploadedFile: string;
   uploadedFileName: string;
   createdAt: string;

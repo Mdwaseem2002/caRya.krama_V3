@@ -153,10 +153,19 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
     }
 
-    // ── Step 2: Collect all uploaded files to append ──────────────────────────
-    // 2a. If THIS report itself carries an uploadedFile (base64 data URL)
+    // ── Step 2: Collect all files to append in the correct PDF order ──────────
+    // PDF order: [Inspection Report pages] → [Upload Inspected] → [Upload Report]
     const uploadedFiles: { dataUrl: string; label: string }[] = [];
 
+    // 2a. "Upload Inspected" — secondary file (PDF slot #2, between report & upload report)
+    if ((report as any)?.uploadedInspectedFile) {
+      uploadedFiles.push({
+        dataUrl: (report as any).uploadedInspectedFile,
+        label:   (report as any).uploadedInspectedFileName || 'inspected-attachment',
+      });
+    }
+
+    // 2b. "Upload Report" — the primary uploaded file on THIS report (PDF slot #3)
     if (report?.uploadedFile) {
       uploadedFiles.push({
         dataUrl: report.uploadedFile,
@@ -164,7 +173,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
       });
     }
 
-    // 2b. Fetch all "uploaded" type reports for the same car and collect their files
+    // 2c. Fetch all "uploaded" type reports for the same car and collect their files (Upload Report)
     if (report?.carId && report.carId !== 'unlinked') {
       try {
         const allReports = await getAllInspectionReports(report.carId);
@@ -172,6 +181,13 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
           r => r.reportType === 'uploaded' && r.uploadedFile && r.id !== report.id
         );
         for (const ur of uploadedReports) {
+          // Also prepend their uploadedInspectedFile if present
+          if ((ur as any).uploadedInspectedFile) {
+            uploadedFiles.push({
+              dataUrl: (ur as any).uploadedInspectedFile,
+              label:   (ur as any).uploadedInspectedFileName || 'inspected-attachment',
+            });
+          }
           uploadedFiles.push({
             dataUrl: ur.uploadedFile,
             label:   ur.uploadedFileName || 'attachment',
