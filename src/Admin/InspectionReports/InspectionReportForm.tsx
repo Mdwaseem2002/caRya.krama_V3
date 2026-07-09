@@ -83,11 +83,16 @@ export default function InspectionReportForm({
   const [inspectorName, setInspectorName] = useState(editReport?.inspectorName || "Z.K.");
 
   // Images (standalone reports)
-  const [inspectionImages, setInspectionImages] = useState<string[]>(editReport?.inspectionImages || []);
+  const [inspectionImages, setInspectionImages] = useState<{url: string, description: string}[]>(
+    (editReport?.inspectionImages || []).map(img => 
+      typeof img === 'string' ? { url: img, description: "" } : img
+    )
+  );
 
   // Upload Inspected (secondary file — sits between inspection pages and upload report in PDF)
-  const [uploadedInspectedFile, setUploadedInspectedFile] = useState<string>(editReport?.uploadedInspectedFile || "");
-  const [uploadedInspectedFileName, setUploadedInspectedFileName] = useState<string>(editReport?.uploadedInspectedFileName || "");
+  const [uploadedInspectedFiles, setUploadedInspectedFiles] = useState<{file: string, fileName: string}[]>(
+    editReport?.uploadedInspectedFiles || []
+  );
   const inspectedFileRef = React.useRef<HTMLInputElement>(null);
 
   const ACCEPTED_FILE_TYPES = [
@@ -161,7 +166,7 @@ export default function InspectionReportForm({
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
             const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-            setInspectionImages(prev => [...prev, dataUrl]);
+            setInspectionImages(prev => [...prev, { url: dataUrl, description: "" }]);
           }
         };
         img.src = event.target?.result as string;
@@ -175,22 +180,26 @@ export default function InspectionReportForm({
   };
 
   const handleInspectedFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      showNotification("Unsupported file format. Please upload PDF, Excel, or Word documents.", "warning");
-      return;
-    }
-    if (file.size > MAX_INSPECTED_SIZE) {
-      showNotification("File too large. Maximum allowed size is 10MB.", "error");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setUploadedInspectedFile(reader.result as string);
-      setUploadedInspectedFileName(file.name);
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    
+    files.forEach(file => {
+      if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+        showNotification("Unsupported file format. Please upload PDF, Excel, or Word documents.", "warning");
+        return;
+      }
+      if (file.size > MAX_INSPECTED_SIZE) {
+        showNotification("File too large. Maximum allowed size is 10MB.", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedInspectedFiles(prev => [...prev, { file: reader.result as string, fileName: file.name }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    // Reset input so the same files can be selected again if needed
+    if (inspectedFileRef.current) inspectedFileRef.current.value = "";
   };
 
   const handleSubmit = async () => {
@@ -230,8 +239,7 @@ export default function InspectionReportForm({
         },
         inspectorName,
         inspectionImages,
-        uploadedInspectedFile,
-        uploadedInspectedFileName,
+        uploadedInspectedFiles,
         uploadedFile: "",
         uploadedFileName: "",
       };
@@ -530,106 +538,117 @@ export default function InspectionReportForm({
         </div>
       </section>
 
-      {/* ── 12. Inspection Images ───────────────────────────────────────────── */}
-      {(
-        <section style={sectionStyle}>
-          <h3 style={sectionHeaderStyle}>
-            <ImageIcon size={18} style={{ color: '#0059A3' }} /> Inspection Images
-          </h3>
-          <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
-            Upload up to 10 photos of the vehicle (Max 2MB each). Only the first image will be shown as the preview in the report.
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-            {inspectionImages.map((src, idx) => (
-              <div key={idx} style={{ position: 'relative', width: '100%', paddingTop: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
-                <img src={src} alt={`Upload ${idx + 1}`} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                <button
-                  type="button"
-                  onClick={() => removeImage(idx)}
-                  style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
-                >
-                  <X size={14} />
-                </button>
-                {idx === 0 && (
-                  <div style={{ position: 'absolute', bottom: '6px', left: '6px', background: 'rgba(0, 89, 163, 0.9)', color: 'white', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px' }}>
-                    COVER
-                  </div>
-                )}
+      {/* ── 12. Inspection Images (Problem Images) ──────────────────────────── */}
+      <section style={sectionStyle}>
+        <h3 style={sectionHeaderStyle}>
+          <ImageIcon size={18} style={{ color: '#0059A3' }} /> Inspection Images
+        </h3>
+        <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+          Upload images showing <strong>problems found on the car</strong>. Add a short description for each problem image. These will appear in the inspection report.
+        </p>
+
+        {/* Uploaded problem images with description */}
+        {inspectionImages.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+            {inspectionImages.map((img, idx) => (
+              <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '12px' }}>
+                <div style={{ position: 'relative', flexShrink: 0, width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                  <img src={img.url} alt={`Problem ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(idx)}
+                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ ...labelStyle, marginBottom: '6px' }}>Problem Description #{idx + 1}</label>
+                  <textarea
+                    value={img.description}
+                    onChange={e => setInspectionImages(prev => prev.map((item, i) => i === idx ? { ...item, description: e.target.value } : item))}
+                    placeholder="e.g. Dent on front right door, paint scratch on bumper..."
+                    style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' as const, fontFamily: 'inherit', lineHeight: '1.5' }}
+                  />
+                </div>
               </div>
             ))}
-            
-            {inspectionImages.length < 10 && (
-              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '100%', position: 'relative', border: '2px dashed #d1d5db', borderRadius: '12px', backgroundColor: '#f9fafb', cursor: 'pointer', transition: 'border-color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#0059A3'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#d1d5db'}
-              >
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                  <Upload size={24} style={{ color: '#9ca3af', marginBottom: '8px' }} />
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563' }}>Upload</span>
-                </div>
-                <input type="file" multiple accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-              </label>
-            )}
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ── 13. Upload Inspected ────────────────────────────────────────────── */}
+        {/* Add more images button */}
+        {inspectionImages.length < 10 && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', border: '2px dashed #d1d5db', borderRadius: '12px', backgroundColor: '#f9fafb', cursor: 'pointer', transition: 'border-color 0.2s', width: 'fit-content' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#0059A3'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#d1d5db'}
+          >
+            <Upload size={20} style={{ color: '#9ca3af' }} />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#4b5563' }}>Add Problem Image{inspectionImages.length > 0 ? ' (+ more)' : ''}</span>
+            <input type="file" multiple accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+          </label>
+        )}
+      </section>
+
+      {/* ── 13. Upload Inspected (multi-PDF) ────────────────────────────────── */}
       <section style={sectionStyle}>
         <h3 style={sectionHeaderStyle}>
           <FileUp size={18} style={{ color: '#0059A3' }} /> Upload Inspected
         </h3>
         <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
-          Upload an inspected document (PDF, Excel, or Word). This will appear as the second section in the downloaded PDF — between the inspection report and the final upload report.
+          Upload one or more PDF documents. All uploaded files will be appended in order to the downloaded inspection report PDF.
         </p>
-        {!uploadedInspectedFile ? (
-          <div
-            onClick={() => inspectedFileRef.current?.click()}
-            style={{
-              width: '100%', padding: '48px 20px', border: '2px dashed #d1d5db',
-              borderRadius: '16px', textAlign: 'center', backgroundColor: '#f9fafb',
-              cursor: 'pointer', transition: 'border-color 0.2s', marginBottom: '8px'
-            }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#0059A3')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#d1d5db')}
-          >
-            <Upload size={36} style={{ color: '#9ca3af', margin: '0 auto 12px' }} />
-            <p style={{ fontWeight: 700, color: '#4b5563', margin: '0 0 6px', fontSize: '15px' }}>
-              Click to upload inspected document
-            </p>
-            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>
-              PDF, Excel (.xlsx, .xls), Word (.docx, .doc) — Max 10MB
-            </p>
-            <input
-              type="file"
-              ref={inspectedFileRef}
-              accept=".pdf,.xlsx,.xls,.docx,.doc"
-              onChange={handleInspectedFileSelect}
-              style={{ display: 'none' }}
-            />
-          </div>
-        ) : (
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '16px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0',
-            borderRadius: '12px', marginBottom: '8px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <FileUp size={22} style={{ color: '#059669' }} />
-              <div>
-                <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: '0 0 2px' }}>{uploadedInspectedFileName}</p>
-                <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>Ready — will appear as section 2 in PDF</p>
+
+        {/* Uploaded files list */}
+        {uploadedInspectedFiles.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+            {uploadedInspectedFiles.map((f, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <FileUp size={18} style={{ color: '#059669', flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: 700, color: '#111827', margin: '0 0 2px' }}>{f.fileName}</p>
+                    <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>File {idx + 1} — will be appended to PDF</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUploadedInspectedFiles(prev => prev.filter((_, i) => i !== idx))}
+                  style={{ padding: '6px', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', color: '#EF4444', flexShrink: 0 }}
+                >
+                  <X size={14} />
+                </button>
               </div>
-            </div>
-            <button
-              onClick={() => { setUploadedInspectedFile(""); setUploadedInspectedFileName(""); }}
-              style={{ padding: '8px', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', color: '#EF4444' }}
-            >
-              <X size={16} />
-            </button>
+            ))}
           </div>
         )}
+
+        {/* Add more files button */}
+        <div
+          onClick={() => inspectedFileRef.current?.click()}
+          style={{
+            width: '100%', padding: '32px 20px', border: '2px dashed #d1d5db',
+            borderRadius: '16px', textAlign: 'center', backgroundColor: '#f9fafb',
+            cursor: 'pointer', transition: 'border-color 0.2s'
+          }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = '#0059A3')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = '#d1d5db')}
+        >
+          <Upload size={32} style={{ color: '#9ca3af', margin: '0 auto 10px' }} />
+          <p style={{ fontWeight: 700, color: '#4b5563', margin: '0 0 4px', fontSize: '14px' }}>
+            {uploadedInspectedFiles.length > 0 ? 'Click to add more PDFs' : 'Click to upload inspected document(s)'}
+          </p>
+          <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>
+            PDF only — Max 10MB per file — Multiple files supported
+          </p>
+          <input
+            type="file"
+            ref={inspectedFileRef}
+            accept=".pdf"
+            multiple
+            onChange={handleInspectedFileSelect}
+            style={{ display: 'none' }}
+          />
+        </div>
       </section>
 
       {/* ── Submit Bar ─────────────────────────────────────────────────────── */}

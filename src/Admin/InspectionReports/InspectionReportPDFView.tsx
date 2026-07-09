@@ -164,14 +164,10 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
               </div>
             </div>
 
-            {/* Vehicle Image — inspection images take priority over car media cover */}
-            {(report.inspectionImages && report.inspectionImages.length > 0) || carCoverImage ? (
+            {/* Vehicle Image — uses car listing cover image only */}
+            {carCoverImage && (
               <div style={{ width: '100%', height: mobile ? '220px' : '360px', borderRadius: '16px', overflow: 'hidden', marginBottom: mobile ? '20px' : '32px', border: '1px solid #e5e7eb' }}>
-                <img src={(report.inspectionImages && report.inspectionImages.length > 0) ? report.inspectionImages[0] : carCoverImage} alt={report.carName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-              </div>
-            ) : (
-              <div style={{ width: '100%', height: mobile ? '220px' : '360px', borderRadius: '16px', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: mobile ? '20px' : '32px', border: '1px solid #e5e7eb' }}>
-                 <CarIcon size={mobile ? 40 : 80} style={{ color: '#cbd5e1' }} />
+                <img src={carCoverImage} alt={report.carName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
               </div>
             )}
 
@@ -214,26 +210,9 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                   </div>
                </div>
             </div>
-          </div>
-          
-          <Footer pageNum={1} mobile={mobile} />
-        </div>
-
-        {/* PAGE 2 */}
-        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
-          <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-             <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
-                <span style={{ letterSpacing: '-0.02em' }}>INSPECTION DETAILS</span>
-                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
-             </h2>
-
              {/* 1. BODY & VISUAL INSPECTION */}
              <SectionCard icon={<MapPin size={22} />} title="1. BODY & VISUAL INSPECTION">
                 <BulletList text={report.bodyInspection.panelsChecked || "No observation"} warning={false} />
-                {report.bodyInspection.notes && report.bodyInspection.notes.trim() !== (report.engineBay || "").trim() && (
-                  <BulletList text={report.bodyInspection.notes} warning={false} />
-                )}
              </SectionCard>
 
              {/* 2. ENGINE BAY */}
@@ -241,10 +220,11 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                <BulletList text={report.engineBay || "No observations"} warning={false} />
              </SectionCard>
           </div>
-          <Footer pageNum={2} mobile={mobile} />
+          
+          <Footer pageNum={1} mobile={mobile} />
         </div>
 
-        {/* PAGE 3 */}
+        {/* PAGE 2 */}
         <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
           <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -317,10 +297,10 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                  <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warning={isWarning(report.obdScan.ecmStatus)} />
              </SectionCard>
           </div>
-          <Footer pageNum={3} mobile={mobile} />
+          <Footer pageNum={2} mobile={mobile} />
         </div>
 
-        {/* PAGE 4 */}
+        {/* PAGE 3 */}
         <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
           <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -371,18 +351,6 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                <BulletList text={report.interiors.issues} warning={true} forceBullet={true} />
              </div>
              )}
-          </div>
-          <Footer pageNum={4} mobile={mobile} />
-        </div>
-
-        {/* PAGE 5 */}
-        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
-          <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-             <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
-                <span style={{ letterSpacing: '-0.02em' }}>PRECAUTIONS & SERVICE</span>
-                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
-             </h2>
 
              {/* 9. PRECAUTIONS & RECOMMENDATIONS */}
              <SectionCard icon={<AlertTriangle size={22} />} title="9. PRECAUTIONS & RECOMMENDATIONS">
@@ -396,10 +364,49 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              </SectionCard>
              )}
           </div>
-          <Footer pageNum={5} mobile={mobile} />
+          <Footer pageNum={3} mobile={mobile} />
         </div>
 
-      </div>
+        {/* PAGE 4 - PROBLEM IMAGES (IF ANY) */}
+        {report.inspectionImages && report.inspectionImages.length > 0 && (
+        <div className="pdf-page" style={{ ...pageStyle, width: '100%', maxWidth: '794px', minHeight: mobile ? 'auto' : '1123px', padding: mobile ? '24px 16px 60px 16px' : '50px 60px 100px 60px' }}>
+          <div style={{ ...watermarkStyle, fontSize: mobile ? '60px' : '110px' }}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+             <h2 style={{ margin: '0 0 28px 0', fontSize: mobile ? '18px' : '22px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '16px', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: '8px' }}>
+                <span style={{ letterSpacing: '-0.02em' }}>INSPECTION PROBLEM IMAGES</span>
+                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
+             </h2>
+             <div style={{ marginBottom: mobile ? '16px' : '24px' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '12px' : '16px' }}>
+                 {(report.inspectionImages as any[]).map((img: any, i: number) => {
+                   const url = typeof img === 'string' ? img : img?.url;
+                   const desc = typeof img === 'string' ? '' : (img?.description || '');
+                   return (
+                     <div key={i} style={{ backgroundColor: '#fff7f7', border: '1px solid #fecaca', borderRadius: '12px', overflow: 'hidden' }}>
+                       <img
+                         src={url}
+                         alt={`Problem ${i + 1}`}
+                         crossOrigin="anonymous"
+                         style={{ width: '100%', height: mobile ? '160px' : '200px', objectFit: 'cover', display: 'block' }}
+                       />
+                       <div style={{ padding: mobile ? '10px 12px' : '12px 16px' }}>
+                         <p style={{ margin: '0 0 4px 0', fontSize: mobile ? '9px' : '10px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                           ⚠ Issue #{i + 1}
+                         </p>
+                         <p style={{ margin: 0, fontSize: mobile ? '12px' : '13px', fontWeight: 600, color: '#374151', lineHeight: '1.5' }}>
+                           {desc || 'No description provided.'}
+                         </p>
+                       </div>
+                     </div>
+                   );
+                 })}
+               </div>
+             </div>
+          </div>
+          <Footer pageNum={4} mobile={mobile} />
+        </div>
+        )}
+          </div>
     </div>
   );
 }

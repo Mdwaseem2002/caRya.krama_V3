@@ -80,8 +80,7 @@ export interface IInspectionReport extends Document {
   inspectionImages: string[];
 
   // "Upload Inspected" — a secondary file upload (shown between inspection report pages and the final upload report in the PDF)
-  uploadedInspectedFile: string;
-  uploadedInspectedFileName: string;
+  uploadedInspectedFiles: { file: string; fileName: string }[];
 
   // For uploaded reports (Upload Report — the final attachment)
   uploadedFile: string;
@@ -169,11 +168,10 @@ const InspectionReportSchema = new Schema<IInspectionReport>(
 
     inspectorName: { type: String, default: "" },
 
-    inspectionImages: [{ type: String }],
+    inspectionImages: [{ type: Schema.Types.Mixed }],
 
     // "Upload Inspected" secondary file (PDF slot #2)
-    uploadedInspectedFile: { type: String, default: "" },
-    uploadedInspectedFileName: { type: String, default: "" },
+    uploadedInspectedFiles: { type: [{ file: String, fileName: String }], default: [] },
 
     // "Upload Report" final file (PDF slot #3)
     uploadedFile: { type: String, default: "" },

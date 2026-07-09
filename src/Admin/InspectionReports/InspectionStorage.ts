@@ -59,9 +59,8 @@ export interface InspectionReportData {
     contactNumber: string;
   };
   inspectorName: string;
-  inspectionImages: string[];
-  uploadedInspectedFile: string;
-  uploadedInspectedFileName: string;
+  inspectionImages: any[]; // Array of strings or {url, description}
+  uploadedInspectedFiles: { file: string; fileName: string }[];
   uploadedFile: string;
   uploadedFileName: string;
   createdAt: string;

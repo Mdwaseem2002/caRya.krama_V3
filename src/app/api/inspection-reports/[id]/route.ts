@@ -15,8 +15,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await Promise.resolve(params);
     await connectDB();
-    const report = await InspectionReport.findOne({ id: params.id }).lean();
+    const report = await InspectionReport.findOne({ id }).lean();
     if (!report) {
       return NextResponse.json(
         { success: false, error: "Report not found" },
@@ -39,6 +40,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await Promise.resolve(params);
     await connectDB();
     const body = await req.json();
 
@@ -59,9 +61,9 @@ export async function PUT(
     }
 
     const updated = await InspectionReport.findOneAndUpdate(
-      { id: params.id },
+      { id },
       { $set: flatSet },
-      { returnDocument: "after", lean: true, runValidators: false, strict: false }
+      { new: true, lean: true, runValidators: false, strict: false }
     );
 
     if (!updated) {
@@ -87,8 +89,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await Promise.resolve(params);
     await connectDB();
-    const deleted = await InspectionReport.findOneAndDelete({ id: params.id });
+    const deleted = await InspectionReport.findOneAndDelete({ id });
 
     if (!deleted) {
       return NextResponse.json(
