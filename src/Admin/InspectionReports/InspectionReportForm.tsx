@@ -469,14 +469,23 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <CarFront size={18} style={{ color: '#0059A3' }} /> Test Drive Observations
         </h3>
-        <div className="grid grid-cols-1 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label style={labelStyle}>Driving Performance</label>
             <textarea
               value={drivePerformance}
               onChange={e => setDrivePerformance(e.target.value)}
-              placeholder="e.g. Driving performance and stability OK"
-              style={{ ...textareaStyle, minHeight: '80px' }}
+              placeholder="e.g. 1- Steering rack noisy&#10;2- Suspension needs replacement"
+              style={{ ...textareaStyle, minHeight: '100px' }}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Transmission & Suspension</label>
+            <textarea
+              value={driveObservations}
+              onChange={e => setDriveObservations(e.target.value)}
+              placeholder="e.g. Gearbox shifts smoothly&#10;Suspension is in good condition"
+              style={{ ...textareaStyle, minHeight: '100px' }}
             />
           </div>
         </div>
@@ -489,7 +498,16 @@ export default function InspectionReportForm({
         <h3 style={sectionHeaderStyle}>
           <AlertTriangle size={18} style={{ color: '#F59E0B' }} /> Verdict
         </h3>
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label style={labelStyle}>Tyre Condition</label>
+            <input
+              value={verdictMechanical}
+              onChange={e => setVerdictMechanical(e.target.value)}
+              placeholder="e.g. Tyres are in good condition / Front tyres need replacement"
+              style={inputStyle}
+            />
+          </div>
           <div>
             <label style={labelStyle}>Purchase Recommendation</label>
             <input value={verdictRecommendation} onChange={e => setVerdictRecommendation(e.target.value)} placeholder="e.g. Recommended for purchase after negotiations" style={inputStyle} />

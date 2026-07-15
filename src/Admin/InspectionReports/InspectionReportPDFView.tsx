@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Cpu, Wrench, Mail, Globe, Phone } from "lucide-react";
+import { Download, CheckCircle2, AlertTriangle, ShieldCheck, Car as CarIcon, Settings, Droplets, Battery, MapPin, Mail, Globe, Phone } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -213,6 +213,12 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              {/* 1. BODY & VISUAL INSPECTION */}
              <SectionCard icon={<MapPin size={22} />} title="1. BODY & VISUAL INSPECTION">
                 <BulletList text={report.bodyInspection.panelsChecked || "No observation"} warning={false} />
+                {report.bodyInspection.notes && (
+                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                    <p style={{ margin: '0 0 6px 0', fontSize: mobile ? '9px' : '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection Notes</p>
+                    <BulletList text={report.bodyInspection.notes} warning={false} />
+                  </div>
+                )}
              </SectionCard>
 
              {/* 2. ENGINE BAY */}
@@ -233,15 +239,8 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                 <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
              </h2>
 
-             {/* 3. INTERIORS */}
-             {report.interiors && (
-             <SectionCard icon={<CarIcon size={22} />} title="3. INTERIORS & CABIN">
-               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
-             </SectionCard>
-             )}
-
-             {/* 4. FLUIDS TABLE */}
-             <SectionCard icon={<Droplets size={22} />} title="4. FLUIDS DEGRADATION" mobile={mobile}>
+             {/* 3. FLUIDS TABLE */}
+             <SectionCard icon={<Droplets size={22} />} title="3. FLUIDS DEGRADATION" mobile={mobile}>
                 <div style={{ width: '100%', overflowX: 'auto' }}>
                   <table style={{ width: '100%', minWidth: mobile ? '500px' : 'auto', borderCollapse: 'collapse', marginTop: '12px' }}>
                     <thead>
@@ -253,15 +252,15 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                     </thead>
                     <tbody>
                        <FluidRow label="Engine Oil" status={report.fluids.engineOil} warning={isWarning(report.fluids.engineOil)} action={report.fluids.serviceNotes || "-"} />
-                       <FluidRow label="Coolant / Antifreeze" status={report.fluids.coolant} warning={isWarning(report.fluids.coolant)} action="-" />
-                       <FluidRow label="Brake Fluid" status={report.fluids.brakeOil} warning={isWarning(report.fluids.brakeOil)} action="-" />
+                       <FluidRow label="Coolant / Antifreeze" status={report.fluids.coolant} warning={isWarning(report.fluids.coolant)} action={report.fluids.serviceNotes || "-"} />
+                       <FluidRow label="Brake Fluid" status={report.fluids.brakeOil} warning={isWarning(report.fluids.brakeOil)} action={report.fluids.serviceNotes || "-"} />
                     </tbody>
                   </table>
                 </div>
              </SectionCard>
 
-             {/* 5. BATTERY & ELECTRICAL */}
-             <SectionCard icon={<Battery size={22} />} title="5. BATTERY & ELECTRICAL" mobile={mobile}>
+             {/* 4. BATTERY & ELECTRICAL */}
+             <SectionCard icon={<Battery size={22} />} title="4. BATTERY & ELECTRICAL" mobile={mobile}>
                  <div style={{ display: 'grid', gridTemplateColumns: mobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: mobile ? '8px' : '12px', marginTop: '12px' }}>
                     <div style={{ backgroundColor: '#f8fafc', padding: mobile ? '12px 8px' : '16px', borderRadius: '12px', border: '1px solid #e5e7eb', textAlign: mobile ? 'center' : 'left' }}>
                        <p style={{ margin: '0 0 6px 0', fontSize: mobile ? '8px' : '10px', color: '#6b7280', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Ignition</p>
@@ -291,11 +290,12 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                  </div>
              </SectionCard>
 
-             {/* 6. OBD DIAGNOSTICS */}
-             <SectionCard icon={<Cpu size={22} />} title="6. OBD DIAGNOSTICS">
-                 <BulletList text={`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`} warning={isWarning(report.obdScan.faultCodes)} />
-                 <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warning={isWarning(report.obdScan.ecmStatus)} />
+             {/* 5. INTERIORS & CABIN — comes after Battery */}
+             {report.interiors && (
+             <SectionCard icon={<CarIcon size={22} />} title="5. INTERIORS & CABIN">
+               <BulletList text={report.interiors.condition || "No interior observations"} warning={false} />
              </SectionCard>
+             )}
           </div>
           <Footer pageNum={2} mobile={mobile} />
         </div>
@@ -309,28 +309,24 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
                 <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>REF: {report.id.split('-').pop()}</span>
              </h2>
 
-             {/* 7. TEST DRIVE OBSERVATIONS */}
+             {/* 6. TEST DRIVE OBSERVATIONS */}
              {report.testDrive && (
-             <SectionCard icon={<CarIcon size={22} />} title="7. TEST DRIVE OBSERVATIONS" mobile={mobile}>
-                 <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Performance</p>
-                      <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} mobile={mobile} />
-                    </div>
-                    <div>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Stability</p>
-                      <BulletList text={report.testDrive.braking || "Not evaluated"} warning={isWarning(report.testDrive.braking)} mobile={mobile} />
-                    </div>
+             <SectionCard icon={<CarIcon size={22} />} title="6. TEST DRIVE OBSERVATIONS" mobile={mobile}>
+                 <div>
+                   <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Performance</p>
+                   <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} mobile={mobile} />
                  </div>
-                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Transmission & Suspension</p>
-                      <BulletList text={report.testDrive.observations || "No specific observations"} warning={false} mobile={mobile} />
-                 </div>
+                 {report.testDrive.observations && (
+                   <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Transmission & Suspension</p>
+                        <BulletList text={report.testDrive.observations} warning={false} mobile={mobile} />
+                   </div>
+                 )}
              </SectionCard>
              )}
 
-             {/* 8. VERDICT SECTION */}
-             <SectionCard icon={<ShieldCheck size={22} />} title="8. VERDICT SECTION">
+             {/* 7. VERDICT SECTION */}
+             <SectionCard icon={<ShieldCheck size={22} />} title="7. VERDICT SECTION">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginTop: '4px' }}>
                    <div style={{ borderLeft: '5px solid #0059A3', backgroundColor: '#f0f9ff', padding: '16px 20px', borderRadius: '0 12px 12px 0', border: '1px solid #e0f2fe', borderLeftWidth: '5px' }}>
                       <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#0059A3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tyre Condition</p>
@@ -352,14 +348,14 @@ export default function InspectionReportPDFView({ report, carCoverImage, onClose
              </div>
              )}
 
-             {/* 9. PRECAUTIONS & RECOMMENDATIONS */}
-             <SectionCard icon={<AlertTriangle size={22} />} title="9. PRECAUTIONS & RECOMMENDATIONS">
+             {/* 8. PRECAUTIONS & RECOMMENDATIONS */}
+             <SectionCard icon={<AlertTriangle size={22} />} title="8. PRECAUTIONS & RECOMMENDATIONS">
                 <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
              </SectionCard>
 
-             {/* 10. SERVICE RECOMMENDATIONS */}
+             {/* 9. SERVICE RECOMMENDATIONS */}
              {(report.serviceRecommendations && report.serviceRecommendations !== "-") && (
-             <SectionCard icon={<Settings size={22} />} title="10. SERVICE RECOMMENDATIONS">
+             <SectionCard icon={<Settings size={22} />} title="9. SERVICE RECOMMENDATIONS">
                 <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
              </SectionCard>
              )}

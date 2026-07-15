@@ -243,10 +243,16 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
   // 1. BODY & VISUAL INSPECTION
   sectionsData.push({
     id: 's1',
-    height: 60 + estimateBulletHeight(report.bodyInspection.panelsChecked),
+    height: 60 + estimateBulletHeight(report.bodyInspection.panelsChecked) + (report.bodyInspection.notes ? 30 + estimateBulletHeight(report.bodyInspection.notes) : 0),
     render: () => (
       <SectionCard key="s1" title="1. BODY & VISUAL INSPECTION">
         <BulletList text={report.bodyInspection.panelsChecked || "No observation"} warning={false} />
+        {report.bodyInspection.notes && (
+          <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
+            <p style={{ margin: '0 0 4px 0', fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection Notes</p>
+            <BulletList text={report.bodyInspection.notes} warning={false} />
+          </div>
+        )}
       </SectionCard>
     )
   });
@@ -262,23 +268,12 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     )
   });
 
-  // 3. INTERIORS & CABIN
+  // 3. FLUIDS DEGRADATION
   sectionsData.push({
     id: 's3',
-    height: 60 + estimateBulletHeight(report.interiors?.condition),
-    render: () => (
-      <SectionCard key="s3" title="3. INTERIORS & CABIN">
-        <BulletList text={report.interiors?.condition || "No interior observations"} warning={false} />
-      </SectionCard>
-    )
-  });
-
-  // 4. FLUIDS
-  sectionsData.push({
-    id: 's4',
     height: 180,
     render: () => (
-      <SectionCard key="s4" title="4. FLUIDS DEGRADATION">
+      <SectionCard key="s3" title="3. FLUIDS DEGRADATION">
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', textAlign: 'left' }}>
@@ -289,20 +284,20 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
           </thead>
           <tbody>
              <FluidRow label="Engine Oil" status={report.fluids.engineOil} warning={isWarning(report.fluids.engineOil)} action={report.fluids.serviceNotes || "-"} />
-             <FluidRow label="Coolant / Antifreeze" status={report.fluids.coolant} warning={isWarning(report.fluids.coolant)} action="-" />
-             <FluidRow label="Brake Fluid" status={report.fluids.brakeOil} warning={isWarning(report.fluids.brakeOil)} action="-" />
+             <FluidRow label="Coolant / Antifreeze" status={report.fluids.coolant} warning={isWarning(report.fluids.coolant)} action={report.fluids.serviceNotes || "-"} />
+             <FluidRow label="Brake Fluid" status={report.fluids.brakeOil} warning={isWarning(report.fluids.brakeOil)} action={report.fluids.serviceNotes || "-"} />
           </tbody>
         </table>
       </SectionCard>
     )
   });
 
-  // 5. BATTERY
+  // 4. BATTERY & ELECTRICAL
   sectionsData.push({
-    id: 's5',
+    id: 's4',
     height: 220,
     render: () => (
-      <SectionCard key="s5" title="5. BATTERY & ELECTRICAL">
+      <SectionCard key="s4" title="4. BATTERY & ELECTRICAL">
          <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px', margin: '-12px', marginTop: '4px' }}>
             <div style={{ display: 'table-row' }}>
               <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
@@ -331,52 +326,47 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     )
   });
 
-  // 6. OBD
-  sectionsData.push({
-    id: 's6',
-    height: 70 + estimateBulletHeight(`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`) + estimateBulletHeight(`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`),
-    render: () => (
-      <SectionCard key="s6" title="6. OBD DIAGNOSTICS">
-          <BulletList text={`Fault Codes: ${report.obdScan.faultCodes || "None detected"}`} warning={isWarning(report.obdScan.faultCodes)} />
-          <BulletList text={`ECM Status: ${report.obdScan.ecmStatus || "No faults found in ECM"}`} warning={isWarning(report.obdScan.ecmStatus)} />
-      </SectionCard>
-    )
-  });
-
-  // 7. TEST DRIVE
-  if (report.testDrive) {
+  // 5. INTERIORS & CABIN (comes after Battery)
+  if (report.interiors?.condition) {
     sectionsData.push({
-      id: 's7',
-      height: 150 + Math.max(estimateBulletHeight(report.testDrive.performance), estimateBulletHeight(report.testDrive.braking)) + estimateBulletHeight(report.testDrive.observations),
+      id: 's5',
+      height: 60 + estimateBulletHeight(report.interiors.condition),
       render: () => (
-        <SectionCard key="s7" title="7. TEST DRIVE OBSERVATIONS">
-            <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px 0', marginLeft: '-12px' }}>
-               <div style={{ display: 'table-row' }}>
-                 <div style={{ display: 'table-cell', width: '50%', paddingLeft: '12px' }}>
-                   <p style={subHeaderStyle}>Driving Performance</p>
-                   <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} />
-                 </div>
-                 <div style={{ display: 'table-cell', width: '50%', paddingLeft: '12px' }}>
-                   <p style={subHeaderStyle}>Stability</p>
-                   <BulletList text={report.testDrive.braking || "Not evaluated"} warning={isWarning(report.testDrive.braking)} />
-                 </div>
-               </div>
-            </div>
-            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
-                 <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Transmission & Suspension</p>
-                 <BulletList text={report.testDrive.observations || "No specific observations"} warning={false} />
-            </div>
+        <SectionCard key="s5" title="5. INTERIORS & CABIN">
+          <BulletList text={report.interiors!.condition || "No interior observations"} warning={false} />
         </SectionCard>
       )
     });
   }
 
-  // 8. VERDICT
+  // 6. TEST DRIVE
+  if (report.testDrive) {
+    sectionsData.push({
+      id: 's6',
+      height: 80 + estimateBulletHeight(report.testDrive.performance) + (report.testDrive.observations ? 40 + estimateBulletHeight(report.testDrive.observations) : 0),
+      render: () => (
+        <SectionCard key="s6" title="6. TEST DRIVE OBSERVATIONS">
+            <div>
+               <p style={subHeaderStyle}>Driving Performance</p>
+               <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} />
+            </div>
+            {report.testDrive.observations && (
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
+                   <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Transmission & Suspension</p>
+                   <BulletList text={report.testDrive.observations} warning={false} />
+              </div>
+            )}
+        </SectionCard>
+      )
+    });
+  }
+
+  // 7. VERDICT
   sectionsData.push({
-    id: 's8',
+    id: 's7v',
     height: 140,
     render: () => (
-      <SectionCard key="s8" title="8. VERDICT SECTION">
+      <SectionCard key="s7" title="7. VERDICT SECTION">
          <div style={{ display: 'table', width: '100%', borderSpacing: '0 8px' }}>
             <div style={{ display: 'table-row' }}>
                <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0369a1') }}>
@@ -412,24 +402,24 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     });
   }
 
-  // 9. PRECAUTIONS
+  // 8. PRECAUTIONS
   sectionsData.push({
-    id: 's9',
+    id: 's8',
     height: 70 + estimateBulletHeight(report.precautions || "No generic precautions indicated.", true),
     render: () => (
-      <SectionCard key="s9" title="9. PRECAUTIONS & RECOMMENDATIONS">
+      <SectionCard key="s8" title="8. PRECAUTIONS & RECOMMENDATIONS">
          <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
       </SectionCard>
     )
   });
 
-  // 10. SERVICE
+  // 9. SERVICE
   if (report.serviceRecommendations && report.serviceRecommendations !== "-") {
     sectionsData.push({
-      id: 's10',
+      id: 's9',
       height: 70 + estimateBulletHeight(report.serviceRecommendations, true),
       render: () => (
-        <SectionCard key="s10" title="10. SERVICE RECOMMENDATIONS">
+        <SectionCard key="s9" title="9. SERVICE RECOMMENDATIONS">
            <BulletList text={report.serviceRecommendations!} warning={false} forceBullet={true} />
         </SectionCard>
       )
