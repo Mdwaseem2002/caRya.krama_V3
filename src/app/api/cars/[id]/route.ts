@@ -8,13 +8,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Car from "@/models/Car";
-import { invalidateServerCarCache } from "@/lib/carServerCache";
+import { invalidateServerCarCache, getCachedCarDetail, setCachedCarDetail } from "@/lib/carServerCache";
 
 type RouteContext = { params: { id: string } };
 
 // ── GET /api/cars/:id ─────────────────────────────────────────────────────────
 export async function GET(_req: NextRequest, { params }: RouteContext) {
   try {
+    // 1. Instant check from server in-memory cache (<1ms)
+    const cached = getCachedCarDetail(params.id);
+    if (cached) {
+      return NextResponse.json(
+        { success: true, car: cached },
+        {
+          status: 200,
+          headers: {
+            "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+          },
+        }
+      );
+    }
+
     await connectDB();
 
     // Try custom id field first, fall back to MongoDB _id
@@ -27,12 +41,15 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    // Cache the retrieved car in server memory
+    setCachedCarDetail(params.id, car);
+
     return NextResponse.json(
       { success: true, car },
       {
         status: 200,
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
         },
       }
     );
@@ -86,7 +103,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
       );
     }
 
-    invalidateServerCarCache();
+    invalidateServerCarCache(params.id);
     return NextResponse.json({ success: true, car: updated }, { status: 200 });
   } catch (error: any) {
     console.error(`[PUT /api/cars/${params.id}] Error:`, error.message || error);
@@ -121,7 +138,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
       );
     }
 
-    invalidateServerCarCache();
+    invalidateServerCarCache(params.id);
     return NextResponse.json(
       { success: true, message: `Car ${params.id} deleted` },
       { status: 200 }

@@ -1,12 +1,15 @@
 import CarDetails from "@/Home/Cardetails/CarDetails";
 import VisitorTracker from "@/components/VisitorTracker";
+import { getCarForInitialRender } from "@/lib/carServerCache";
 
-// Force static rendering parameter if needed, but here it's fine as dynamic or static
-export default function CarPage({ params }: { params: { id: string } }) {
+export default async function CarPage({ params }: { params: { id: string } }) {
+  // Ultra-fast in-memory server lookup (<1ms) for instant SSR rendering
+  const initialCar = await getCarForInitialRender(params.id);
+
   return (
     <main className="min-h-screen pt-[70px] md:pt-[90px]" style={{ background: "var(--background)" }}>
       <VisitorTracker />
-      <CarDetails id={params.id} />
+      <CarDetails id={params.id} initialCar={initialCar} />
     </main>
   );
 }

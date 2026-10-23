@@ -9,14 +9,15 @@ import { getStoredCarById, getCachedPublishedCars } from "@/Admin/Upload/CarStor
 import ViewFullReport from "./ViewFullReport";
 import ViewReop from "@/Details/Popup/ViewReop";
 
-export default function CarDetails({ id }: { id: string }) {
+export default function CarDetails({ id, initialCar }: { id: string; initialCar?: any }) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [mounted, setMounted] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [isBuyPopupOpen, setIsBuyPopupOpen] = useState(false);
 
-  // Synchronously initialize car from cache so it renders immediately with zero waiting
+  // Synchronously initialize car from initialCar prop or cached list for zero waiting
   const [uploadedCar, setUploadedCar] = useState<any>(() => {
+    if (initialCar) return initialCar;
     if (typeof window !== "undefined") {
       const cached = getCachedPublishedCars();
       const found = cached.find((c) => c.id === id);
@@ -26,6 +27,7 @@ export default function CarDetails({ id }: { id: string }) {
   });
 
   const [loadingCars, setLoadingCars] = useState<boolean>(() => {
+    if (initialCar) return false;
     if (typeof window !== "undefined") {
       const cached = getCachedPublishedCars();
       if (cached.some((c) => c.id === id)) return false;
@@ -38,7 +40,15 @@ export default function CarDetails({ id }: { id: string }) {
     // Fetch full car details (including complete gallery) in background
     getStoredCarById(id)
       .then(car => { 
-        if (car) setUploadedCar(car); 
+        if (car) {
+          setUploadedCar((prev: any) => {
+            if (!prev) return car;
+            const prevImgs = prev.media?.images || [];
+            const newImgs = car.media?.images || [];
+            if (newImgs.length >= prevImgs.length) return car;
+            return prev;
+          });
+        }
         setLoadingCars(false); 
       })
       .catch(() => setLoadingCars(false));

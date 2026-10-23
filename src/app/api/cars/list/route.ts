@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Car from "@/models/Car";
-import { getCachedCars, setCachedCars, isCacheStale } from "@/lib/carServerCache";
+import { getCachedCars, setCachedCars, isCacheStale, getCachedCarDetail, setCachedCarDetail } from "@/lib/carServerCache";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +83,13 @@ async function fetchCarsFromDB(adminMode: boolean): Promise<any[]> {
       });
 
       setCachedCars(cacheKey, formattedCars);
+
+      // Pre-seed singleCarCache so direct car links resolve instantly (<1ms)
+      formattedCars.forEach((c: any) => {
+        if (c.id && !getCachedCarDetail(c.id)) {
+          setCachedCarDetail(c.id, c);
+        }
+      });
 
       return formattedCars;
     } catch (error) {

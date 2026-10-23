@@ -317,8 +317,8 @@ export async function getStoredCarById(id: string): Promise<StoredCar | null> {
     return cache.singleProps[id].data;
   }
 
-  // 2. Check list caches (adminCars or publishedCars)
-  const lists = [cache.adminCars.data, cache.publishedCars.data];
+  // 2. Check list caches (adminCars or publishedCars or localStorage)
+  const lists = [cache.adminCars.data, cache.publishedCars.data, getCachedPublishedCars()];
   for (const list of lists) {
     if (list) {
       const found = list.find(c => c.id === id);
