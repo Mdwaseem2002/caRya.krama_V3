@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // ─────────────────────────────────────────────────────────────────────────────
 // src/lib/mongodb.ts
 // Singleton MongoDB connection with connection caching for Next.js.
@@ -50,10 +51,9 @@ export async function connectDB(): Promise<Mongoose> {
       bufferCommands: true,
       maxPoolSize: 10,
       minPoolSize: 2,
-      serverSelectionTimeoutMS: 20000, // Increased to 20s for more stability
-      connectTimeoutMS: 20000,
-      socketTimeoutMS: 45000,
-      family: 4, // Force IPv4 to avoid some DNS resolution issues in serverless
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 120000,
     };
 
     console.log("🔄 Initiating new MongoDB connection...");

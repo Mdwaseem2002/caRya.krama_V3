@@ -7,22 +7,27 @@ import { Heart, ShieldCheck, ArrowRight, CheckCircle2, Fuel, Settings2, MapPin, 
 import { motion } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 // ✅ Same file, same key — guaranteed data match with Uploadcar.tsx
-import { getPublishedStoredCars, StoredCar } from "./CarStorage";
+import { getPublishedStoredCars, getCachedPublishedCars, StoredCar } from "./CarStorage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FLOW:
-//   Admin → Uploadcar.tsx → saveCarToStorage() → localStorage["carya_cars_db"]
-//   Customer → UploadFetch.tsx → getPublishedStoredCars() → same key → renders
+//   Admin → Uploadcar.tsx → saveCarToStorage() → MongoDB
+//   Customer → UploadFetch.tsx → getPublishedStoredCars() → instant cached render
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function UploadFetch() {
-  const [cars, setCars] = useState<StoredCar[]>([]);
+  const [cars, setCars] = useState<StoredCar[]>(() => getCachedPublishedCars());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // ✅ useEffect = client-side only → MongoDB call works here, not during SSR
-    getPublishedStoredCars().then(setCars).catch(console.error);
+    getPublishedStoredCars()
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCars(data);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   // Don't render the section during SSR or if admin hasn't published any car yet

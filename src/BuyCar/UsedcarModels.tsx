@@ -2,15 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { getPublishedStoredCars, StoredCar } from "@/Admin/Upload/CarStorage";
+import { getPublishedStoredCars, getCachedPublishedCars, StoredCar } from "@/Admin/Upload/CarStorage";
 import { CheckCircle2, Navigation, Fuel, Calendar, MapPin, Heart, ChevronRight, Lock, ShieldCheck, SlidersHorizontal, ChevronDown, Gauge } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 
 export default function UsedcarModels() {
-  const [allCars, setAllCars] = useState<StoredCar[]>([]);
+  const [allCars, setAllCars] = useState<StoredCar[]>(() => getCachedPublishedCars());
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => getCachedPublishedCars().length === 0);
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   // Filter & Sort States
@@ -25,7 +25,12 @@ export default function UsedcarModels() {
 
   useEffect(() => {
     getPublishedStoredCars()
-      .then(data => { setAllCars(data); setLoading(false); })
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAllCars(data);
+        }
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 

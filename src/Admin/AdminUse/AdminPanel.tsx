@@ -20,6 +20,12 @@ export default function AdminPanel() {
     }
   }, [user, router]);
 
+  useEffect(() => {
+    if (selectedCar) {
+      setReport(getReportByCarId(selectedCar.id));
+    }
+  }, [selectedCar]);
+
   if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-transparent flex flex-col items-center justify-center text-white p-4">
@@ -33,12 +39,6 @@ export default function AdminPanel() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (selectedCar) {
-      setReport(getReportByCarId(selectedCar.id));
-    }
-  }, [selectedCar]);
 
   return (
     <div className="min-h-screen bg-transparent p-4 md:p-8">

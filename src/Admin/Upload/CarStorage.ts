@@ -82,6 +82,12 @@ export function invalidateCarCache(id?: string) {
   cache.publishedCars.time = 0;
   cache.adminCars.data = null;
   cache.publishedCars.data = null;
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  }
   // Also clear single-car cache
   if (id && cache.singleProps[id]) delete cache.singleProps[id];
   else cache.singleProps = {};
@@ -184,33 +190,90 @@ export async function getAllStoredCars(forceRefresh = false): Promise<StoredCar[
   return cars;
 }
 
+const STORAGE_KEY = "carya_published_cars";
+
+/** Get synchronously cached cars (for instant zero-latency UI rendering) */
+export function getCachedPublishedCars(): StoredCar[] {
+  if (cache.publishedCars.data && cache.publishedCars.data.length > 0) {
+    return cache.publishedCars.data;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          cache.publishedCars.data = parsed;
+          cache.publishedCars.time = Date.now();
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return [];
+}
+
+// In-flight deduplication promise
+let inFlightPublishedCars: Promise<StoredCar[]> | null = null;
+
 /** Get only published cars (customer-facing) — uses the ultra-fast /list endpoint */
 export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   const now = Date.now();
-  if (cache.publishedCars.data && now - cache.publishedCars.time < CACHE_TTL) {
+  
+  // Return in-memory cache if fresh
+  if (cache.publishedCars.data && cache.publishedCars.data.length > 0 && now - cache.publishedCars.time < CACHE_TTL) {
     return cache.publishedCars.data;
   }
 
-  // /api/cars/list is purpose-built: minimal fields, no gallery images.
-  try {
-    const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
-      cache: "no-store", // Always fetch fresh data — sold status must update immediately
-    });
+  // Check persistent browser storage (localStorage / sessionStorage)
+  const cachedFromStorage = getCachedPublishedCars();
 
-    if (!res.ok) {
-      console.warn("⚠️ [CarStorage] API responded with error:", res.status);
-      return [];
-    }
-
-    const data = await res.json();
-    const cars = (data.cars || []) as StoredCar[];
-    
-    cache.publishedCars = { data: cars, time: now };
-    return cars;
-  } catch (error) {
-    console.error("❌ [CarStorage] getPublishedStoredCars failed:", error);
-    return []; // Return empty array instead of throwing to prevent component crash
+  // If a network request is already running, wait for it
+  if (inFlightPublishedCars) {
+    return inFlightPublishedCars;
   }
+
+  inFlightPublishedCars = (async () => {
+    try {
+      const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
+        // Allow HTTP stale-while-revalidate caching
+        headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) {
+        console.warn("⚠️ [CarStorage] API responded with error:", res.status);
+        return cachedFromStorage.length > 0 ? cachedFromStorage : (cache.publishedCars.data || []);
+      }
+
+      const data = await res.json();
+      const cars = (data.cars || []) as StoredCar[];
+      
+      if (Array.isArray(cars) && cars.length > 0) {
+        cache.publishedCars = { data: cars, time: Date.now() };
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(cars));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cars));
+          } catch {}
+        }
+      }
+      
+      return cars;
+    } catch (error) {
+      console.error("❌ [CarStorage] getPublishedStoredCars failed:", error);
+      return cachedFromStorage.length > 0 ? cachedFromStorage : (cache.publishedCars.data || []);
+    } finally {
+      inFlightPublishedCars = null;
+    }
+  })();
+
+  // If we already have cached cars from localStorage, return them immediately
+  // while inFlightPublishedCars updates the background cache!
+  if (cachedFromStorage.length > 0) {
+    return cachedFromStorage;
+  }
+
+  return inFlightPublishedCars;
 }
 
 /** Get a single car by ID (Super fast for Detail pages) */

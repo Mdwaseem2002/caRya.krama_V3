@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Search, ChevronDown, Sparkles, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getPublishedStoredCars, StoredCar } from "@/Admin/Upload/CarStorage";
+import { getPublishedStoredCars, getCachedPublishedCars, StoredCar } from "@/Admin/Upload/CarStorage";
 import SearchShowen from "@/Details/SearchEngine/SearchShowen";
 
 const BUDGET_RANGES = [
@@ -88,7 +88,7 @@ function CustomDropdown({
 }
 
 export default function SearchEngine() {
-  const [allCars, setAllCars] = useState<StoredCar[]>([]);
+  const [allCars, setAllCars] = useState<StoredCar[]>(() => getCachedPublishedCars());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBudget, setSelectedBudget] = useState(BUDGET_RANGES[0]);
   const [selectedBrand, setSelectedBrand] = useState("Any Brand");
@@ -97,7 +97,13 @@ export default function SearchEngine() {
 
   // Fetch cars from storage
   useEffect(() => {
-    getPublishedStoredCars().then(setAllCars).catch(console.error);
+    getPublishedStoredCars()
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAllCars(data);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   // Dynamic filter options based on available cars
