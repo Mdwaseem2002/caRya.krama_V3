@@ -71,7 +71,7 @@ const cache = {
   publishedCars: { data: null as StoredCar[] | null, time: 0 },
   singleProps: {} as Record<string, { data: StoredCar, time: number }>
 };
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes – in-memory cache for SPA navigation
+const CACHE_TTL = 15 * 1000; // 15 seconds – short cache to reflect newly uploaded cars immediately
 
 // ── PUBLIC API ────────────────────────────────────────────────────────────────
 
@@ -86,6 +86,7 @@ export function invalidateCarCache(id?: string) {
     try {
       sessionStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STORAGE_KEY);
+      window.dispatchEvent(new CustomEvent("caryakrama:cars-updated"));
     } catch {}
   }
   // Also clear single-car cache
@@ -217,15 +218,15 @@ export function getCachedPublishedCars(): StoredCar[] {
 let inFlightPublishedCars: Promise<StoredCar[]> | null = null;
 
 /** Get only published cars (customer-facing) — uses the ultra-fast /list endpoint */
-export async function getPublishedStoredCars(): Promise<StoredCar[]> {
+export async function getPublishedStoredCars(forceRefresh = false): Promise<StoredCar[]> {
   const now = Date.now();
   
-  // Return in-memory cache if fresh
-  if (cache.publishedCars.data && cache.publishedCars.data.length > 0 && now - cache.publishedCars.time < CACHE_TTL) {
+  // Return in-memory cache if fresh and not forcing refresh
+  if (!forceRefresh && cache.publishedCars.data && cache.publishedCars.data.length > 0 && now - cache.publishedCars.time < CACHE_TTL) {
     return cache.publishedCars.data;
   }
 
-  // Check persistent browser storage (localStorage / sessionStorage)
+  // Check persistent browser storage (localStorage / sessionStorage) as fallback
   const cachedFromStorage = getCachedPublishedCars();
 
   // If a network request is already running, wait for it
@@ -236,7 +237,7 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
   inFlightPublishedCars = (async () => {
     try {
       const res = await fetch(`${getBaseUrl()}/api/cars/list`, {
-        // Allow HTTP stale-while-revalidate caching
+        cache: "no-store",
         headers: { Accept: "application/json" },
       });
 
@@ -248,7 +249,7 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
       const data = await res.json();
       const cars = (data.cars || []) as StoredCar[];
       
-      if (Array.isArray(cars) && cars.length > 0) {
+      if (Array.isArray(cars)) {
         cache.publishedCars = { data: cars, time: Date.now() };
         if (typeof window !== "undefined") {
           try {
@@ -267,12 +268,6 @@ export async function getPublishedStoredCars(): Promise<StoredCar[]> {
     }
   })();
 
-  // If we already have cached cars from localStorage, return them immediately
-  // while inFlightPublishedCars updates the background cache!
-  if (cachedFromStorage.length > 0) {
-    return cachedFromStorage;
-  }
-
   return inFlightPublishedCars;
 }
 
@@ -281,21 +276,15 @@ export async function getStoredCarById(id: string): Promise<StoredCar | null> {
   const now = Date.now();
   
   // 1. Check direct cache (singleProps)
-  // If it exists and has images, use it.
   if (cache.singleProps[id] && now - cache.singleProps[id].time < CACHE_TTL) {
-    const cached = cache.singleProps[id].data;
-    if (cached.media?.images && cached.media.images.length > 0) {
-      return cached;
-    }
+    return cache.singleProps[id].data;
   }
 
   // 2. Check list caches (adminCars or publishedCars)
-  // Only use if they contain full images (rare for list caches due to optimization)
   const lists = [cache.adminCars.data, cache.publishedCars.data];
   for (const list of lists) {
     if (list) {
       const found = list.find(c => c.id === id);
-      // We need images for the edit/detail views
       if (found && found.media?.images && found.media.images.length > 0) {
         return found;
       }
@@ -303,12 +292,14 @@ export async function getStoredCarById(id: string): Promise<StoredCar | null> {
   }
 
   // 3. Fallback: Network fetch for single DB document
-  // This endpoint (/api/cars/[id]) ALWAYS returns the full document with images.
   try {
-    const res = await fetch(`${getBaseUrl()}/api/cars/${id}`, {
-      cache: "no-store" // Always get fresh data when requested by ID
-    });
-    if (!res.ok) return null;
+    const res = await fetch(`${getBaseUrl()}/api/cars/${id}`);
+    if (!res.ok) {
+      const cachedPublished = getCachedPublishedCars();
+      const fallback = cachedPublished.find(c => c.id === id);
+      if (fallback) return fallback;
+      return null;
+    }
     
     const data = await res.json();
     if (data.success && data.car) {
@@ -320,6 +311,9 @@ export async function getStoredCarById(id: string): Promise<StoredCar | null> {
     return null;
   } catch(e) {
     console.error(`[CarStorage] Failed to fetch car ${id}:`, e);
+    const cachedPublished = getCachedPublishedCars();
+    const fallback = cachedPublished.find(c => c.id === id);
+    if (fallback) return fallback;
     return null;
   }
 }

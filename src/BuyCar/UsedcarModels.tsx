@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { getPublishedStoredCars, getCachedPublishedCars, StoredCar } from "@/Admin/Upload/CarStorage";
 import { CheckCircle2, Navigation, Fuel, Calendar, MapPin, Heart, ChevronRight, Lock, ShieldCheck, SlidersHorizontal, ChevronDown, Gauge } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,23 +16,42 @@ export default function UsedcarModels() {
 
   // Filter & Sort States
   const [activeFilter, setActiveFilter] = useState("All Cars");
-  const [activeSort, setActiveSort] = useState("Price: Low to High");
+  const [activeSort, setActiveSort] = useState("Recently Added");
   const [activeFuel, setActiveFuel] = useState("All Fuel Types");
   const [showFilters, setShowFilters] = useState(false);
 
   const filterOptions = ["All Cars", "New Arrivals", "Featured"];
-  const sortOptions = ["Price: Low to High", "Price: High to Low", "Inspection Score", "Year: Newest"];
+  const sortOptions = ["Recently Added", "Price: Low to High", "Price: High to Low", "Inspection Score", "Year: Newest"];
   const fuelOptions = ["All Fuel Types", "Petrol", "Diesel", "Electric"];
 
   useEffect(() => {
-    getPublishedStoredCars()
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setAllCars(data);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    let isSubscribed = true;
+
+    const fetchLatestCars = () => {
+      getPublishedStoredCars(true)
+        .then(data => {
+          if (isSubscribed && Array.isArray(data) && data.length > 0) {
+            setAllCars(data);
+          }
+          if (isSubscribed) setLoading(false);
+        })
+        .catch(() => {
+          if (isSubscribed) setLoading(false);
+        });
+    };
+
+    fetchLatestCars();
+
+    // Re-fetch immediately when an admin adds/edits a car or when tab gets focused
+    const handleUpdate = () => fetchLatestCars();
+    window.addEventListener("caryakrama:cars-updated", handleUpdate);
+    window.addEventListener("focus", handleUpdate);
+
+    return () => {
+      isSubscribed = false;
+      window.removeEventListener("caryakrama:cars-updated", handleUpdate);
+      window.removeEventListener("focus", handleUpdate);
+    };
   }, []);
 
   // Filtering Logic
@@ -49,6 +69,14 @@ export default function UsedcarModels() {
 
   // Sorting Logic
   const sortedCars = [...filteredCars].sort((a, b) => {
+    if (activeSort === "Recently Added") {
+      const timeA = new Date((a as any).createdAt || (a as any).updatedAt || 0).getTime();
+      const timeB = new Date((b as any).createdAt || (b as any).updatedAt || 0).getTime();
+      if (timeA && timeB && timeA !== timeB) {
+        return timeB - timeA; // Newest first
+      }
+      return 0; // preserve API order which is already {$sort: {createdAt: -1}}
+    }
     const priceA = parseInt((a.pricing?.sellingPrice || "0").replace(/[^\d]/g, ""));
     const priceB = parseInt((b.pricing?.sellingPrice || "0").replace(/[^\d]/g, ""));
     
@@ -294,9 +322,11 @@ export default function UsedcarModels() {
                 {/* CONTENT SECTION */}
                 <div className="p-4 sm:p-6 flex flex-col flex-1">
                   <div className="mb-5">
-                    <h3 className="text-lg sm:text-xl font-black text-[#0f172a] uppercase tracking-tight leading-tight group-hover:text-[#0059A3] transition-colors truncate">
-                      {car.title}
-                    </h3>
+                    <Link href={`/car/${car.id}`} prefetch={true} className="block group/title">
+                      <h3 className="text-lg sm:text-xl font-black text-[#0f172a] uppercase tracking-tight leading-tight group-hover/title:text-[#0059A3] transition-colors truncate">
+                        {car.title}
+                      </h3>
+                    </Link>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3 mb-6">
@@ -342,13 +372,14 @@ export default function UsedcarModels() {
                       </p>
                     </div>
                     {!car.isSold ? (
-                      <button 
-                        onClick={() => window.location.href = `/car/${car.id}`}
+                      <Link 
+                        href={`/car/${car.id}`}
+                        prefetch={true}
                         className="flex items-center gap-2 bg-royal/10 text-royal px-4 py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-royal hover:text-white transition-all shadow-sm active:scale-95 shrink-0 backdrop-blur-md border border-royal/10 whitespace-nowrap"
                       >
                         View Car
                         <ChevronRight size={12} />
-                      </button>
+                      </Link>
                     ) : (
                       <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-sm shrink-0 border border-red-100 whitespace-nowrap">
                         Car Sold

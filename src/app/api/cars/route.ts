@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Car from "@/models/Car";
+import { invalidateServerCarCache } from "@/lib/carServerCache";
 
 // ── GET /api/cars ─────────────────────────────────────────────────────────────
 export const dynamic = "force-dynamic";
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`🚀 Creating new car listing: ${body.title} (ID: ${id})`);
     const newCar = await Car.create({ ...body, id });
+    invalidateServerCarCache();
 
     return NextResponse.json({ success: true, car: newCar }, { status: 201 });
   } catch (error: any) {

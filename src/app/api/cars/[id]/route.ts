@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Car from "@/models/Car";
+import { invalidateServerCarCache } from "@/lib/carServerCache";
 
 type RouteContext = { params: { id: string } };
 
@@ -26,7 +27,15 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
       );
     }
 
-    return NextResponse.json({ success: true, car }, { status: 200 });
+    return NextResponse.json(
+      { success: true, car },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error) {
     console.error("[GET /api/cars/:id] Error:", error);
     return NextResponse.json(
@@ -77,6 +86,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    invalidateServerCarCache();
     return NextResponse.json({ success: true, car: updated }, { status: 200 });
   } catch (error: any) {
     console.error(`[PUT /api/cars/${params.id}] Error:`, error.message || error);
@@ -111,6 +121,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    invalidateServerCarCache();
     return NextResponse.json(
       { success: true, message: `Car ${params.id} deleted` },
       { status: 200 }

@@ -11,24 +11,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Car from "@/models/Car";
+import { getCachedCars, setCachedCars, isCacheStale } from "@/lib/carServerCache";
 
 export const dynamic = "force-dynamic";
 
-// ── In-Memory Server Cache with Background Revalidation ─────────────────────
-interface CacheEntry {
-  cars: any[];
-  timestamp: number;
-}
-const serverCache: Record<string, CacheEntry> = {};
 const pendingRefresh: Record<string, Promise<any[]> | null> = {};
-const CACHE_FRESH_MS = 60 * 1000; // 60 seconds fresh
 
 /**
  * Worker to fetch cars from MongoDB and update server cache.
  * Deduplicates in-flight database requests so only one MongoDB query runs at a time.
  */
 async function fetchCarsFromDB(adminMode: boolean): Promise<any[]> {
-  const cacheKey = adminMode ? "admin" : "public";
+  const cacheKey: "admin" | "public" = adminMode ? "admin" : "public";
 
   if (pendingRefresh[cacheKey]) {
     return pendingRefresh[cacheKey]!;
@@ -85,15 +79,12 @@ async function fetchCarsFromDB(adminMode: boolean): Promise<any[]> {
         },
       }));
 
-      serverCache[cacheKey] = {
-        cars: formattedCars,
-        timestamp: Date.now(),
-      };
+      setCachedCars(cacheKey, formattedCars);
 
       return formattedCars;
     } catch (error) {
       console.error("[cars/list] fetchCarsFromDB Error:", error);
-      return serverCache[cacheKey]?.cars || [];
+      return getCachedCars(cacheKey) || [];
     } finally {
       pendingRefresh[cacheKey] = null;
     }
@@ -110,25 +101,24 @@ if (process.env.NODE_ENV !== "test") {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const adminMode = searchParams.get("admin") === "true";
-  const cacheKey = adminMode ? "admin" : "public";
-  const now = Date.now();
+  const cacheKey: "admin" | "public" = adminMode ? "admin" : "public";
 
-  const cached = serverCache[cacheKey];
+  const cached = getCachedCars(cacheKey);
 
   // 1. If we have any cached cars in server memory:
-  if (cached && cached.cars && cached.cars.length > 0) {
+  if (cached && cached.length > 0) {
     // If cache is getting older than 60s, refresh in background without blocking the response
-    if (now - cached.timestamp > CACHE_FRESH_MS) {
+    if (isCacheStale(cacheKey)) {
       fetchCarsFromDB(adminMode).catch(console.error);
     }
 
     // Return the cached response INSTANTLY (< 5ms)
     return NextResponse.json(
-      { success: true, cars: cached.cars, cached: true },
+      { success: true, cars: cached, cached: true },
       {
         status: 200,
         headers: {
-          "Cache-Control": "public, max-age=30, stale-while-revalidate=300",
+          "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
         },
       }
     );
@@ -142,7 +132,7 @@ export async function GET(req: NextRequest) {
       {
         status: 200,
         headers: {
-          "Cache-Control": "public, max-age=30, stale-while-revalidate=300",
+          "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
         },
       }
     );

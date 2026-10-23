@@ -8,13 +8,14 @@ import { ShieldCheck, CheckCircle2, ChevronRight } from "lucide-react";
 import ViewReop from "@/Details/Popup/ViewReop";
 import { hasPurchased } from "@/Admin/data/purchases";
 import { cars as staticCars } from "@/data/inventory";
-import { getAllStoredCars } from "@/Admin/Upload/CarStorage";
+import { getAllStoredCars, getCachedPublishedCars } from "@/Admin/Upload/CarStorage";
 
 interface ViewFullReportProps {
   carId: string | number;
+  car?: any;
 }
 
-export default function ViewFullReport({ carId }: ViewFullReportProps) {
+export default function ViewFullReport({ carId, car: passedCar }: ViewFullReportProps) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [reportExists, setReportExists] = useState(false);
   const [reportPrice, setReportPrice] = useState(600);
@@ -25,7 +26,15 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
     const init = async () => {
       setPurchased(hasPurchased(carId.toString()));
       try {
-        setUploadedCars(await getAllStoredCars());
+        // Only load car list if car wasn't passed directly as prop
+        if (!passedCar) {
+          const cached = getCachedPublishedCars();
+          if (cached.length > 0) {
+            setUploadedCars(cached);
+          } else {
+            setUploadedCars(await getAllStoredCars());
+          }
+        }
         
         // Fetch from the real API to see if the inspection report exists
         const res = await fetch(`/api/inspection-reports?carId=${carId}`);
@@ -41,10 +50,10 @@ export default function ViewFullReport({ carId }: ViewFullReportProps) {
       }
     };
     init();
-  }, [carId]);
+  }, [carId, passedCar]);
 
   // Find the car based on ID
-  const foundUploaded = uploadedCars.find((c) => c.id === carId);
+  const foundUploaded = passedCar || uploadedCars.find((c) => c.id === carId);
   const foundStatic = staticCars.find((c) => c.id.toString() === carId.toString());
   
   const car = foundUploaded || foundStatic || staticCars[0];

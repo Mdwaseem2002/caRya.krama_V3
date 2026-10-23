@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Heart, Phone, CreditCard, ShieldCheck, CheckCircle2, Calendar, Gauge, Award, Wrench, Car, Users } from "lucide-react";
 import { cars as staticCars } from "@/data/inventory";
 import { useWishlist } from "@/context/WishlistContext";
-import { getStoredCarById } from "@/Admin/Upload/CarStorage";
+import { getStoredCarById, getCachedPublishedCars } from "@/Admin/Upload/CarStorage";
 import ViewFullReport from "./ViewFullReport";
 import ViewReop from "@/Details/Popup/ViewReop";
 
@@ -14,13 +14,33 @@ export default function CarDetails({ id }: { id: string }) {
   const [mounted, setMounted] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [isBuyPopupOpen, setIsBuyPopupOpen] = useState(false);
-  const [uploadedCar, setUploadedCar] = useState<any>(null);
-  const [loadingCars, setLoadingCars] = useState(true);
+
+  // Synchronously initialize car from cache so it renders immediately with zero waiting
+  const [uploadedCar, setUploadedCar] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      const cached = getCachedPublishedCars();
+      const found = cached.find((c) => c.id === id);
+      if (found) return found;
+    }
+    return null;
+  });
+
+  const [loadingCars, setLoadingCars] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const cached = getCachedPublishedCars();
+      if (cached.some((c) => c.id === id)) return false;
+    }
+    return !staticCars.some((c) => c.id.toString() === id);
+  });
 
   useEffect(() => {
     setMounted(true);
+    // Fetch full car details (including complete gallery) in background
     getStoredCarById(id)
-      .then(car => { setUploadedCar(car); setLoadingCars(false); })
+      .then(car => { 
+        if (car) setUploadedCar(car); 
+        setLoadingCars(false); 
+      })
       .catch(() => setLoadingCars(false));
   }, [id]);
 
@@ -30,10 +50,8 @@ export default function CarDetails({ id }: { id: string }) {
   
   const car = foundUploaded || foundStatic || null;
 
-  if (!mounted) return null;
-
-  // ── LOADING SKELETON: don't flash mock car while DB fetches ───────────────────────
-  if (loadingCars) {
+  // ── LOADING SKELETON: only show when car is not yet in cache ───────────────────────
+  if (loadingCars && !car) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -76,13 +94,18 @@ export default function CarDetails({ id }: { id: string }) {
   const sellingPrice = isUploaded ? (car as any).pricing?.sellingPrice : (car as any).price;
   const actualPrice = isUploaded ? (car as any).pricing?.actualPrice : null;
   const year = car.year;
-  const odometer = isUploaded ? (car as any).specs.mileage : (car as any).odometer;
+  const odometer = isUploaded ? (car as any).specs?.mileage : (car as any).odometer;
   
-  const carImages = isUploaded 
-    ? [(car as any).media.coverImage, ...(car as any).media.images.filter((img: string) => img !== (car as any).media.coverImage)]
+  const rawImages = isUploaded 
+    ? [
+        (car as any).media?.coverImage, 
+        ...((car as any).media?.images || []).filter((img: string) => img && img !== (car as any).media?.coverImage)
+      ].filter(Boolean)
     : [(car as any).image, "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop", "/car banner.png"];
 
-  const isSaved = isInWishlist(car.id);
+  const carImages = rawImages.length > 0 ? rawImages : ["/car banner.png"];
+
+  const isSaved = mounted ? isInWishlist(car.id) : false;
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % carImages.length);
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + carImages.length) % carImages.length);
@@ -167,7 +190,7 @@ export default function CarDetails({ id }: { id: string }) {
           </div>
 
           {/* Details & Inspection Section */}
-          <ViewFullReport carId={id as any} />
+          <ViewFullReport carId={id as any} car={car} />
         </div>
 
         {/* ── RIGHT: PRICING & CTA SIDEBAR ── */}
