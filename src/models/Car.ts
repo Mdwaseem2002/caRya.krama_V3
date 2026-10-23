@@ -138,6 +138,7 @@ const CarSchema = new Schema<ICar>(
 // ── Indexing for Performance ────────────────────────────────────────────────────
 // Main listing query: WHERE status='published' ORDER BY createdAt DESC
 CarSchema.index({ status: 1, createdAt: -1 });
+CarSchema.index({ createdAt: -1 });
 // Tag-based filtering (Featured, New Arrival pills)
 CarSchema.index({ tags: 1 });
 // Brand filter (used in admin + future brand-page feature)

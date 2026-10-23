@@ -54,9 +54,9 @@ export async function GET(req: NextRequest) {
 
     // 3. Recent Activity (Latest 5 items)
     const [recentUsers, recentCars, recentPayments] = await Promise.all([
-      User.find({ role: "customer" }).sort({ createdAt: -1 }).limit(5),
-      Car.find().sort({ createdAt: -1 }).limit(5),
-      Payment.find({ status: "completed" }).sort({ createdAt: -1 }).limit(5)
+      User.find({ role: "customer" }).select("name createdAt").sort({ createdAt: -1 }).limit(5).lean(),
+      Car.find().select("title createdAt").sort({ createdAt: -1 }).limit(5).lean(),
+      Payment.find({ status: "completed" }).select("amount createdAt").sort({ createdAt: -1 }).limit(5).lean()
     ]);
 
     const activityList = [

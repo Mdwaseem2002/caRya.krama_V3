@@ -45,7 +45,7 @@ function ReportContent() {
         }
 
         // Fetch the report from the DB first
-        const res = await fetch(`/api/inspection-reports?carId=${carId}`);
+        const res = await fetch(`/api/inspection-reports?carId=${carId}&full=true`);
         const data = await res.json();
         
         if (data.success && data.reports && data.reports.length > 0) {

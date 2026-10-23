@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Edit3, Eye, FileText, Upload, ClipboardCheck, Download } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { getAllInspectionReports, deleteInspectionReport, InspectionReportData } from "./InspectionStorage";
+import { getAllInspectionReports, getCachedInspectionReports, getInspectionReport, deleteInspectionReport, InspectionReportData } from "./InspectionStorage";
 import InspectionReportForm from "./InspectionReportForm";
 import InspectionReportUpload from "./InspectionReportUpload";
 import InspectionReportPDFView from "./InspectionReportPDFView";
@@ -11,8 +11,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function InspectionReportsList() {
   const mobile = useIsMobile();
-  const [reports, setReports] = useState<InspectionReportData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reports, setReports] = useState<InspectionReportData[]>(() => getCachedInspectionReports());
+  const [isLoading, setIsLoading] = useState(() => getCachedInspectionReports().length === 0);
   const [view, setView] = useState<"list" | "create" | "upload" | "view">("list");
   const [editReport, setEditReport] = useState<InspectionReportData | undefined>(undefined);
   const [viewReport, setViewReport] = useState<InspectionReportData | null>(null);
@@ -35,9 +35,12 @@ export default function InspectionReportsList() {
     }
   }, [viewReport]);
 
-  const fetchReports = () => {
-    setIsLoading(true);
-    getAllInspectionReports()
+  const fetchReports = (force = false) => {
+    // Only show loading skeletons if there is NO cached data to show
+    if (reports.length === 0) {
+      setIsLoading(true);
+    }
+    getAllInspectionReports(undefined, force)
       .then(setReports)
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -57,11 +60,21 @@ export default function InspectionReportsList() {
     }
   };
 
-  const handleDownload = (report: InspectionReportData) => {
-    if (!report.uploadedFile) return;
+  const handleDownload = async (report: InspectionReportData) => {
+    let fileData = report.uploadedFile;
+    let fileName = report.uploadedFileName;
+    if (!fileData) {
+      const full = await getInspectionReport(report.id);
+      fileData = full?.uploadedFile;
+      fileName = full?.uploadedFileName || fileName;
+    }
+    if (!fileData) {
+      alert("No uploaded file found for this report.");
+      return;
+    }
     const link = document.createElement("a");
-    link.href = report.uploadedFile;
-    link.download = report.uploadedFileName || "inspection-report";
+    link.href = fileData;
+    link.download = fileName || "inspection-report";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -198,20 +211,29 @@ export default function InspectionReportsList() {
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button
-                    onClick={() => { setViewReport(report); setView("view"); }}
+                    onClick={async () => {
+                      // Fetch the full report (with images) via the [id] route
+                      const full = await getInspectionReport(report.id);
+                      setViewReport(full || report);
+                      setView("view");
+                    }}
                     title="View"
                     style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#0059A3', cursor: 'pointer' }}
                   ><Eye size={16} /></button>
 
                   {report.reportType === "created" && (
                     <button
-                      onClick={() => { setEditReport(report); setView("create"); }}
+                      onClick={async () => {
+                        const full = await getInspectionReport(report.id);
+                        setEditReport(full || report);
+                        setView("create");
+                      }}
                       title="Edit"
                       style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#6b7280', cursor: 'pointer' }}
                     ><Edit3 size={16} /></button>
                   )}
 
-                  {report.reportType === "uploaded" && report.uploadedFile && (
+                  {report.reportType === "uploaded" && (
                     <button
                       onClick={() => handleDownload(report)}
                       title="Download"

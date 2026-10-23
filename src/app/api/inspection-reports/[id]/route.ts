@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import InspectionReport from "@/models/InspectionReport";
+import { invalidateReportsCache } from "@/lib/inspectionCache";
 
 // ── GET ───────────────────────────────────────────────────────────────────────
 export async function GET(
@@ -73,6 +74,7 @@ export async function PUT(
       );
     }
 
+    invalidateReportsCache();
     return NextResponse.json({ success: true, report: updated }, { status: 200 });
   } catch (error) {
     console.error("[PUT /api/inspection-reports/[id]] Error:", error);
@@ -100,6 +102,7 @@ export async function DELETE(
       );
     }
 
+    invalidateReportsCache();
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("[DELETE /api/inspection-reports/[id]] Error:", error);

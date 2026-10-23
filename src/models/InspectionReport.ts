@@ -191,6 +191,7 @@ const InspectionReportSchema = new Schema<IInspectionReport>(
 
 // ── Indexing for Performance ────────────────────────────────────────────────────
 InspectionReportSchema.index({ carId: 1, createdAt: -1 });
+InspectionReportSchema.index({ createdAt: -1 });
 
 // ── Model Export ──────────────────────────────────────────────────────────────
 

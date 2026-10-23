@@ -71,16 +71,74 @@ function getBaseUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 }
 
+interface CacheStore {
+  data: InspectionReportData[] | null;
+  time: number;
+}
+const cache: CacheStore = {
+  data: null,
+  time: 0,
+};
+const CACHE_TTL = 60 * 1000; // 60s
+const STORAGE_KEY = "carya_cached_reports";
+
+export function getCachedInspectionReports(): InspectionReportData[] {
+  if (cache.data && cache.data.length > 0) return cache.data;
+  if (typeof window !== "undefined") {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          cache.data = parsed;
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function clearReportsCache() {
+  cache.data = null;
+  cache.time = 0;
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  }
+}
+
 /** Get all inspection reports, optionally filtered by carId */
-export async function getAllInspectionReports(carId?: string): Promise<InspectionReportData[]> {
+export async function getAllInspectionReports(
+  carId?: string,
+  forceRefresh = false
+): Promise<InspectionReportData[]> {
+  const now = Date.now();
+  if (!carId && !forceRefresh && cache.data && now - cache.time < CACHE_TTL) {
+    return cache.data;
+  }
+
   const url = carId
     ? `${getBaseUrl()}/api/inspection-reports?carId=${carId}`
     : `${getBaseUrl()}/api/inspection-reports`;
 
   const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) return [];
+  if (!res.ok) return cache.data || [];
   const data = await res.json();
-  return (data.reports || []) as InspectionReportData[];
+  const reports = (data.reports || []) as InspectionReportData[];
+
+  if (!carId) {
+    cache.data = reports;
+    cache.time = now;
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+      } catch {}
+    }
+  }
+
+  return reports;
 }
 
 /** Get a single inspection report by ID */
@@ -107,6 +165,8 @@ export async function saveInspectionReport(
     const err = await res.json().catch(() => ({ error: "Unknown error" }));
     throw new Error(err.error || "Failed to save inspection report");
   }
+
+  clearReportsCache();
 
   const data = await res.json();
   const savedReport = data.report as InspectionReportData;
@@ -143,6 +203,8 @@ export async function updateInspectionReport(
     throw new Error(err.error || "Failed to update inspection report");
   }
 
+  clearReportsCache();
+
   const data = await res.json();
   return data.report as InspectionReportData;
 }
@@ -157,4 +219,6 @@ export async function deleteInspectionReport(id: string): Promise<void> {
     const err = await res.json().catch(() => ({ error: "Unknown error" }));
     throw new Error(err.error || "Failed to delete inspection report");
   }
+
+  clearReportsCache();
 }

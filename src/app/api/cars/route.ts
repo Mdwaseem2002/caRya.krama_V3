@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
       .select("-media.images")    // EXCLUDE heavy base64 array payload for list optimizations
       .sort({ createdAt: -1 })    // Newest first
       .limit(limit)               // Limit to prevent huge payloads
+      .allowDiskUse(true)         // Allow disk-based sort for large collections on Atlas
       .lean();                    // Return plain JS objects (faster)
 
     return NextResponse.json({ success: true, cars }, { status: 200 });

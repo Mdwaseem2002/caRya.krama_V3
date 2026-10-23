@@ -176,7 +176,7 @@ export async function getAllStoredCars(forceRefresh = false): Promise<StoredCar[
     return cache.adminCars.data;
   }
 
-  const res = await fetch(`${getBaseUrl()}/api/cars?admin=true`, {
+  const res = await fetch(`${getBaseUrl()}/api/cars/list?admin=true`, {
     cache: "no-store",   // Always fresh for admin
   });
 
