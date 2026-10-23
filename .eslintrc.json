@@ -1,5 +1,6 @@
 {
   "extends": ["next/core-web-vitals"],
+  "ignorePatterns": ["push-update.js", "scratch/**", "*.js"],
   "rules": {
     // Downgrade from error to warn so a stray `any` doesn't block compilation
     "no-explicit-any": "off",

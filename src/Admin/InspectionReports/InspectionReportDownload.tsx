@@ -1,9 +1,9 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Download } from "lucide-react";
 import { LOGO_BASE64 } from "./logoBase64";
 import { InspectionReportData, getInspectionReport, getAllInspectionReports } from "./InspectionStorage";
 import { addAdminNotification } from "@/Details/Notification/AdminNotify";
@@ -45,7 +45,6 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     }
   }, [reportId, initialReport]);
 
-  // ── Helper: append a base64 data-URL file (PDF or image) as extra jsPDF pages
   const appendBase64FileToPDF = async (
     pdf: jsPDF,
     dataUrl: string
@@ -54,13 +53,11 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     const isImage = dataUrl.startsWith('data:image/');
 
     if (isPdf) {
-      // Convert base64 → Uint8Array without fetch
       const base64 = dataUrl.split(',')[1];
       const binary  = atob(base64);
       const uint8   = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) uint8[i] = binary.charCodeAt(i);
 
-      // Avoid Next.js Webpack 'Module not found' issues by loading via CDN directly
       const pdfjsLib = await new Promise<any>((resolve, reject) => {
         if ((window as any).pdfjsLib) {
           resolve((window as any).pdfjsLib);
@@ -82,7 +79,6 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
       for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
         const pdfPage       = await pdfDoc.getPage(pageNum);
         const viewport      = pdfPage.getViewport({ scale: 1 });
-        // Fit page into A4 (794 × 1123) at 2× DPI for crispness
         const scale         = Math.min(794 / viewport.width, 1123 / viewport.height) * 2;
         const scaledVP      = pdfPage.getViewport({ scale });
 
@@ -98,7 +94,6 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
       }
 
     } else if (isImage) {
-      // Draw image centered on an A4 page
       const img = new window.Image();
       await new Promise<void>((res, rej) => {
         img.onload  = () => res();
@@ -134,7 +129,7 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     const pdf      = new jsPDF('p', 'mm', 'a4');
     const imgWidth = 210;
 
-    // ── Step 1: Render all 5 inspection report pages ─────────────────────────
+    // ── Step 1: Render all inspection report pages ─────────────────────────
     for (let i = 0; i < pages.length; i++) {
       const page   = pages[i] as HTMLElement;
       const canvas = await html2canvas(page, {
@@ -154,10 +149,8 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
     }
 
     // ── Step 2: Collect all files to append in the correct PDF order ──────────
-    // PDF order: [Inspection Report pages] → [Problem Images page if any] → [Upload Inspected PDFs] → [Upload Report]
     const uploadedFiles: { dataUrl: string; label: string }[] = [];
 
-    // 2a. "Upload Inspected" — multi-file array (PDF slot #2)
     const inspectedFiles: { file: string; fileName: string }[] = (report as any)?.uploadedInspectedFiles || [];
     for (const f of inspectedFiles) {
       if (f.file) {
@@ -165,12 +158,10 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
       }
     }
 
-    // 2b. "Upload Report" — the primary uploaded file on THIS report (PDF slot #3)
     if (report?.uploadedFile) {
       uploadedFiles.push({ dataUrl: report.uploadedFile, label: report.uploadedFileName || 'attachment' });
     }
 
-    // 2c. Fetch all "uploaded" type reports for the same car and collect their files
     if (report?.carId && report.carId !== 'unlinked') {
       try {
         const allReports = await getAllInspectionReports(report.carId);
@@ -178,7 +169,6 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
           r => r.reportType === 'uploaded' && r.uploadedFile && r.id !== report.id
         );
         for (const ur of uploadedReports) {
-          // Also append their uploadedInspectedFiles if present
           const urFiles: { file: string; fileName: string }[] = (ur as any).uploadedInspectedFiles || [];
           for (const f of urFiles) {
             if (f.file) uploadedFiles.push({ dataUrl: f.file, label: f.fileName || 'inspected-attachment' });
@@ -196,13 +186,11 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
         await appendBase64FileToPDF(pdf, file.dataUrl);
       } catch (appendErr) {
         console.error(`Failed to append "${file.label}" to PDF:`, appendErr);
-        // Gracefully skip — base report is still intact
       }
     }
 
     pdf.save(`Inspection_Report_${report?.id || 'Download'}.pdf`);
 
-    // Trigger Admin Notification
     try {
       await addAdminNotification({
         title: "Report Downloaded 📄",
@@ -224,423 +212,429 @@ const InspectionReportDownload = forwardRef<InspectionReportDownloadHandle, Prop
   if (!report) return null;
 
   const hasProblemImages = report.inspectionImages && report.inspectionImages.length > 0;
-
-  const estimateBulletHeight = (text?: string, forceBullet: boolean = false) => {
-    if (!text) return 0;
-    let bullets = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-    if (bullets.length === 1 && bullets[0].length > 40 && bullets[0].includes('. ') && forceBullet) {
-      bullets = bullets[0].split('. ').map(s => s.trim() + (s.endsWith('.') ? '' : '.')).filter(s => s.length > 1);
-    }
-    let h = 0;
-    bullets.forEach(b => {
-      h += Math.ceil(b.length / 80) * 24 + 12; // increased padding
-    });
-    return h;
-  };
-
-  const sectionsData = [];
-
-  // 1. BODY & VISUAL INSPECTION
-  sectionsData.push({
-    id: 's1',
-    height: 60 + estimateBulletHeight(report.bodyInspection.panelsChecked) + (report.bodyInspection.notes ? 30 + estimateBulletHeight(report.bodyInspection.notes) : 0),
-    render: () => (
-      <SectionCard key="s1" title="1. BODY & VISUAL INSPECTION">
-        <BulletList text={report.bodyInspection.panelsChecked || "No observation"} warning={false} />
-        {report.bodyInspection.notes && (
-          <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
-            <p style={{ margin: '0 0 4px 0', fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection Notes</p>
-            <BulletList text={report.bodyInspection.notes} warning={false} />
-          </div>
-        )}
-      </SectionCard>
-    )
-  });
-
-  // 2. ENGINE BAY
-  sectionsData.push({
-    id: 's2',
-    height: 60 + estimateBulletHeight(report.engineBay),
-    render: () => (
-      <SectionCard key="s2" title="2. ENGINE BAY">
-        <BulletList text={report.engineBay || "No observations"} warning={false} />
-      </SectionCard>
-    )
-  });
-
-  // 3. FLUIDS DEGRADATION
-  sectionsData.push({
-    id: 's3',
-    height: 180,
-    render: () => (
-      <SectionCard key="s3" title="3. FLUIDS DEGRADATION">
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8fafc', fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', textAlign: 'left' }}>
-              <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Fluid Type</th>
-              <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Status</th>
-              <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-             <FluidRow label="Engine Oil" status={report.fluids.engineOil} warning={isWarning(report.fluids.engineOil)} action={report.fluids.serviceNotes || "-"} />
-             <FluidRow label="Coolant / Antifreeze" status={report.fluids.coolant} warning={isWarning(report.fluids.coolant)} action={report.fluids.serviceNotes || "-"} />
-             <FluidRow label="Brake Fluid" status={report.fluids.brakeOil} warning={isWarning(report.fluids.brakeOil)} action={report.fluids.serviceNotes || "-"} />
-          </tbody>
-        </table>
-      </SectionCard>
-    )
-  });
-
-  // 4. BATTERY & ELECTRICAL
-  sectionsData.push({
-    id: 's4',
-    height: 220,
-    render: () => (
-      <SectionCard key="s4" title="4. BATTERY & ELECTRICAL">
-         <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px', margin: '-12px', marginTop: '4px' }}>
-            <div style={{ display: 'table-row' }}>
-              <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
-                 <p style={labelStyle}>Ignition</p>
-                 <p style={batteryValueStyle}>{report.battery.ignitionVoltage || "-"}</p>
-              </div>
-              <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
-                 <p style={labelStyle}>Cranking</p>
-                 <p style={batteryValueStyle}>{report.battery.crankingVoltage || "-"}</p>
-              </div>
-              <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
-                 <p style={labelStyle}>Charging</p>
-                 <p style={batteryValueStyle}>{report.battery.chargingVoltage || "-"}</p>
-              </div>
-              <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
-                 <p style={labelStyle}>Load Range</p>
-                 <p style={batteryValueStyle}>{report.battery.loadRange || "-"}</p>
-              </div>
-            </div>
-         </div>
-         <div style={{ display: 'table', width: '100%', backgroundColor: report.battery.systemWorking ? '#ecfdf5' : '#fef2f2', padding: '16px', borderRadius: '12px', border: `1px solid ${report.battery.systemWorking ? '#a7f3d0' : '#fecaca'}`, marginTop: '16px', boxSizing: 'border-box' }}>
-                 <p style={{ margin: '0 0 2px 0', fontSize: '11px', color: report.battery.systemWorking ? '#059669' : '#dc2626', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em' }}>System Health</p>
-                <p style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: report.battery.systemWorking ? '#047857' : '#b91c1c' }}>{report.battery.systemWorking ? "Battery & alternator charging system working properly" : "Charging system requires attention"}</p>
-         </div>
-      </SectionCard>
-    )
-  });
-
-  // 5. INTERIORS & CABIN (comes after Battery)
-  if (report.interiors?.condition) {
-    sectionsData.push({
-      id: 's5',
-      height: 60 + estimateBulletHeight(report.interiors.condition),
-      render: () => (
-        <SectionCard key="s5" title="5. INTERIORS & CABIN">
-          <BulletList text={report.interiors!.condition || "No interior observations"} warning={false} />
-        </SectionCard>
-      )
-    });
-  }
-
-  // 6. TEST DRIVE
-  if (report.testDrive) {
-    sectionsData.push({
-      id: 's6',
-      height: 80 + estimateBulletHeight(report.testDrive.performance) + (report.testDrive.observations ? 40 + estimateBulletHeight(report.testDrive.observations) : 0),
-      render: () => (
-        <SectionCard key="s6" title="6. TEST DRIVE OBSERVATIONS">
-            <div>
-               <p style={subHeaderStyle}>Driving Performance</p>
-               <BulletList text={report.testDrive.performance || "Not evaluated"} warning={isWarning(report.testDrive.performance)} />
-            </div>
-            {report.testDrive.observations && (
-              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
-                   <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Transmission & Suspension</p>
-                   <BulletList text={report.testDrive.observations} warning={false} />
-              </div>
-            )}
-        </SectionCard>
-      )
-    });
-  }
-
-  // 7. VERDICT
-  sectionsData.push({
-    id: 's7v',
-    height: 140,
-    render: () => (
-      <SectionCard key="s7" title="7. VERDICT SECTION">
-         <div style={{ display: 'table', width: '100%', borderSpacing: '0 8px' }}>
-            <div style={{ display: 'table-row' }}>
-               <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0369a1') }}>
-                  <p style={verdictLabelStyle('#0059A3')}>Tyre Condition</p>
-                  <p style={verdictTextStyle('#0369a1')}>{report.verdict.mechanicalCondition || "-"}</p>
-               </div>
-            </div>
-            <div style={{ display: 'table-row' }}>
-               <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0369a1') }}>
-                  <p style={verdictLabelStyle('#0059A3')}>Purchase Recommendation</p>
-                  <p style={{ ...verdictTextStyle('#0369a1'), fontSize: '14px', fontWeight: 800 }}>{report.verdict.purchaseRecommendation || "Not Provided"}</p>
-               </div>
-            </div>
-         </div>
-      </SectionCard>
-    )
-  });
-
-  // IMPORTANT ISSUES
-  if (report.interiors?.issues) {
-    sectionsData.push({
-      id: 'issues',
-      height: 80 + estimateBulletHeight(report.interiors.issues, true),
-      forceNewPage: true, // Always start on a new page
-      render: () => (
-        <div key="issues" style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-          <h3 style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-            Important Issues
-          </h3>
-          <BulletList text={report.interiors!.issues} warning={true} forceBullet={true} />
-        </div>
-      )
-    });
-  }
-
-  // 8. PRECAUTIONS
-  sectionsData.push({
-    id: 's8',
-    height: 70 + estimateBulletHeight(report.precautions || "No generic precautions indicated.", true),
-    render: () => (
-      <SectionCard key="s8" title="8. PRECAUTIONS & RECOMMENDATIONS">
-         <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
-      </SectionCard>
-    )
-  });
-
-  // 9. SERVICE
-  if (report.serviceRecommendations && report.serviceRecommendations !== "-") {
-    sectionsData.push({
-      id: 's9',
-      height: 70 + estimateBulletHeight(report.serviceRecommendations, true),
-      render: () => (
-        <SectionCard key="s9" title="9. SERVICE RECOMMENDATIONS">
-           <BulletList text={report.serviceRecommendations!} warning={false} forceBullet={true} />
-        </SectionCard>
-      )
-    });
-  }
-
-  // Group sections into pages
-  const MAX_PAGE_HEIGHT = 920; // Reduced from 1000 to prevent bottom clipping
-  const contentPages: React.ReactNode[][] = [];
-  let currentPage: React.ReactNode[] = [];
-  let currentHeight = carCoverImage ? 780 : 450; // Initial Page 1 header size
+  const problemImages: any[] = hasProblemImages ? (report.inspectionImages as any[]) : [];
   
-  sectionsData.forEach(sec => {
-    if ((currentHeight + sec.height > MAX_PAGE_HEIGHT || sec.forceNewPage) && currentPage.length > 0) {
-      contentPages.push(currentPage);
-      currentPage = [];
-      currentHeight = 80; // top padding + generic header
-    }
-    currentPage.push(sec.render());
-    currentHeight += sec.height;
-  });
-  if (currentPage.length > 0) {
-    contentPages.push(currentPage);
-  }
+  // If 1 or 2 problem images, they fit with generous room on Page 4 below Section 9.
+  // If 3 or more images, Page 4 holds Sections 8 & 9, and separate gallery pages hold the images (up to 4 per page).
+  const imagesOnPage4 = problemImages.length <= 2 ? problemImages : [];
+  const separateImagePages = problemImages.length > 2 
+    ? Array.from({ length: Math.ceil(problemImages.length / 4) }, (_, i) => problemImages.slice(i * 4, i * 4 + 4))
+    : [];
 
-  const imagePagesCount = hasProblemImages ? Math.ceil((report.inspectionImages as any[]).length / 6) : 0;
-  const totalPages = contentPages.length + imagePagesCount;
+  const totalPages = 4 + separateImagePages.length;
 
   return (
     <div style={{ backgroundColor: '#f3f4f6', padding: '40px 20px', minHeight: '100vh', textAlign: 'center' }}>
       <div ref={printRef} style={{ display: 'inline-block', textAlign: 'left' }}>
         
-        {contentPages.map((pageSections, pageIndex) => (
-          <div key={`page-${pageIndex}`} className="pdf-page" style={pageStyle}>
-            <div style={watermarkStyle}>caRya.krama</div>
-            <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
-              
-              {pageIndex === 0 ? (
-                <>
-                  {/* HEADER — Logo + Contact Info */}
-                  <div style={{ border: '2px solid #0059A3', borderRadius: '12px', marginBottom: '24px', backgroundColor: '#ffffff', width: '100%', boxSizing: 'border-box', display: 'table', borderCollapse: 'separate' }}>
-                    <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', width: '50%', padding: '24px', verticalAlign: 'middle', borderRight: '1px solid #e5e7eb', textAlign: 'center' }}>
-                        <div style={{ width: '240px', height: '75px', margin: '0 auto 16px auto' }}>
-                          <img
-                            src={LOGO_BASE64}
-                            alt="caRya.krama Logo"
-                            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
-                          />
-                        </div>
-                        <p style={{ margin: 0, fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
-                      </div>
-                      <div style={{ display: 'table-cell', width: '50%', padding: '24px', verticalAlign: 'middle' }}>
-                        <table style={{ borderCollapse: 'collapse', width: '100%', border: 'none' }}>
-                          <tbody>
-                            <tr>
-                              <td style={{ paddingBottom: '16px', verticalAlign: 'middle', fontSize: '14px', fontWeight: 600, color: '#374151' }}>caryakrama@gmail.com</td>
-                            </tr>
-                            <tr>
-                              <td style={{ paddingBottom: '16px', verticalAlign: 'middle', fontSize: '14px', fontWeight: 600, color: '#374151' }}>https://caryakrama.com/</td>
-                            </tr>
-                            <tr>
-                              <td style={{ verticalAlign: 'middle', fontSize: '14px', fontWeight: 600, color: '#374151' }}>+91 99001 87847</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+        {/* ═══════════════════════════════════════════════════════════════════════
+            PAGE 1: EXECUTIVE OVERVIEW & CERTIFIED VEHICLE SUMMARY
+        ═══════════════════════════════════════════════════════════════════════ */}
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+            
+            {/* BRAND HEADER — Logo + Official Contact */}
+            <div style={{ border: '2px solid #0059A3', borderRadius: '12px', marginBottom: '18px', backgroundColor: '#ffffff', width: '100%', boxSizing: 'border-box', display: 'table', borderCollapse: 'separate' }}>
+              <div style={{ display: 'table-row' }}>
+                <div style={{ display: 'table-cell', width: '50%', padding: '18px 20px', verticalAlign: 'middle', borderRight: '1px solid #e5e7eb', textAlign: 'center' }}>
+                  <div style={{ width: '220px', height: '65px', margin: '0 auto 10px auto' }}>
+                    <img
+                      src={LOGO_BASE64}
+                      alt="caRya.krama Logo"
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                    />
+                  </div>
+                  <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Professional Vehicle Inspection Services</p>
+                </div>
+                <div style={{ display: 'table-cell', width: '50%', padding: '18px 24px', verticalAlign: 'middle' }}>
+                  <table style={{ borderCollapse: 'collapse', width: '100%', border: 'none' }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ paddingBottom: '10px', verticalAlign: 'middle', fontSize: '13.5px', fontWeight: 600, color: '#374151' }}>caryakrama@gmail.com</td>
+                      </tr>
+                      <tr>
+                        <td style={{ paddingBottom: '10px', verticalAlign: 'middle', fontSize: '13.5px', fontWeight: 600, color: '#374151' }}>https://caryakrama.com/</td>
+                      </tr>
+                      <tr>
+                        <td style={{ verticalAlign: 'middle', fontSize: '13.5px', fontWeight: 600, color: '#374151' }}>+91 99001 87847</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ width: '100%', height: '2px', backgroundColor: '#0059A3', marginBottom: '16px' }}></div>
+            
+            {/* INSPECTION META BAR */}
+            <div style={{ display: 'table', width: '100%', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', borderCollapse: 'separate', overflow: 'hidden', marginBottom: '20px' }}>
+              <div style={{ display: 'table-row' }}>
+                <div style={{ display: 'table-cell', textAlign: 'center', padding: '14px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
+                   <p style={labelStyle}>Date</p>
+                   <p style={valueStyle}>{new Date(report.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                </div>
+                <div style={{ display: 'table-cell', textAlign: 'center', padding: '14px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
+                   <p style={labelStyle}>Inspection ID</p>
+                   <p style={{ ...valueStyle, color: '#0059A3' }}>{report.id}</p>
+                </div>
+                <div style={{ display: 'table-cell', textAlign: 'center', padding: '14px', width: '33.33%' }}>
+                   <p style={{ ...labelStyle, color: '#0059A3' }}>Inspector</p>
+                   <p style={valueStyle}>{(report as any).inspectorName || "Z.K."}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* VEHICLE OVERVIEW CARD */}
+            <SectionCard title="Vehicle Overview"
+              badge={
+                <div style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#059669', padding: '4px 12px', border: '1px solid #a7f3d0', borderRadius: '20px', fontSize: '10.5px', fontWeight: 700, verticalAlign: 'middle' }}>
+                  <span>✓ Verified Dealership</span>
+                </div>
+              }
+            >
+               <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '10px 18px', margin: '-10px -10px' }}>
+                  <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', padding: '0 10px', width: '33.33%' }}>
+                      <p style={labelStyle}>Make & Model</p>
+                      <p style={valueStyle}>{report.vehicleDetails.carName}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '0 10px', width: '33.33%' }}>
+                      <p style={labelStyle}>Year / Model</p>
+                      <p style={valueStyle}>{report.vehicleDetails.year || "-"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '0 10px', width: '33.33%' }}>
+                      <p style={labelStyle}>Odometer</p>
+                      <p style={valueStyle}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
                     </div>
                   </div>
-
-                  <div style={{ width: '100%', height: '2px', backgroundColor: '#0059A3', marginBottom: '24px' }}></div>
-                  
-                  {/* INFO BAR IN TABLE FORMAT */}
-                  <div style={{ display: 'table', width: '100%', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', borderCollapse: 'separate', overflow: 'hidden', marginBottom: '32px' }}>
-                    <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
-                         <p style={labelStyle}>Date</p>
-                         <p style={valueStyle}>{new Date(report.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                      </div>
-                      <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', borderRight: '1px solid #e5e7eb', width: '33.33%' }}>
-                         <p style={labelStyle}>ID</p>
-                         <p style={valueStyle}>{report.id.split('-').pop()}</p>
-                      </div>
-                      <div style={{ display: 'table-cell', textAlign: 'center', padding: '16px', width: '33.33%' }}>
-                         <p style={{ ...labelStyle, color: '#0059A3' }}>Inspector</p>
-                         <p style={valueStyle}>{(report as any).inspectorName || "Z.K."}</p>
-                      </div>
+                  <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', padding: '0 10px', width: '33.33%' }}>
+                      <p style={labelStyle}>Seller Name</p>
+                      <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails?.name || "caRya.krama"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '0 10px', width: '33.33%' }}>
+                      <p style={labelStyle}>Contact Number</p>
+                      <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails?.contactNumber || "N/A"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', padding: '0 10px', width: '33.33%' }}>
+                      <p style={labelStyle}>Location</p>
+                      <p style={{ ...valueStyle, color: '#374151' }}>{(report.sellerDetails as any)?.location || "Bangalore, IN"}</p>
                     </div>
                   </div>
+               </div>
+            </SectionCard>
 
-                  {carCoverImage && (
-                    <div style={{ display: 'table', width: '100%', height: '300px', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', border: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
-                       <div style={{ display: 'table-row' }}>
-                          <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center' }}>
-                            <img
-                              src={carCoverImage}
-                              alt="Car"
-                              style={{ width: '100%', height: '300px', objectFit: 'cover' }}
-                              crossOrigin="anonymous"
-                            />
-                          </div>
-                       </div>
-                    </div>
-                  )}
-
-                  <SectionCard title="Vehicle Overview"
-                    badge={
-                      <div style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#059669', padding: '3px 12px 7px 12px', border: '1px solid #a7f3d0', borderRadius: '20px', fontSize: '10px', fontWeight: 700, verticalAlign: 'middle' }}>
-                        <span style={{ position: 'relative', top: '-1px' }}>Verified Badge</span>
-                      </div>
-                    }
-                  >
-                     <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '12px 24px', margin: '-12px -12px' }}>
-                        <div style={{ display: 'table-row' }}>
-                          <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
-                            <p style={labelStyle}>Make & Model</p>
-                            <p style={valueStyle}>{report.vehicleDetails.carName}</p>
-                          </div>
-                          <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
-                            <p style={labelStyle}>Year / Model</p>
-                            <p style={valueStyle}>{report.vehicleDetails.year || "-"}</p>
-                          </div>
-                          <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
-                            <p style={labelStyle}>Odometer</p>
-                            <p style={valueStyle}>{report.vehicleDetails.odometer ? `${report.vehicleDetails.odometer} km` : "-"}</p>
-                          </div>
-                        </div>
-                        <div style={{ display: 'table-row' }}>
-                          <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
-                            <p style={labelStyle}>Seller Name</p>
-                            <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails?.name || "caRya.krama"}</p>
-                          </div>
-                          <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
-                            <p style={labelStyle}>Contact Number</p>
-                            <p style={{ ...valueStyle, color: '#374151' }}>{report.sellerDetails?.contactNumber || "N/A"}</p>
-                          </div>
-                          <div style={{ display: 'table-cell', padding: '0 12px', width: '33.33%' }}>
-                            <p style={labelStyle}>Location</p>
-                            <p style={{ ...valueStyle, color: '#374151' }}>{(report.sellerDetails as any)?.location || "Bangalore, IN"}</p>
-                          </div>
-                        </div>
+            {/* OVERALL VERDICT & EVALUATION CARD */}
+            <SectionCard title="Overall Inspection Verdict & Evaluation">
+               <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 12px' }}>
+                  <div style={{ display: 'table-row' }}>
+                     <div style={{ display: 'table-cell', ...verdictBoxStyle('#0059A3', '#f0f9ff', '#0369a1') }}>
+                        <p style={verdictLabelStyle('#0059A3')}>Tyre Condition & Wear Status</p>
+                        <p style={verdictTextStyle('#0369a1')}>{report.verdict?.mechanicalCondition || "Satisfactory"}</p>
                      </div>
-                  </SectionCard>
-                </>
-              ) : (
-                <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
-                   <div style={{ display: 'table-row' }}>
-                      <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
-                         <span>INSPECTION DETAILS</span>
-                      </div>
-                      <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
-                         <span style={refStyle}>REF: {report.id}</span>
-                      </div>
+                  </div>
+                  <div style={{ display: 'table-row' }}>
+                     <div style={{ display: 'table-cell', ...verdictBoxStyle('#059669', '#ecfdf5', '#047857') }}>
+                        <p style={verdictLabelStyle('#059669')}>Purchase Recommendation</p>
+                        <p style={{ ...verdictTextStyle('#047857'), fontSize: '15px', fontWeight: 800 }}>{report.verdict?.purchaseRecommendation || "Recommended"}</p>
+                     </div>
+                  </div>
+               </div>
+
+               {/* Official Certification Seal */}
+               <div style={{ display: 'table', width: '100%', backgroundColor: '#f8fafc', padding: '14px 18px', borderRadius: '10px', border: '1px solid #e2e8f0', marginTop: '16px', boxSizing: 'border-box' }}>
+                 <div style={{ display: 'table-row' }}>
+                   <div style={{ display: 'table-cell', verticalAlign: 'middle', width: '36px' }}>
+                     <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#0059A3', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 900 }}>✓</div>
                    </div>
+                   <div style={{ display: 'table-cell', verticalAlign: 'middle', paddingLeft: '10px' }}>
+                     <p style={{ margin: 0, fontSize: '11.5px', fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Certified caRya.krama Vehicle Inspection</p>
+                     <p style={{ margin: '3px 0 0 0', fontSize: '11px', color: '#64748b', lineHeight: 1.45 }}>Multi-point digital inspection and physical diagnostic verification completed by certified automotive engineers.</p>
+                   </div>
+                 </div>
+               </div>
+            </SectionCard>
+
+          </div>
+          <Footer pageNum={1} totalPages={totalPages} />
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+            PAGE 2: EXTERIOR, BODY & MECHANICAL INSPECTION
+        ═══════════════════════════════════════════════════════════════════════ */}
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+            
+            <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+               <div style={{ display: 'table-row' }}>
+                  <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                     <span>EXTERIOR & MECHANICAL INSPECTION</span>
+                  </div>
+                  <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                     <span style={refStyle}>REF: {report.id}</span>
+                  </div>
+               </div>
+            </div>
+
+            {/* 1. BODY & VISUAL INSPECTION */}
+            <SectionCard title="1. BODY & VISUAL INSPECTION">
+              <PanelsGrid text={report.bodyInspection?.panelsChecked || "No observation"} />
+              {report.bodyInspection?.notes && (
+                <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inspection Notes</p>
+                  <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.55', fontWeight: 500, textAlign: 'justify' }}>
+                    {report.bodyInspection.notes}
+                  </p>
                 </div>
               )}
+            </SectionCard>
 
-              {/* Render Sections For This Page */}
-              {pageSections}
-              
+            {/* 2. ENGINE BAY */}
+            <SectionCard title="2. ENGINE BAY">
+              <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.55', fontWeight: 500, textAlign: 'justify' }}>
+                {report.engineBay || "No observations reported during engine bay inspection."}
+              </p>
+            </SectionCard>
+
+            {/* 3. FLUIDS DEGRADATION */}
+            <SectionCard title="3. FLUIDS DEGRADATION">
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f8fafc', fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', textAlign: 'left' }}>
+                    <th style={{ padding: '9px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Fluid Type</th>
+                    <th style={{ padding: '9px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Status</th>
+                    <th style={{ padding: '9px 12px', borderBottom: '2px solid #e5e7eb', fontWeight: 800 }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                   <FluidRow label="Engine Oil" status={report.fluids?.engineOil} warning={isWarning(report.fluids?.engineOil)} action={report.fluids?.serviceNotes || "-"} />
+                   <FluidRow label="Coolant / Antifreeze" status={report.fluids?.coolant} warning={isWarning(report.fluids?.coolant)} action={report.fluids?.serviceNotes || "-"} />
+                   <FluidRow label="Brake Fluid" status={report.fluids?.brakeOil} warning={isWarning(report.fluids?.brakeOil)} action={report.fluids?.serviceNotes || "-"} />
+                </tbody>
+              </table>
+            </SectionCard>
+
+          </div>
+          <Footer pageNum={2} totalPages={totalPages} />
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+            PAGE 3: DIAGNOSTICS, CABIN & ROAD TEST EVALUATION
+        ═══════════════════════════════════════════════════════════════════════ */}
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+            
+            <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+               <div style={{ display: 'table-row' }}>
+                  <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                     <span>DIAGNOSTICS & ROAD TEST EVALUATION</span>
+                  </div>
+                  <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                     <span style={refStyle}>REF: {report.id}</span>
+                  </div>
+               </div>
             </div>
-            <Footer pageNum={pageIndex + 1} totalPages={totalPages} />
+
+            {/* 4. BATTERY & ELECTRICAL */}
+            <SectionCard title="4. BATTERY & ELECTRICAL">
+               <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '10px', margin: '-10px', marginTop: '2px' }}>
+                  <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                       <p style={labelStyle}>Ignition</p>
+                       <p style={batteryValueStyle}>{report.battery?.ignitionVoltage || "-"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                       <p style={labelStyle}>Cranking</p>
+                       <p style={batteryValueStyle}>{report.battery?.crankingVoltage || "-"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                       <p style={labelStyle}>Charging</p>
+                       <p style={batteryValueStyle}>{report.battery?.chargingVoltage || "-"}</p>
+                    </div>
+                    <div style={{ display: 'table-cell', ...batteryStatBoxStyle, width: '25%' }}>
+                       <p style={labelStyle}>Load Range</p>
+                       <p style={batteryValueStyle}>{report.battery?.loadRange || "-"}</p>
+                    </div>
+                  </div>
+               </div>
+               <div style={{ display: 'table', width: '100%', backgroundColor: report.battery?.systemWorking ? '#ecfdf5' : '#fef2f2', padding: '12px 16px', borderRadius: '10px', border: `1px solid ${report.battery?.systemWorking ? '#a7f3d0' : '#fecaca'}`, marginTop: '12px', boxSizing: 'border-box' }}>
+                  <div style={{ display: 'table-row' }}>
+                    <div style={{ display: 'table-cell', verticalAlign: 'middle', width: '22px' }}>
+                       <span style={{ color: report.battery?.systemWorking ? '#059669' : '#dc2626', fontWeight: 900, fontSize: '14px' }}>{report.battery?.systemWorking ? '✓' : '⚠'}</span>
+                    </div>
+                    <div style={{ display: 'table-cell', verticalAlign: 'middle', paddingLeft: '8px' }}>
+                       <p style={{ margin: '0 0 2px 0', fontSize: '10px', color: report.battery?.systemWorking ? '#059669' : '#dc2626', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em' }}>System Health</p>
+                       <p style={{ margin: 0, fontSize: '13px', fontWeight: 800, color: report.battery?.systemWorking ? '#047857' : '#b91c1c' }}>{report.battery?.systemWorking ? "Battery & alternator charging system working properly" : "Charging system requires attention"}</p>
+                    </div>
+                  </div>
+               </div>
+            </SectionCard>
+
+            {/* 5. INTERIORS & CABIN */}
+            {report.interiors?.condition && (
+              <SectionCard title="5. INTERIORS & CABIN">
+                <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.55', fontWeight: 500, textAlign: 'justify' }}>
+                  {report.interiors.condition}
+                </p>
+              </SectionCard>
+            )}
+
+            {/* 6. TEST DRIVE OBSERVATIONS */}
+            {report.testDrive && (
+              <SectionCard title="6. TEST DRIVE OBSERVATIONS">
+                  <div>
+                     <p style={{ margin: '0 0 4px 0', fontSize: '11px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Driving Performance</p>
+                     <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.55', fontWeight: 500, textAlign: 'justify' }}>
+                        {report.testDrive.performance || "Not evaluated"}
+                     </p>
+                  </div>
+                  {report.testDrive.observations && (
+                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e5e7eb' }}>
+                         <p style={{ margin: '0 0 4px 0', fontSize: '11px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' }}>Transmission & Suspension</p>
+                         <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.55', fontWeight: 500, textAlign: 'justify' }}>
+                            {report.testDrive.observations}
+                         </p>
+                    </div>
+                  )}
+              </SectionCard>
+            )}
+
+            {/* IMPORTANT ISSUES REQUIRING ATTENTION */}
+            {report.interiors?.issues && (
+              <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '10px', padding: '14px 18px', marginBottom: '12px' }}>
+                <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                  ⚠ Important Issues Requiring Attention
+                </p>
+                <p style={{ margin: 0, fontSize: '12.5px', color: '#991b1b', lineHeight: '1.55', fontWeight: 500, textAlign: 'justify' }}>
+                  {report.interiors.issues}
+                </p>
+              </div>
+            )}
+
+          </div>
+          <Footer pageNum={3} totalPages={totalPages} />
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+            PAGE 4: ACTIONABLE RECOMMENDATIONS & VEHICLE EVIDENCE
+        ═══════════════════════════════════════════════════════════════════════ */}
+        <div className="pdf-page" style={pageStyle}>
+          <div style={watermarkStyle}>caRya.krama</div>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+            
+            <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+               <div style={{ display: 'table-row' }}>
+                  <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                     <span>ACTIONABLE RECOMMENDATIONS & EVIDENCE</span>
+                  </div>
+                  <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                     <span style={refStyle}>REF: {report.id}</span>
+                  </div>
+               </div>
+            </div>
+
+            {/* 8. PRECAUTIONS & RECOMMENDATIONS */}
+            <SectionCard title="8. PRECAUTIONS & RECOMMENDATIONS">
+               <BulletList text={report.precautions || "No generic precautions indicated."} warning={true} forceBullet={true} />
+            </SectionCard>
+
+            {/* 9. SERVICE RECOMMENDATIONS */}
+            {report.serviceRecommendations && report.serviceRecommendations !== "-" && (
+              <SectionCard title="9. SERVICE RECOMMENDATIONS">
+                 <BulletList text={report.serviceRecommendations} warning={false} forceBullet={true} />
+              </SectionCard>
+            )}
+
+            {/* PROBLEM IMAGES (WHEN 1 OR 2 IMAGES) */}
+            {imagesOnPage4.length > 0 && (
+              <div style={{ marginTop: '14px' }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Photographic Evidence
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: imagesOnPage4.length === 1 ? '1fr' : '1fr 1fr', gap: '14px' }}>
+                  {imagesOnPage4.map((img: any, i: number) => {
+                    const url = typeof img === 'string' ? img : img?.url;
+                    const desc = typeof img === 'string' ? '' : (img?.description || '');
+                    return (
+                      <div key={i} style={{ backgroundColor: '#fff7f7', border: '1px solid #fecaca', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                        <img
+                          src={url}
+                          alt={`Evidence ${i + 1}`}
+                          crossOrigin="anonymous"
+                          style={{ width: '100%', height: imagesOnPage4.length === 1 ? '200px' : '160px', objectFit: 'cover', display: 'block' }}
+                        />
+                        <div style={{ padding: '8px 12px', flex: 1 }}>
+                          <p style={{ margin: '0 0 3px 0', fontSize: '10px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            ⚠ Issue #{i + 1}
+                          </p>
+                          <p style={{ margin: 0, fontSize: '12px', fontWeight: 600, color: '#374151', lineHeight: '1.4' }}>
+                            {desc || 'Reported vehicle observation.'}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+          </div>
+          <Footer pageNum={4} totalPages={totalPages} />
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+            EXTRA PAGES (FOR EXTENDED PROBLEM IMAGE GALLERIES IF >2 IMAGES)
+        ═══════════════════════════════════════════════════════════════════════ */}
+        {separateImagePages.map((pageImgs, pageImgIndex) => (
+          <div key={`img-page-${pageImgIndex}`} className="pdf-page" style={pageStyle}>
+            <div style={watermarkStyle}>caRya.krama</div>
+            <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
+              <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
+                <div style={{ display: 'table-row' }}>
+                  <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
+                    <span>INSPECTION PROBLEM IMAGES</span>
+                  </div>
+                  <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
+                    <span style={refStyle}>REF: {report.id}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                {pageImgs.map((img: any, i: number) => {
+                  const url = typeof img === 'string' ? img : img?.url;
+                  const desc = typeof img === 'string' ? '' : (img?.description || '');
+                  const globalIdx = pageImgIndex * 4 + i + 1;
+                  return (
+                    <div key={i} style={{ backgroundColor: '#fff7f7', border: '1px solid #fecaca', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                      <img
+                        src={url}
+                        alt={`Problem ${globalIdx}`}
+                        crossOrigin="anonymous"
+                        style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }}
+                      />
+                      <div style={{ padding: '8px 12px', flex: 1 }}>
+                        <p style={{ margin: '0 0 3px 0', fontSize: '10px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          ⚠ Issue #{globalIdx}
+                        </p>
+                        <p style={{ margin: 0, fontSize: '12px', fontWeight: 600, color: '#374151', lineHeight: '1.4' }}>
+                          {desc || 'No description provided.'}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <Footer pageNum={4 + pageImgIndex + 1} totalPages={totalPages} />
           </div>
         ))}
 
-         {/* PROBLEM IMAGES PAGES */}
-         {hasProblemImages && (() => {
-           const imgs: any[] = report.inspectionImages as any[];
-           const imagesPerPage = 6;
-           const imagePages = [];
-           for (let i = 0; i < imgs.length; i += imagesPerPage) {
-             imagePages.push(imgs.slice(i, i + imagesPerPage));
-           }
-
-           return imagePages.map((pageImgs, pageImgIndex) => (
-             <div key={`img-page-${pageImgIndex}`} className="pdf-page" style={pageStyle}>
-               <div style={watermarkStyle}>caRya.krama</div>
-               <div style={{ position: 'relative', zIndex: 1, flex: 1, overflow: 'hidden' }}>
-                 <div style={{ ...pageHeaderStyle, display: 'table', width: '100%' }}>
-                   <div style={{ display: 'table-row' }}>
-                     <div style={{ display: 'table-cell', textAlign: 'left', verticalAlign: 'bottom' }}>
-                       <span>INSPECTION PROBLEM IMAGES</span>
-                     </div>
-                     <div style={{ display: 'table-cell', textAlign: 'right', verticalAlign: 'bottom' }}>
-                       <span style={refStyle}>REF: {report.id}</span>
-                     </div>
-                   </div>
-                 </div>
-
-                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                   {pageImgs.map((img: any, i: number) => {
-                     const url = typeof img === 'string' ? img : img?.url;
-                     const desc = typeof img === 'string' ? '' : (img?.description || '');
-                     const globalIdx = pageImgIndex * imagesPerPage + i + 1;
-                     return (
-                       <div key={i} style={{ backgroundColor: '#fff7f7', border: '1px solid #fecaca', borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                         <img
-                           src={url}
-                           alt={`Problem ${globalIdx}`}
-                           crossOrigin="anonymous"
-                           style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }}
-                         />
-                         <div style={{ padding: '10px 12px', flex: 1 }}>
-                           <p style={{ margin: '0 0 4px 0', fontSize: '10px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                             ⚠ Issue #{globalIdx}
-                           </p>
-                           <p style={{ margin: 0, fontSize: '12px', fontWeight: 600, color: '#374151', lineHeight: '1.5' }}>
-                             {desc || 'No description provided.'}
-                           </p>
-                         </div>
-                       </div>
-                     );
-                   })}
-                 </div>
-               </div>
-               <Footer pageNum={contentPages.length + pageImgIndex + 1} totalPages={totalPages} />
-             </div>
-           ));
-         })()}
-       </div>
-     </div>
+      </div>
+    </div>
   );
 });
 
@@ -677,13 +671,12 @@ const watermarkStyle: React.CSSProperties = {
   pointerEvents: 'none'
 };
 
-const labelStyle: React.CSSProperties = { margin: '0 0 4px 0', fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' };
+const labelStyle: React.CSSProperties = { margin: '0 0 3px 0', fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' };
 const valueStyle: React.CSSProperties = { margin: 0, fontSize: '14px', fontWeight: 800, color: '#111827' };
-const pageHeaderStyle: React.CSSProperties = { margin: '0 0 16px 0', fontSize: '20px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' };
-const refStyle: React.CSSProperties = { fontSize: '12px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' };
-const subHeaderStyle: React.CSSProperties = { margin: '0 0 6px 0', fontSize: '12px', fontWeight: 800, color: '#374151', textTransform: 'uppercase' };
-const batteryStatBoxStyle: React.CSSProperties = { backgroundColor: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #e5e7eb' };
-const batteryValueStyle: React.CSSProperties = { margin: 0, fontSize: '17px', fontWeight: 900, color: '#111827' };
+const pageHeaderStyle: React.CSSProperties = { margin: '0 0 16px 0', fontSize: '19px', fontWeight: 900, color: '#111827', borderBottom: '2px solid #0059A3', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' };
+const refStyle: React.CSSProperties = { fontSize: '11.5px', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' };
+const batteryStatBoxStyle: React.CSSProperties = { backgroundColor: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e5e7eb' };
+const batteryValueStyle: React.CSSProperties = { margin: 0, fontSize: '16px', fontWeight: 900, color: '#111827' };
 
 function Footer({ pageNum, totalPages }: { pageNum: number, totalPages: number }) {
   return (
@@ -694,7 +687,7 @@ function Footer({ pageNum, totalPages }: { pageNum: number, totalPages: number }
       marginTop: 'auto',
       display: 'table',
       width: '100%',
-      fontSize: '11px',
+      fontSize: '10.5px',
       color: '#9ca3af',
       fontWeight: 700,
       flexShrink: 0,
@@ -710,8 +703,8 @@ function Footer({ pageNum, totalPages }: { pageNum: number, totalPages: number }
 
 function SectionCard({ title, children, badge }: { title: string, children: React.ReactNode, badge?: React.ReactNode }) {
   return (
-    <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '12px', marginBottom: '10px' }}>
-      <div style={{ display: 'table', width: '100%', borderBottom: '1px solid #e5e7eb', paddingBottom: '6px', marginBottom: '8px' }}>
+    <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px 18px', marginBottom: '12px' }}>
+      <div style={{ display: 'table', width: '100%', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '10px' }}>
          <div style={{ display: 'table-row' }}>
             <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
                <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: '1.2' }}>{title}</h3>
@@ -728,6 +721,39 @@ function SectionCard({ title, children, badge }: { title: string, children: Reac
   );
 }
 
+function PanelsGrid({ text }: { text?: string }) {
+  if (!text) return <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>No observation</p>;
+  const items = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+  const mid = Math.ceil(items.length / 2);
+  const col1 = items.slice(0, mid);
+  const col2 = items.slice(mid);
+
+  const renderItem = (item: string, idx: number) => {
+    const cleanItem = item.replace(/^(\d+[\.\-\)]\s*|[•\-\*]\s*)/, '');
+    return (
+      <div key={idx} style={{ display: 'table', width: '100%', marginBottom: '6px' }}>
+        <div style={{ display: 'table-row' }}>
+          <div style={{ display: 'table-cell', width: '18px', verticalAlign: 'top', color: '#059669', fontSize: '12px', fontWeight: 800, lineHeight: '1.3' }}>✓</div>
+          <div style={{ display: 'table-cell', verticalAlign: 'top', fontSize: '12px', color: '#374151', lineHeight: '1.35', fontWeight: 500 }}>{cleanItem}</div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ display: 'table', width: '100%' }}>
+      <div style={{ display: 'table-row' }}>
+        <div style={{ display: 'table-cell', width: '50%', verticalAlign: 'top', paddingRight: '10px' }}>
+          {col1.map((it, i) => renderItem(it, i))}
+        </div>
+        <div style={{ display: 'table-cell', width: '50%', verticalAlign: 'top', paddingLeft: '10px' }}>
+          {col2.map((it, i) => renderItem(it, i + mid))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BulletList({ text, warning, forceBullet = false }: { text: string, warning: boolean, forceBullet?: boolean }) {
   if (!text) return null;
   let bullets = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
@@ -738,12 +764,13 @@ function BulletList({ text, warning, forceBullet = false }: { text: string, warn
   return (
     <div style={{ display: 'table', width: '100%', borderCollapse: 'separate', borderSpacing: '0 6px', marginTop: '4px' }}>
       {bullets.map((bullet, i) => {
-         const isWarn = warning;
+         const cleanBullet = bullet.replace(/^(\d+[\.\-\)]\s*|[•\-\*]\s*)/, '');
          return (
            <div key={i} style={{ display: 'table-row' }}>
-              <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
-                 <p style={{ margin: 0, fontSize: '12px', color: isWarn ? '#991b1b' : '#374151', lineHeight: '1.5', fontWeight: 600 }}>
-                    • {bullet}
+              <div style={{ display: 'table-cell', width: '16px', verticalAlign: 'top', color: warning ? '#dc2626' : '#0059A3', fontSize: '12.5px', fontWeight: 800 }}>•</div>
+              <div style={{ display: 'table-cell', verticalAlign: 'top' }}>
+                 <p style={{ margin: 0, fontSize: '12.5px', color: warning ? '#991b1b' : '#374151', lineHeight: '1.5', fontWeight: 500 }}>
+                    {cleanBullet}
                  </p>
               </div>
            </div>
@@ -754,14 +781,13 @@ function BulletList({ text, warning, forceBullet = false }: { text: string, warn
 }
 
 function FluidRow({ label, status, warning, action }: { label: string, status: string, warning: boolean, action: string }) {
-  const isWarn = warning || status.toLowerCase().includes("dirty") || status.toLowerCase().includes("low") || status.toLowerCase().includes("attention");
   return (
     <tr>
-      <td style={{ padding: '9px 10px', fontSize: '12px', fontWeight: 700, color: '#111827', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>{label}</td>
-      <td style={{ padding: '9px 10px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>
-         <span style={{ fontSize: '12px', fontWeight: 800, color: '#374151' }}>{status || "Clean"}</span>
+      <td style={{ padding: '8px 10px', fontSize: '12.5px', fontWeight: 700, color: '#111827', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>{label}</td>
+      <td style={{ padding: '8px 10px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' }}>
+         <span style={{ fontSize: '12.5px', fontWeight: 800, color: warning ? '#dc2626' : '#059669' }}>{status || "Clean"}</span>
       </td>
-      <td style={{ padding: '9px 10px', fontSize: '11px', color: '#6b7280', borderBottom: '1px solid #e5e7eb', fontWeight: 600, verticalAlign: 'middle' }}>{action}</td>
+      <td style={{ padding: '8px 10px', fontSize: '12px', color: '#6b7280', borderBottom: '1px solid #e5e7eb', fontWeight: 600, verticalAlign: 'middle' }}>{action}</td>
     </tr>
   );
 }
@@ -770,10 +796,10 @@ const verdictBoxStyle = (borderColor: string, bgColor: string, accentColor: stri
   borderLeft: `5px solid ${borderColor}`,
   backgroundColor: bgColor,
   padding: '12px 16px',
-  borderRadius: '0 12px 12px 0',
+  borderRadius: '0 10px 10px 0',
   border: `1px solid ${borderColor}`,
   borderLeftWidth: '5px'
 });
 
-const verdictLabelStyle = (color: string): React.CSSProperties => ({ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 800, color, textTransform: 'uppercase', letterSpacing: '0.05em', transform: 'translateY(-1px)' });
-const verdictTextStyle = (color: string): React.CSSProperties => ({ margin: 0, fontSize: '14px', color, fontWeight: 600, lineHeight: '1.5' });
+const verdictLabelStyle = (color: string): React.CSSProperties => ({ margin: '0 0 4px 0', fontSize: '11.5px', fontWeight: 800, color, textTransform: 'uppercase', letterSpacing: '0.05em' });
+const verdictTextStyle = (color: string): React.CSSProperties => ({ margin: 0, fontSize: '14px', color, fontWeight: 600, lineHeight: '1.45' });

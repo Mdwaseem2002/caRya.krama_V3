@@ -15,7 +15,7 @@ const LOCAL_DIR = __dirname;
 console.log('📦 Packaging updated build...');
 try {
   execSync(
-    `tar -czf ${TAR_FILE} .next public package.json next.config.mjs tailwind.config.ts postcss.config.js tsconfig.json .env.production`,
+    `tar --exclude=.next/trace --exclude=.next/cache -czf ${TAR_FILE} .next public src package.json next.config.mjs tailwind.config.ts postcss.config.js tsconfig.json .env.production`,
     { cwd: LOCAL_DIR, stdio: 'inherit' }
   );
   const size = fs.statSync(path.join(LOCAL_DIR, TAR_FILE)).size;

@@ -1,0 +1,7 @@
+push-update.js
+scratch/**
+deploy_vps_git.js
+*.js
+!src/**
+.next/**
+node_modules/**
