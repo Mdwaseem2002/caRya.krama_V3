@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Uploadcar from "@/Admin/Upload/Uploadcar";
-import { getAllStoredCars, deleteCarFromStorage, getStoredCarById, invalidateCarCache, StoredCar } from "@/Admin/Upload/CarStorage";
+import { getAllStoredCars, getCachedAdminCars, deleteCarFromStorage, getStoredCarById, invalidateCarCache, StoredCar } from "@/Admin/Upload/CarStorage";
 import { Plus, Edit3, Trash2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -14,21 +14,28 @@ function CarManagementContent() {
   const mobile = useIsMobile();
   const [showUpload, setShowUpload] = useState(searchParams.get('action') === 'upload');
   const [editingCar, setEditingCar] = useState<StoredCar | undefined>(undefined);
-  const [cars, setCars] = useState<StoredCar[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // Synchronously initialize from cache so there is 0ms loading time
+  const [cars, setCars] = useState<StoredCar[]>(() => getCachedAdminCars());
+  const [isLoading, setIsLoading] = useState(() => getCachedAdminCars().length === 0);
   const [loadingEditId, setLoadingEditId] = useState<string | null>(null);
 
-  const fetchCars = () => {
-    setIsLoading(true);
+  const fetchCars = (silent = false) => {
+    if (!silent) setIsLoading(true);
     getAllStoredCars(true)
-      .then(setCars)
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCars(data);
+        }
+      })
       .catch(console.error)
       .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
     if (!showUpload) {
-      fetchCars();
+      // If we already have cars from cache, refresh silently in the background without blocking the UI
+      fetchCars(cars.length > 0);
     }
   }, [showUpload]);
 

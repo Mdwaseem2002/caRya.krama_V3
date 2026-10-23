@@ -70,14 +70,17 @@ async function fetchCarsFromDB(adminMode: boolean): Promise<any[]> {
         },
       ]);
 
-      const formattedCars = listCars.map((car: any) => ({
-        ...car,
-        media: {
-          coverImage: car.coverPhoto || "",
-          coverThumbnail: car.coverPhoto || "",
-          images: [],
-        },
-      }));
+      const formattedCars = listCars.map((car: any) => {
+        const cover = car.coverPhoto || "";
+        const { coverPhoto, ...cleanCar } = car;
+        return {
+          ...cleanCar,
+          media: {
+            coverImage: cover,
+            images: [],
+          },
+        };
+      });
 
       setCachedCars(cacheKey, formattedCars);
 

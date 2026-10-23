@@ -86,6 +86,7 @@ export function invalidateCarCache(id?: string) {
     try {
       sessionStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(ADMIN_STORAGE_KEY);
       window.dispatchEvent(new CustomEvent("caryakrama:cars-updated"));
     } catch {}
   }
@@ -170,6 +171,29 @@ export async function deleteCarFromStorage(id: string): Promise<void> {
   invalidateCarCache(id);
 }
 
+const ADMIN_STORAGE_KEY = "carya_admin_cars";
+
+/** Get synchronously cached admin cars (for instant zero-latency UI rendering in Admin) */
+export function getCachedAdminCars(): StoredCar[] {
+  if (cache.adminCars.data && cache.adminCars.data.length > 0) {
+    return cache.adminCars.data;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = sessionStorage.getItem(ADMIN_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          cache.adminCars.data = parsed;
+          cache.adminCars.time = Date.now();
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return [];
+}
+
 /** Get ALL cars (admin view — includes drafts) */
 export async function getAllStoredCars(forceRefresh = false): Promise<StoredCar[]> {
   const now = Date.now();
@@ -177,18 +201,31 @@ export async function getAllStoredCars(forceRefresh = false): Promise<StoredCar[
     return cache.adminCars.data;
   }
 
-  const res = await fetch(`${getBaseUrl()}/api/cars/list?admin=true`, {
-    cache: "no-store",   // Always fresh for admin
-  });
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/cars/list?admin=true`, {
+      cache: "no-store",   // Always fresh for admin
+    });
 
-  if (!res.ok) return [];
+    if (!res.ok) {
+      const cached = getCachedAdminCars();
+      return cached.length > 0 ? cached : [];
+    }
 
-  const data = await res.json();
-  const cars = (data.cars || []) as StoredCar[];
-  
-  // Update cache
-  cache.adminCars = { data: cars, time: now };
-  return cars;
+    const data = await res.json();
+    const cars = (data.cars || []) as StoredCar[];
+    
+    // Update cache
+    cache.adminCars = { data: cars, time: now };
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(cars));
+      } catch {}
+    }
+    return cars;
+  } catch (err) {
+    console.error("Failed to fetch admin cars:", err);
+    return getCachedAdminCars();
+  }
 }
 
 const STORAGE_KEY = "carya_published_cars";
